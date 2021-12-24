@@ -1,5 +1,5 @@
 import { NextComponentType } from "next";
-import NavBar from "./NavBar";
+import { NavBar } from ".";
 
 const Layout: NextComponentType = ({ children }) => {
   return (

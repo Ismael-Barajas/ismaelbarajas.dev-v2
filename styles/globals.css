@@ -11,7 +11,7 @@ body {
 
 html {
   min-width: 360px;
-  scroll-behavior: scroll;
+  scroll-behavior: smooth;
 }
 
 a {
