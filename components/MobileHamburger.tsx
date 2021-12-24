@@ -1,9 +1,6 @@
 import { NextComponentType } from "next";
 import { useState, useEffect } from "react";
-
-//TODO: Need to fix this error
 import cn from "classnames";
-
 import useDelayedRender from "use-delayed-render";
 import Link from "next/link";
 import styles from "../styles/mobileHamburger.module.css";
