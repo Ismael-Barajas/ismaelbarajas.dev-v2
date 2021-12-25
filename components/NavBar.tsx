@@ -35,45 +35,32 @@ const NavBar = () => {
 
   const renderNavigationItems = () => {
     const linkClasses =
-      "relative before:absolute before:bottom-[-5px] before:h-[5px] before:w-[0] before:mt-[5px] before:bg-primary before:transition-all before:duration-300";
+      "relative before:absolute before:bottom-[-5px] before:h-[5px] before:w-[0] before:mt-[5px] py-2 px-8 rounded-sm ring-offset-indigo-100 dark:ring-gray-200 hover:ring-2 before:bg-primary before:transition-all before:duration-300";
+    const listItemClasses = "my-2";
     return (
       <>
-        <li>
+        <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "personal" }}>
             <a className={linkClasses} onClick={linkClicked}>
-              Personal
+              Test
             </a>
           </Link>
         </li>
-        <li>
+        <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "portfolio" }}>
             <a className={linkClasses} onClick={linkClicked}>
-              Portfolio
+              Test
             </a>
           </Link>
         </li>
-        <li>
-          <Link href={{ pathname: "/", hash: "blog" }}>
-            <a className={linkClasses} onClick={linkClicked}>
-              Blog
-            </a>
-          </Link>
-        </li>
-        <li>
-          <Link href={{ pathname: "/", hash: "stats" }}>
-            <a className={linkClasses} onClick={linkClicked}>
-              Stats
-            </a>
-          </Link>
-        </li>
-        <li>
+        <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "contact" }}>
             <a className={linkClasses} onClick={linkClicked}>
-              Contact
+              Test
             </a>
           </Link>
         </li>
-        <li>
+        <li className={listItemClasses}>
           <Link href="/cv">
             <a
               onClick={linkClicked}
@@ -81,7 +68,7 @@ const NavBar = () => {
                 router.pathname === "/cv" ? "active" : ""
               }`}
             >
-              CV
+              Test
             </a>
           </Link>
         </li>
@@ -91,7 +78,7 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="fixed text-gray-900 bg-gray-50 dark:bg-gray-900 bg-opacity-60 dark:text-gray-100  h-16 w-full z-50">
+      <nav className="fixed text-text bg-secondary bg-opacity-60 h-16 w-full z-50">
         <div className="flex h-full container mx-auto justify-between items-center px-6 md:px-0">
           <a
             href="#"
@@ -100,7 +87,7 @@ const NavBar = () => {
             Skip to content
           </a>
           <Link passHref href={{ pathname: "/" }}>
-            <a className="flex flex-row text-lg lg:text-2xl w-32">
+            <a className="flex flex-row text-text text-lg lg:text-2xl w-32">
               <TypedText
                 strings={["Hi!^750", "Ismael Barraaj", "Ismael Barajas^10000"]}
                 loop={true}
@@ -110,7 +97,7 @@ const NavBar = () => {
           <ul className="hidden md:flex md:gap-6">{renderNavigationItems()}</ul>
           <ul
             ref={navigationMobileRef}
-            className={`md:hidden absolute flex flex-col w-full top-16 left-0 py-3 items-center text-white bg-pink-300 transform translate-x-full gap-2 ${
+            className={`md:hidden absolute flex flex-col w-full top-16 left-0 py-3 items-center text-white bg-primary transform translate-x-full gap-2 ${
               isMounted.current ? "transition-transform" : ""
             }`}
           >
@@ -124,17 +111,17 @@ const NavBar = () => {
             className="md:hidden order-3 cursor-pointer relative w-5 h-6"
           >
             <span
-              className={`transform transition-transform duration-300 absolute h-1 w-full bg-pink-300 rounded-lg left-0 top-1 ${
+              className={`transform transition-transform duration-300 absolute h-1 w-full bg-primary rounded-lg left-0 top-1 ${
                 mobileNavOpen ? "rotate-135 top-3" : "rotate-0"
               }`}
             ></span>
             <span
-              className={`absolute transition-opacity duration-300 h-1 w-full bg-pink-300 rounded-lg left-0 top-3 ${
+              className={`absolute transition-opacity duration-300 h-1 w-full bg-primary rounded-lg left-0 top-3 ${
                 mobileNavOpen ? "opacity-0 " : "opacity-100"
               }`}
             ></span>
             <span
-              className={`transform transition-transform duration-300 absolute h-1 w-full bg-pink-300 rounded-lg left-0 ${
+              className={`transform transition-transform duration-300 absolute h-1 w-full bg-primary rounded-lg left-0 ${
                 mobileNavOpen ? "-rotate-135 top-3" : "rotate-0 top-5"
               }`}
             ></span>
@@ -142,7 +129,7 @@ const NavBar = () => {
           <button
             aria-label="Toggle Dark Mode"
             type="button"
-            className="w-9 h-9 bg-gray-200 rounded-lg dark:bg-gray-600 flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform -translate-x-2/4 lg:transform-none md:relative md:left-0 hover:ring-2 ring-gray-300 transition-all "
+            className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform -translate-x-2/4 lg:transform-none md:relative md:left-0 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all "
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {isMounted.current && (
@@ -151,7 +138,7 @@ const NavBar = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                className="w-5 h-5 text-gray-800 dark:text-gray-200"
+                className="w-5 h-5 text-blue-100"
               >
                 {theme === "dark" ? (
                   <path
