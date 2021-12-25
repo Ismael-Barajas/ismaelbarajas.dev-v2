@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 
 import { Metatags, TypedText } from "components";
-import WaveSVG from "public/WaveSVG";
+import WaveSVG from "components/WaveSVG";
 
 const Home: NextPage = () => {
   return (

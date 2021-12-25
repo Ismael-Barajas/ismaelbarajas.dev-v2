@@ -3,7 +3,7 @@ const WaveSVG = () => {
     <svg
       id="wave"
       style={{ transform: "rotate(0deg)", transition: "0.3s" }}
-      className="bottom-0 absolute left-0 fill-current"
+      className="absolute bottom-0 left-0"
       viewBox="0 0 1440 360"
       xmlns="http://www.w3.org/2000/svg"
     >
