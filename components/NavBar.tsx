@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 import { useWindowSize, useIsMounted } from "hooks";
+import { TypedText } from ".";
 
 const NavBar = () => {
   const navigationMobileRef = useRef<HTMLUListElement>(null);
@@ -99,7 +100,12 @@ const NavBar = () => {
             Skip to content
           </a>
           <Link passHref href={{ pathname: "/" }}>
-            <a className=" flex flex-row text-lg lg:text-2xl">Ismael Barajas</a>
+            <a className="flex flex-row text-lg lg:text-2xl w-32">
+              <TypedText
+                strings={["Hi!^750", "Ismael Barraaj", "Ismael Barajas^10000"]}
+                loop={true}
+              />
+            </a>
           </Link>
           <ul className="hidden md:flex md:gap-6">{renderNavigationItems()}</ul>
           <ul

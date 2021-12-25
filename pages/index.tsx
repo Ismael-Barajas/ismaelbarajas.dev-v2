@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 
-import { Metatags } from "components";
+import { Metatags, TypedText } from "components";
 import WaveSVG from "public/WaveSVG";
 
 const Home: NextPage = () => {
@@ -8,7 +8,11 @@ const Home: NextPage = () => {
     <>
       <Metatags />
       <section className="relative min-h-screen-without-nav items-center content-center flex pb-16 dark:bg-lightgrey text-text">
-        <div className="container">work in progress</div>
+        <div className="container">
+          <p className="text-red-600 text-5xl">
+            <TypedText strings={["Hi!^750"]} loop={false} />
+          </p>
+        </div>
         <svg
           className="absolute bottom-0 left-0 sm:-bottom-20 text-gray-400 dark:text-gray-300 fill-current"
           xmlns="http://www.w3.org/2000/svg"
