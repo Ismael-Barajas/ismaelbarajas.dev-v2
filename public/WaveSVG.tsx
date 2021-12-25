@@ -3,19 +3,12 @@ const WaveSVG = () => {
     <svg
       id="wave"
       style={{ transform: "rotate(0deg)", transition: "0.3s" }}
-      className="absolute bottom-0 left-0 "
+      className="absolute bottom-0 left-0 fill-current"
       viewBox="0 0 1440 360"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <linearGradient
-          id="sw-gradient-0"
-          // gradientTransform="rotate(90)"
-          x1="0"
-          x2="0"
-          y1="0"
-          y2="1"
-        >
+        <linearGradient id="sw-gradient-0" x1="0" x2="0" y1="0" y2="1">
           <stop stopColor=" #b56576" offset="5%"></stop>
           <stop stopColor="#228176" offset="95%"></stop>
         </linearGradient>
