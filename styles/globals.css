@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  --primary: ;
+  --text: ;
+  --secondary: ;
+}
+
+html.dark {
+  --primary: ;
+  --text: ;
+  --secondary: ;
+}
+
 body {
   padding: 0;
   margin: 0;
