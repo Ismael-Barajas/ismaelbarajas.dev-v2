@@ -13,6 +13,14 @@ module.exports = {
       minHeight: {
         "screen-without-nav": "calc(100vh - 4rem)",
       },
+      colors: {
+        primary: "var(--primary)",
+        secondary: "var(--secondary)",
+        background: "var(--background)",
+        text: "var(--text)",
+        roseDust: "var(--rose-dust)",
+        persianGreen: "var(--persian-green)",
+      },
     },
   },
   variants: {

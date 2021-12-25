@@ -2,16 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  --primary: ;
-  --text: ;
-  --secondary: ;
+/* https://coolors.co/355070-6d597a-b56576-e56b6f-eaac8b */
+/* https://coolors.co/264653-228176-e9c46a-f4a261-e76f51 */
+:root {
+  --rose-dust: #b56576;
+  --persian-green: #228176;
+  --dark-gray: #7f7f87;
 }
 
+/* https://coolors.co/ffcdb2-ffb4a2-e5989b-b5838d-6d6875 */
+html {
+  --primary: var(--persian-green);
+  --secondary: #f5d0b0;
+  --background: #fffcec;
+  --text: #4e4859;
+}
+
+/* https://coolors.co/22223b-4a4e69-9a8c98-c9ada7-f2e9e4 */
 html.dark {
-  --primary: ;
-  --text: ;
-  --secondary: ;
+  --primary: #dda15e;
+  --secondary: #585a82;
+  --background: var(--dark-gray);
+  --text: #edded6;
 }
 
 body {
@@ -24,6 +36,7 @@ body {
 html {
   min-width: 360px;
   scroll-behavior: smooth;
+  background-color: var(--background);
 }
 
 a {
