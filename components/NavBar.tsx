@@ -35,28 +35,35 @@ const NavBar = () => {
 
   const renderNavigationItems = () => {
     const linkClasses =
-      "relative before:absolute before:bottom-[-5px] before:h-[5px] before:w-[0] before:mt-[5px] py-2 px-8 rounded-sm ring-offset-indigo-100 dark:ring-gray-200 hover:ring-2 before:bg-primary before:transition-all before:duration-300";
+      "relative before:absolute before:bottom-[-5px] before:h-[5px] before:w-[0] before:mt-[5px] py-2 px-4 rounded-sm ring-offset-indigo-100 dark:ring-gray-200 hover:ring-2 before:bg-primary before:transition-all before:duration-300";
     const listItemClasses = "my-2";
     return (
       <>
         <li className={listItemClasses}>
-          <Link href={{ pathname: "/", hash: "personal" }}>
+          <Link href={{ pathname: "/", hash: "about" }}>
             <a className={linkClasses} onClick={linkClicked}>
-              Test
+              About
             </a>
           </Link>
         </li>
         <li className={listItemClasses}>
-          <Link href={{ pathname: "/", hash: "portfolio" }}>
+          <Link href={{ pathname: "/", hash: "experience" }}>
             <a className={linkClasses} onClick={linkClicked}>
-              Test
+              Experience
+            </a>
+          </Link>
+        </li>
+        <li className={listItemClasses}>
+          <Link href={{ pathname: "/", hash: "projects" }}>
+            <a className={linkClasses} onClick={linkClicked}>
+              Projects
             </a>
           </Link>
         </li>
         <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "contact" }}>
             <a className={linkClasses} onClick={linkClicked}>
-              Test
+              Contact
             </a>
           </Link>
         </li>
@@ -68,7 +75,7 @@ const NavBar = () => {
                 router.pathname === "/cv" ? "active" : ""
               }`}
             >
-              Test
+              CV
             </a>
           </Link>
         </li>
@@ -78,7 +85,7 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="fixed text-text bg-secondary bg-opacity-60 h-16 w-full z-50">
+      <nav className="fixed text-text shadow-md bg-secondary bg-opacity-60 h-16 w-full z-50">
         <div className="flex h-full container mx-auto justify-between items-center px-6 md:px-0">
           <a
             href="#"
@@ -89,8 +96,9 @@ const NavBar = () => {
           <Link passHref href={{ pathname: "/" }}>
             <a className="flex flex-row text-text text-lg lg:text-2xl w-32">
               <TypedText
-                strings={["Hi!^750", "Ismael Barraaj", "Ismael Barajas^10000"]}
-                loop={true}
+                strings={["Ismael Barajas"]}
+                loop={false}
+                whiteSpace={"pre"}
               />
             </a>
           </Link>

@@ -9,8 +9,8 @@ const WaveSVG = () => {
     >
       <defs>
         <linearGradient id="sw-gradient-0" x1="0" x2="0" y1="0" y2="1">
-          <stop stopColor=" #b56576" offset="5%"></stop>
-          <stop stopColor="#228176" offset="95%"></stop>
+          <stop stopColor="var(--secondary)" offset="5%"></stop>
+          <stop stopColor="var(--primary)" offset="95%"></stop>
         </linearGradient>
       </defs>
       <path
@@ -20,8 +20,8 @@ const WaveSVG = () => {
       ></path>
       <defs>
         <linearGradient id="sw-gradient-1" x1="0" x2="0" y1="1" y2="0">
-          <stop stopColor=" #b56576" offset="5%"></stop>
-          <stop stopColor="#228176" offset="95%"></stop>
+          <stop stopColor="var(--secondary)" offset="5%"></stop>
+          <stop stopColor="var(--primary)" offset="95%"></stop>
         </linearGradient>
       </defs>
       <path
@@ -31,8 +31,8 @@ const WaveSVG = () => {
       ></path>
       <defs>
         <linearGradient id="sw-gradient-2" x1="0" x2="0" y1="0" y2="1">
-          <stop stopColor=" #b56576" offset="5%"></stop>
-          <stop stopColor="#228176" offset="95%"></stop>
+          <stop stopColor="var(--secondary)" offset="5%"></stop>
+          <stop stopColor="var(--primary)" offset="95%"></stop>
         </linearGradient>
       </defs>
       <path
@@ -42,8 +42,8 @@ const WaveSVG = () => {
       ></path>
       <defs>
         <linearGradient id="sw-gradient-3" x1="0" x2="0" y1="1" y2="0">
-          <stop stopColor=" #b56576" offset="25%"></stop>
-          <stop stopColor="#228176" offset="75%"></stop>
+          <stop stopColor="var(--secondary)" offset="5%"></stop>
+          <stop stopColor="var(--primary)" offset="95%"></stop>
         </linearGradient>
       </defs>
       <path
