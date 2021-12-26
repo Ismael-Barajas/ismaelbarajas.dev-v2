@@ -1,14 +1,20 @@
-import { useEffect, useRef } from "react";
+import { CSSProperties, useEffect, useRef } from "react";
 import Typed from "typed.js";
 
 interface Props {
   strings: string[];
   loop: boolean;
+  whiteSpace:
+    | "normal"
+    | "pre"
+    | "nowrap"
+    | "pre-wrap"
+    | "pre-line"
+    | "break-spaces";
 }
 
-const TypedText = ({ strings, loop }: Props) => {
+const TypedText = ({ strings, loop, whiteSpace }: Props) => {
   const el = useRef<HTMLSpanElement>(null);
-  //const typed = useRef(null);
 
   useEffect(() => {
     const options = {
@@ -23,7 +29,7 @@ const TypedText = ({ strings, loop }: Props) => {
     };
   }, []);
 
-  return <span style={{ whiteSpace: "pre" }} ref={el} />;
+  return <span style={{ whiteSpace: whiteSpace }} ref={el} />;
 };
 
 export default TypedText;
