@@ -88,13 +88,13 @@ const NavBar = () => {
       <nav className="fixed text-text shadow-md bg-secondary bg-opacity-60 h-16 w-full z-50">
         <div className="flex h-full container mx-auto justify-between items-center px-6 md:px-0">
           <a
-            href="#"
+            href="#about"
             className="absolute px-2 py-3 transition-transform duration-200 transform -translate-y-12 focus:translate-y-16"
           >
             Skip to content
           </a>
           <Link passHref href={{ pathname: "/" }}>
-            <a className="flex flex-row text-text text-lg lg:text-2xl w-32">
+            <a className="flex flex-row text-text text-lg lg:text-2xl w-[115px]">
               <TypedText
                 strings={["Ismael Barajas"]}
                 loop={false}
