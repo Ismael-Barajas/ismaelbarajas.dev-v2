@@ -1,5 +1,9 @@
 const Experience = () => {
-  return <div></div>;
+  return (
+    <section>
+      <div className="grid"></div>
+    </section>
+  );
 };
 
 export default Experience;
