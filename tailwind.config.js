@@ -1,5 +1,8 @@
 module.exports = {
-  purge: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
   darkMode: "class", // or 'media' or 'class'
   theme: {
     container: {
@@ -23,8 +26,8 @@ module.exports = {
       },
     },
   },
-  variants: {
-    extend: { ringWidth: ["hover", "active"] },
-  },
+  // variants: {
+  //   extend: { ringWidth: ["hover", "active"] },
+  // },
   plugins: [],
 };
