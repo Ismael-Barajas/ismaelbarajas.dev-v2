@@ -12,7 +12,7 @@
 html {
   --primary: #aa5140;
   --secondary: #dfc7ad;
-  --background: #effdff;
+  --background: #e6fcff;
   --text: #373141;
 }
 
@@ -43,4 +43,8 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+section {
+  scroll-margin-top: 4rem;
 }
