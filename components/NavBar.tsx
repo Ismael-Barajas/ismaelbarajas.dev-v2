@@ -85,7 +85,7 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="fixed text-text shadow-md bg-secondary bg-opacity-60 h-16 w-full z-50">
+      <nav className="fixed text-text bg-secondary bg-opacity-60 h-16 w-full z-50">
         <div className="flex h-full container mx-auto justify-between items-center px-6 md:px-0">
           <a
             href="#about"
