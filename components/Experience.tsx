@@ -4,7 +4,7 @@ import Image from "next/image";
 const Experience = () => {
   return (
     <section id="experience">
-      <div className="container mx-auto min-h-screen-without-nav items-center content-center px-3">
+      <div className="container mx-auto min-h-screen-without-nav items-center content-center px-3 pb-16">
         {/* TODO: Header text needs to stand out more think about it */}
         <h2 className="text-center py-5">Experience</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
