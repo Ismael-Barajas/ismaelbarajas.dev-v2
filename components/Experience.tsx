@@ -24,6 +24,10 @@ const Experience = () => {
                   <p>Jul 2021 - Current</p>
                 </div>
                 <div className="text-lg leading-relaxed">
+                  {/* 
+                  TODO: figure out how to have separate paragraphs depending on
+                  a string
+                  */}
                   <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
                     do eiusmod tempor incididunt ut labore et dolore magna
@@ -35,7 +39,8 @@ const Experience = () => {
                     deserunt mollit anim id est laborum.
                   </p>
                 </div>
-                {/* TODO: the list items will be different colors depending on 
+                {/* 
+                TODO: the list items will be different colors depending on 
                 the tech being used  
                 */}
                 <div className="flex flex-col mt-4 flex-grow justify-end">
