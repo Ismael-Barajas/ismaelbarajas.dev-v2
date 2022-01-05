@@ -35,7 +35,7 @@ const NavBar = () => {
 
   const renderNavigationItems = () => {
     const linkClasses =
-      "relative before:absolute before:bottom-[-5px] before:h-[5px] before:w-[0] before:mt-[5px] py-2 px-4 rounded-sm ring-offset-indigo-100 dark:ring-gray-200 hover:ring-2 before:bg-primary before:transition-all before:duration-300";
+      "relative px-4 shadow-link hover:shadow-h-link transition-shadow";
     const listItemClasses = "my-2";
     return (
       <>
