@@ -6,7 +6,7 @@ const Projects = () => {
       <div className="container mx-auto min-h-screen-without-nav px-3 pb-16">
         <h2 className="text-center py-5">Projects</h2>
         <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 justify-items-center">
-          <div className="rounded-md shadow-sm hover:shadow-2xl  transition-shadow ease-in-out text-text bg-background max-w-lg">
+          <div className="rounded-md shadow-card hover:shadow-h-card  transition-shadow ease-in-out text-text bg-background max-w-lg">
             <div className="h-full">
               <div className="relative h-52 max-h-52 text-center mb-2">
                 <Image
@@ -36,6 +36,12 @@ const Projects = () => {
                   a string
                   */}
                 <p>
+                  <a
+                    href="https://github.com/"
+                    className="shadow-link hover:shadow-h-link transition-shadow"
+                  >
+                    this is a test
+                  </a>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
                   do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                   Ut enim ad minim veniam, quis nostrud exercitation ullamco
