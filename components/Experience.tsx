@@ -8,7 +8,7 @@ const Experience = () => {
         {/* TODO: Header text needs to stand out more think about it */}
         <h2 className="text-center py-5">Experience</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          <div className="rounded-md p-6 shadow-sm hover:shadow-2xl  transition-shadow ease-in-out text-text bg-secondary">
+          <div className="rounded-md p-6 shadow-card hover:shadow-h-card  transition-shadow ease-in-out text-text bg-secondary">
             <div className="h-full">
               <a target="_blank" href="#" rel="noopener" className="h-full">
                 <div className="relative h-24 max-h-24 text-center mb-2">
