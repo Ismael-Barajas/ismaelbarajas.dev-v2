@@ -35,7 +35,7 @@ const NavBar = () => {
 
   const renderNavigationItems = () => {
     const linkClasses =
-      "relative px-4 shadow-link hover:shadow-h-link transition-shadow";
+      "relative px-4 shadow-link hover:shadow-h-link  transition-shadow";
     const listItemClasses = "my-2";
     return (
       <>
@@ -89,7 +89,7 @@ const NavBar = () => {
         <div className="flex h-full container mx-auto justify-between items-center px-6 md:px-0">
           <a
             href="#about"
-            className="absolute px-2 py-3 transition-transform duration-200 transform -translate-y-12 focus:translate-y-16"
+            className="absolute px-1 py-1 transition-transform duration-200 transform -translate-y-12 focus:translate-y-16 bg-secondary"
           >
             Skip to content
           </a>
@@ -116,7 +116,7 @@ const NavBar = () => {
             type="button"
             ref={mobileIconRef}
             onClick={toggleMobileNavigation}
-            className="md:hidden order-3 cursor-pointer relative w-5 h-6"
+            className="md:hidden order-3 cursor-pointer relative w-8 h-6"
           >
             <span
               className={`transform transition-transform duration-300 absolute h-1 w-full bg-primary rounded-lg left-0 top-1 ${

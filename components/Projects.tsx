@@ -36,12 +36,6 @@ const Projects = () => {
                   a string
                   */}
                 <p>
-                  <a
-                    href="https://github.com/"
-                    className="shadow-link hover:shadow-h-link transition-shadow"
-                  >
-                    this is a test
-                  </a>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
                   do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                   Ut enim ad minim veniam, quis nostrud exercitation ullamco
