@@ -1,12 +1,16 @@
 import Image from "next/image";
+import { CodeIcon, ExternalLinkIcon } from "@heroicons/react/outline";
 
 const Projects = () => {
   return (
-    <section id="projects" className="bg-secondary">
+    <section
+      id="projects"
+      className="transition-[background-color] duration-700 ease-in-out bg-secondary"
+    >
       <div className="container mx-auto min-h-screen-without-nav px-3 pb-16">
         <h2 className="text-center py-5">Projects</h2>
         <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 justify-items-center">
-          <div className="rounded-md shadow-card hover:shadow-h-card  transition-shadow ease-in-out text-text bg-background max-w-lg">
+          <div className="rounded-md shadow-card hover:shadow-h-card  transition-all ease-in-out duration-300 text-text bg-background max-w-lg">
             <div className="h-full">
               <div className="relative h-52 max-h-52 text-center mb-2">
                 <Image
@@ -19,21 +23,22 @@ const Projects = () => {
               <div className="flex justify-center py-3">
                 <a
                   href="#"
-                  className="bg-primary text-white text-sm my-1 py-1 px-4 mr-2 rounded-md"
+                  className="flex transition-shadow ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-500"
                 >
+                  <ExternalLinkIcon className="h-5 w-5 mr-1" />
                   Visit
                 </a>
                 <a
                   href="#"
-                  className="bg-primary text-white text-sm my-1 py-1 px-4 mr-2 rounded-md"
+                  className="flex transition-shadow ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-500"
                 >
+                  <CodeIcon className="h-5 w-5 mr-1" />
                   GitHub
                 </a>
               </div>
               <div className="text-lg leading-relaxed px-3">
                 {/* 
-                  TODO: figure out how to have separate paragraphs depending on
-                  a string
+                  TODO: can do array of strings to have separate paragraphs :o
                   */}
                 <p>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
