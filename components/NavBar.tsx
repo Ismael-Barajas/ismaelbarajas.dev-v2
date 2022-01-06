@@ -35,7 +35,7 @@ const NavBar = () => {
 
   const renderNavigationItems = () => {
     const linkClasses =
-      "relative px-4 shadow-link hover:shadow-h-link  transition-shadow";
+      "relative px-4 shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500";
     const listItemClasses = "my-2";
     return (
       <>
@@ -85,7 +85,7 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="fixed text-text bg-secondary bg-opacity-60 h-16 w-full z-50">
+      <nav className="transition-[background-color] duration-700 ease-in-out fixed text-text bg-secondary bg-opacity-60 h-16 w-full z-50">
         <div className="flex h-full container mx-auto justify-between items-center px-6 md:px-0">
           <a
             href="#about"
@@ -106,7 +106,7 @@ const NavBar = () => {
           <ul
             ref={navigationMobileRef}
             className={`md:hidden absolute flex flex-col w-full top-16 left-0 py-3 items-center text-white bg-primary transform translate-x-full gap-2 ${
-              isMounted.current ? "transition-transform" : ""
+              isMounted.current ? "transition-transform duration-500" : ""
             }`}
           >
             {renderNavigationItems()}
@@ -119,17 +119,17 @@ const NavBar = () => {
             className="md:hidden order-3 cursor-pointer relative w-8 h-6"
           >
             <span
-              className={`transform transition-transform duration-300 absolute h-1 w-full bg-primary rounded-lg left-0 top-1 ${
+              className={`transform transition-transform duration-500 absolute h-1 w-full bg-primary rounded-lg left-0 top-1 ${
                 mobileNavOpen ? "rotate-135 top-3" : "rotate-0"
               }`}
             ></span>
             <span
-              className={`absolute transition-opacity duration-300 h-1 w-full bg-primary rounded-lg left-0 top-3 ${
+              className={`absolute transition-opacity duration-500 h-1 w-full bg-primary rounded-lg left-0 top-3 ${
                 mobileNavOpen ? "opacity-0 " : "opacity-100"
               }`}
             ></span>
             <span
-              className={`transform transition-transform duration-300 absolute h-1 w-full bg-primary rounded-lg left-0 ${
+              className={`transform transition-transform duration-500 absolute h-1 w-full bg-primary rounded-lg left-0 ${
                 mobileNavOpen ? "-rotate-135 top-3" : "rotate-0 top-5"
               }`}
             ></span>
@@ -137,7 +137,7 @@ const NavBar = () => {
           <button
             aria-label="Toggle Dark Mode"
             type="button"
-            className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform -translate-x-2/4 lg:transform-none md:relative md:left-0 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all "
+            className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform  duration-700 -translate-x-2/4 lg:transform-none md:relative md:left-0 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all "
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {isMounted.current && (
