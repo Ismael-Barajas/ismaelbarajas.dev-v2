@@ -1,19 +1,28 @@
-import Image from "next/image";
-
 const WaveSVG = () => {
   return (
     <>
       <svg
         id="wave"
-        style={{ transform: "rotate(0deg)", transition: "0.3s" }}
-        className="absolute bottom-0 left-0"
+        style={{
+          transform: "rotate(0deg)",
+          transition: "all 700ms ease-in-out",
+        }}
+        className="absolute bottom-0 left-0 "
         viewBox="0 0 1440 360"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
           <linearGradient id="sw-gradient-0" x1="0" x2="0" y1="1" y2="0">
-            <stop stopColor="var(--secondary)" offset="5%"></stop>
-            <stop stopColor="var(--primary)" offset="95%"></stop>
+            <stop
+              className="transition-all duration-700 ease-in-out"
+              stopColor="var(--secondary)"
+              offset="5%"
+            ></stop>
+            <stop
+              className="transition-all duration-700 ease-in-out"
+              stopColor="var(--primary)"
+              offset="95%"
+            ></stop>
           </linearGradient>
         </defs>
         <path
@@ -23,8 +32,16 @@ const WaveSVG = () => {
         ></path>
         <defs>
           <linearGradient id="sw-gradient-1" x1="0" x2="0" y1="0" y2="1">
-            <stop stopColor="var(--secondary)" offset="15%"></stop>
-            <stop stopColor="var(--primary)" offset="85%"></stop>
+            <stop
+              className="transition-all duration-700 ease-in-out"
+              stopColor="var(--secondary)"
+              offset="15%"
+            ></stop>
+            <stop
+              className="transition-all duration-700 ease-in-out"
+              stopColor="var(--primary)"
+              offset="85%"
+            ></stop>
           </linearGradient>
         </defs>
         <path
@@ -34,8 +51,16 @@ const WaveSVG = () => {
         ></path>
         <defs>
           <linearGradient id="sw-gradient-2" x1="0" x2="0" y1="1" y2="0">
-            <stop stopColor="var(--secondary)" offset="40%"></stop>
-            <stop stopColor="var(--primary)" offset="60%"></stop>
+            <stop
+              className="transition-all duration-700 ease-in-out"
+              stopColor="var(--secondary)"
+              offset="40%"
+            ></stop>
+            <stop
+              className="transition-all duration-700 ease-in-out"
+              stopColor="var(--primary)"
+              offset="60%"
+            ></stop>
           </linearGradient>
         </defs>
         <path
@@ -43,21 +68,7 @@ const WaveSVG = () => {
           fill="url(#sw-gradient-2)"
           d="M0,38L48,38C96,38,192,38,288,57C384,76,480,114,576,126.7C672,139,768,127,864,126.7C960,127,1056,139,1152,171C1248,203,1344,253,1440,228C1536,203,1632,101,1728,63.3C1824,25,1920,51,2016,63.3C2112,76,2208,76,2304,95C2400,114,2496,152,2592,177.3C2688,203,2784,215,2880,190C2976,165,3072,101,3168,63.3C3264,25,3360,13,3456,6.3C3552,0,3648,0,3744,12.7C3840,25,3936,51,4032,95C4128,139,4224,203,4320,215.3C4416,228,4512,190,4608,202.7C4704,215,4800,279,4896,272.3C4992,266,5088,190,5184,177.3C5280,165,5376,215,5472,215.3C5568,215,5664,165,5760,139.3C5856,114,5952,114,6048,95C6144,76,6240,38,6336,63.3C6432,89,6528,177,6624,215.3C6720,253,6816,241,6864,234.3L6912,228L6912,380L6864,380C6816,380,6720,380,6624,380C6528,380,6432,380,6336,380C6240,380,6144,380,6048,380C5952,380,5856,380,5760,380C5664,380,5568,380,5472,380C5376,380,5280,380,5184,380C5088,380,4992,380,4896,380C4800,380,4704,380,4608,380C4512,380,4416,380,4320,380C4224,380,4128,380,4032,380C3936,380,3840,380,3744,380C3648,380,3552,380,3456,380C3360,380,3264,380,3168,380C3072,380,2976,380,2880,380C2784,380,2688,380,2592,380C2496,380,2400,380,2304,380C2208,380,2112,380,2016,380C1920,380,1824,380,1728,380C1632,380,1536,380,1440,380C1344,380,1248,380,1152,380C1056,380,960,380,864,380C768,380,672,380,576,380C480,380,384,380,288,380C192,380,96,380,48,380L0,380Z"
         ></path>
-        {/* <defs>
-          <linearGradient id="sw-gradient-3" x1="0" x2="0" y1="1" y2="0">
-            <stop stopColor="var(--secondary)" offset="5%"></stop>
-            <stop stopColor="var(--primary)" offset="95%"></stop>
-          </linearGradient>
-        </defs>
-        <path
-          style={{ transform: "translate(0, 0)", opacity: 0.97 }}
-          fill="url(#sw-gradient-3)"
-          d="M0,190L48,158.3C96,127,192,63,288,50.7C384,38,480,76,576,133C672,190,768,266,864,259.7C960,253,1056,165,1152,120.3C1248,76,1344,76,1440,95C1536,114,1632,152,1728,139.3C1824,127,1920,63,2016,76C2112,89,2208,177,2304,228C2400,279,2496,291,2592,291.3C2688,291,2784,279,2880,266C2976,253,3072,241,3168,221.7C3264,203,3360,177,3456,177.3C3552,177,3648,203,3744,215.3C3840,228,3936,228,4032,209C4128,190,4224,152,4320,164.7C4416,177,4512,241,4608,221.7C4704,203,4800,101,4896,107.7C4992,114,5088,228,5184,278.7C5280,329,5376,317,5472,291.3C5568,266,5664,228,5760,202.7C5856,177,5952,165,6048,171C6144,177,6240,203,6336,202.7C6432,203,6528,177,6624,177.3C6720,177,6816,203,6864,215.3L6912,228L6912,380L6864,380C6816,380,6720,380,6624,380C6528,380,6432,380,6336,380C6240,380,6144,380,6048,380C5952,380,5856,380,5760,380C5664,380,5568,380,5472,380C5376,380,5280,380,5184,380C5088,380,4992,380,4896,380C4800,380,4704,380,4608,380C4512,380,4416,380,4320,380C4224,380,4128,380,4032,380C3936,380,3840,380,3744,380C3648,380,3552,380,3456,380C3360,380,3264,380,3168,380C3072,380,2976,380,2880,380C2784,380,2688,380,2592,380C2496,380,2400,380,2304,380C2208,380,2112,380,2016,380C1920,380,1824,380,1728,380C1632,380,1536,380,1440,380C1344,380,1248,380,1152,380C1056,380,960,380,864,380C768,380,672,380,576,380C480,380,384,380,288,380C192,380,96,380,48,380L0,380Z"
-        ></path> */}
       </svg>
-      {/* <div className="absolute bottom-32 right-3">
-        <Image src="/silhouette.png" alt="silhouette" height="25" width="15" />
-      </div> */}
     </>
   );
 };
