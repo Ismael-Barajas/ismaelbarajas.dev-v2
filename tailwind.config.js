@@ -28,7 +28,7 @@ module.exports = {
         card: "0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24)",
         "h-card": "0 10px 28px rgba(0,0,0,.25), 0 8px 10px rgba(0,0,0,.22)",
         link: "inset 0 -3px 0 var(--primary)",
-        "h-link": "inset 0 -20px 0 var(--primary)",
+        "h-link": "inset 0 -20px 0 #ce4f35dc",
         // "link-dark": "inset 0 -4px 0 #b55400",
         // "link-dark-hover": "inset 0 -18px 0 #b55400",
       },

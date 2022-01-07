@@ -51,3 +51,58 @@ a {
 section {
   scroll-margin-top: 4rem;
 }
+
+.react-btn {
+  background-color: #61dafb;
+  color: black;
+}
+
+.next-btn {
+  background-color: black;
+  color: white;
+}
+
+.javascript-btn {
+  background-color: #f0db4f;
+  color: black;
+}
+
+.typescript-btn {
+  background-color: #007acc;
+  color: white;
+}
+
+.redux-btn {
+  background-color: #764abc;
+  color: white;
+}
+
+.python-btn {
+  background-color: #366f9f;
+  color: #ffd650;
+}
+
+.redis-btn {
+  background-color: #a41e11;
+  color: white;
+}
+
+.aws-btn {
+  background-color: #f58534;
+  color: black;
+}
+
+.sqlite-btn {
+  background-color: #003b57;
+  color: #8fd4f3;
+}
+
+.beanstalk-btn {
+  background-color: #62c472;
+  color: #24723c;
+}
+
+.firebase-btn {
+  background-color: #ffa000;
+  color: #63666a;
+}
