@@ -47,14 +47,12 @@ const Home: NextPage = () => {
           ) {
             navElement.classList.remove("shadow-h-link");
           }
-          console.log(navElement);
         });
       }, options);
       observer.observe(aboutRef.current);
       observer.observe(experienceRef.current);
       observer.observe(contactRef.current);
       observer.observe(projectsRef.current);
-      //console.log(observer);
     }
     return () => observer.disconnect();
   }, [aboutRef, experienceRef, contactRef, projectsRef]);
