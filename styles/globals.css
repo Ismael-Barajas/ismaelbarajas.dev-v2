@@ -50,6 +50,7 @@ a {
 
 section {
   scroll-margin-top: 4rem;
+  scroll-snap-margin-top: 4rem;
 }
 
 .react-btn {
