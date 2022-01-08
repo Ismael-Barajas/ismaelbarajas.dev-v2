@@ -106,7 +106,7 @@ const NavBar = () => {
           <ul
             ref={navigationMobileRef}
             className={`md:hidden absolute flex flex-col w-full top-16 left-0 py-3 items-center text-white bg-primary transform translate-x-full gap-2 ${
-              isMounted.current ? "transition-transform duration-500" : ""
+              isMounted.current ? "transition-transform duration-300" : ""
             }`}
           >
             {renderNavigationItems()}
@@ -119,17 +119,17 @@ const NavBar = () => {
             className="md:hidden order-3 cursor-pointer relative w-8 h-6"
           >
             <span
-              className={`transform transition-transform duration-500 absolute h-1 w-full bg-primary rounded-lg left-0 top-1 ${
+              className={`transform transition-transform duration-300 absolute h-1 w-full bg-primary rounded-lg left-0 top-1 ${
                 mobileNavOpen ? "rotate-135 top-3" : "rotate-0"
               }`}
             ></span>
             <span
-              className={`absolute transition-opacity duration-500 h-1 w-full bg-primary rounded-lg left-0 top-3 ${
+              className={`absolute transition-opacity duration-300 h-1 w-full bg-primary rounded-lg left-0 top-3 ${
                 mobileNavOpen ? "opacity-0 " : "opacity-100"
               }`}
             ></span>
             <span
-              className={`transform transition-transform duration-500 absolute h-1 w-full bg-primary rounded-lg left-0 ${
+              className={`transform transition-transform duration-300 absolute h-1 w-full bg-primary rounded-lg left-0 ${
                 mobileNavOpen ? "-rotate-135 top-3" : "rotate-0 top-5"
               }`}
             ></span>
