@@ -11,3 +11,4 @@ export { default as About } from "./layouts/About";
 export { default as Experience } from "./layouts/Experience";
 export { default as Projects } from "./layouts/Projects";
 export { default as Contact } from "./layouts/Contact";
+export { default as Footer } from "./layouts/Footer";
