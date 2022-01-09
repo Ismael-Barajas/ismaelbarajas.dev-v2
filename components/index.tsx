@@ -5,6 +5,8 @@ export { default as TypedText } from "./library/TypedText";
 export { default as WaveSVG } from "./library/WaveSVG";
 export { default as ExperienceCard } from "./library/ExperienceCard";
 export { default as ProjectsCard } from "./library/ProjectsCard";
+export { default as NowPlaying } from "./library/NowPlaying";
+export { default as TopTracks } from "./library/TopTracks";
 
 export { default as Hero } from "./layouts/Hero";
 export { default as About } from "./layouts/About";
