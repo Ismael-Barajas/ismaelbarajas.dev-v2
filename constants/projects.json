@@ -1,0 +1,14 @@
+[
+  {
+    "img": "/PurposerLogo.png",
+    "url": "#",
+    "github_url": "https://github.com",
+    "body": [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+    ],
+    "tags": [
+      { "text": "React.js", "class": "react-btn" },
+      { "text": "JavaScript", "class": "javascript-btn" }
+    ]
+  }
+]
