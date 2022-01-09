@@ -41,11 +41,13 @@ const Home: NextPage = () => {
             !navElement?.classList.contains("shadow-h-link")
           ) {
             navElement?.classList.add("shadow-h-link");
+            navElement?.classList.remove("shadow-link");
           } else if (
             !entry.isIntersecting &&
             navElement?.classList.contains("shadow-h-link")
           ) {
             navElement.classList.remove("shadow-h-link");
+            navElement.classList.add("shadow-link");
           }
         });
       }, options);
