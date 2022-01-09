@@ -4,6 +4,7 @@ import {
   About,
   Contact,
   Experience,
+  Footer,
   Hero,
   Metatags,
   Projects,
@@ -83,6 +84,7 @@ const Home: NextPage = () => {
       <section id="contact" ref={contactRef}>
         <Contact />
       </section>
+      <Footer />
     </>
   );
 };
