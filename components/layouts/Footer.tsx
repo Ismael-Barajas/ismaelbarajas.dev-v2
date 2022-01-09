@@ -1,3 +1,5 @@
+import { NowPlaying } from "components";
+
 const Footer = () => {
   return (
     <footer>
@@ -14,6 +16,7 @@ const Footer = () => {
           </a>
         </p>
         {/* <p>Design by</p> */}
+        <NowPlaying />
       </div>
     </footer>
   );
