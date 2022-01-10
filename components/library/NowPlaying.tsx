@@ -13,7 +13,7 @@ interface NowPlayingSong {
   title: string;
 }
 
-function AnimatedBars() {
+const AnimatedBars = () => {
   useEffect(() => {
     animate(
       "#bar1",
@@ -71,9 +71,9 @@ function AnimatedBars() {
       <span id="bar3" className="w-1 h-3 bg-primary opacity-80" />
     </div>
   );
-}
+};
 
-export default function NowPlaying() {
+const NowPlaying = () => {
   const { data } = useSWR<NowPlayingSong>("/api/now-playing", fetcher);
 
   return (
@@ -120,4 +120,6 @@ export default function NowPlaying() {
       </div>
     </div>
   );
-}
+};
+
+export default NowPlaying;

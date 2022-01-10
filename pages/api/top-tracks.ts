@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getTopTracks } from "lib/spotify";
 
-export default async function handler(
+// https://leerob.io/snippets/spotify
+export default async function topTracks(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
