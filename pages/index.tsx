@@ -57,7 +57,9 @@ const Home: NextPage = () => {
       observer.observe(contactRef.current);
       observer.observe(projectsRef.current);
     }
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [aboutRef, experienceRef, contactRef, projectsRef]);
 
   return (

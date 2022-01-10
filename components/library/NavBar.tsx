@@ -36,34 +36,60 @@ const NavBar = () => {
   const renderNavigationItems = () => {
     const linkClasses =
       "relative px-4 shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500";
+    const linkPage =
+      "relative px-4 ease-in-out shadow-h-link transition-shadow duration-500";
+    const resetClasses =
+      "relative px-4 shadow-link ease-in-out transition-shadow duration-500";
     const listItemClasses = "my-2";
     return (
       <>
         <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "about" }}>
-            <a className={linkClasses} onClick={linkClicked}>
+            <a
+              className={router.pathname != "/" ? resetClasses : linkClasses}
+              onClick={linkClicked}
+            >
               About
             </a>
           </Link>
         </li>
         <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "experience" }}>
-            <a className={linkClasses} onClick={linkClicked}>
+            <a
+              className={router.pathname != "/" ? resetClasses : linkClasses}
+              onClick={linkClicked}
+            >
               Experience
             </a>
           </Link>
         </li>
         <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "projects" }}>
-            <a className={linkClasses} onClick={linkClicked}>
+            <a
+              className={router.pathname != "/" ? resetClasses : linkClasses}
+              onClick={linkClicked}
+            >
               Projects
             </a>
           </Link>
         </li>
         <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "contact" }}>
-            <a className={linkClasses} onClick={linkClicked}>
+            <a
+              className={router.pathname != "/" ? resetClasses : linkClasses}
+              onClick={linkClicked}
+            >
               Contact
+            </a>
+          </Link>
+        </li>
+        <li className={listItemClasses}>
+          <Link href={{ pathname: "/listen" }}>
+            <a
+              className={router.pathname === "/listen" ? linkPage : linkClasses}
+              onClick={linkClicked}
+            >
+              Listen
             </a>
           </Link>
         </li>
@@ -71,9 +97,7 @@ const NavBar = () => {
           <Link href="/cv">
             <a
               onClick={linkClicked}
-              className={`${linkClasses} ${
-                router.pathname === "/cv" ? "active" : ""
-              }`}
+              className={router.pathname === "/cv" ? linkPage : linkClasses}
             >
               CV
             </a>

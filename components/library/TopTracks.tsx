@@ -12,7 +12,7 @@ interface TopTracks {
   tracks: Song[];
 }
 
-export default function Tracks() {
+const TopTracks = () => {
   const { data } = useSWR<TopTracks>("/api/top-tracks", fetcher);
 
   if (!data) {
@@ -20,18 +20,16 @@ export default function Tracks() {
   }
 
   return (
-    <>
+    <div className="flex flex-col items-center px-4">
       {data.tracks.map((track, index) => (
         <div
           key={track.songUrl}
-          className="flex flex-row items-baseline border-b border-gray-200 dark:border-gray-800 max-w-3xl w-full mt-8"
+          className="flex flex-row items-baseline border-b dark:border-gray-200 border-gray-800 sm:max-w-5xl w-full mt-8"
         >
-          <p className="text-sm font-bold text-gray-400 dark:text-gray-600">
-            {index + 1}
-          </p>
+          <p className="text-sm font-bold text-roseDust">{index + 1}</p>
           <div className="flex flex-col pl-3">
             <a
-              className="font-medium text-gray-900 dark:text-gray-100 truncate w-60 sm:w-96 md:w-full"
+              className="font-medium text-text truncate w-60 sm:w-96 md:w-full"
               href={track.songUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -39,7 +37,7 @@ export default function Tracks() {
               {track.title}
             </a>
             <p
-              className="text-gray-500 mb-4 truncate w-60 sm:w-96 md:w-full"
+              className="text-gray-500 dark:text-gray-400 mb-4 truncate w-60 sm:w-96 md:w-full"
               color="gray.500"
             >
               {track.artist}
@@ -47,6 +45,8 @@ export default function Tracks() {
           </div>
         </div>
       ))}
-    </>
+    </div>
   );
-}
+};
+
+export default TopTracks;
