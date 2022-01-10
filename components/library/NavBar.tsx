@@ -126,7 +126,9 @@ const NavBar = () => {
               />
             </a>
           </Link>
-          <ul className="hidden md:flex md:gap-6">{renderNavigationItems()}</ul>
+          <ul className="hidden md:flex md:gap-4 lg:gap-6">
+            {renderNavigationItems()}
+          </ul>
           <ul
             ref={navigationMobileRef}
             className={`md:hidden absolute flex flex-col w-full top-16 left-0 py-3 items-center text-white bg-primary transform translate-x-full gap-2 ${
@@ -161,7 +163,7 @@ const NavBar = () => {
           <button
             aria-label="Toggle Dark Mode"
             type="button"
-            className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform  duration-700 -translate-x-2/4 lg:transform-none md:relative md:left-0 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all "
+            className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform  duration-700 -translate-x-2/4 md:transform-none md:relative md:left-0 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {isMounted.current && (
