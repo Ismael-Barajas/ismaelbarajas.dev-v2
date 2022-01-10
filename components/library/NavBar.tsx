@@ -46,7 +46,7 @@ const NavBar = () => {
         <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "about" }}>
             <a
-              className={router.pathname != "/" ? linkClasses : linkClasses}
+              className={router.pathname != "/" ? resetClasses : linkClasses}
               onClick={linkClicked}
             >
               About
