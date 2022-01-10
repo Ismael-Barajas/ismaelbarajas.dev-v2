@@ -39,14 +39,14 @@ const NavBar = () => {
     const linkPage =
       "relative px-4 ease-in-out shadow-h-link transition-shadow duration-500";
     const resetClasses =
-      "relative px-4 shadow-link ease-in-out transition-shadow duration-500";
+      "relative px-4 shadow-link hover:shadow-h-link ease-in-out transition-shadow duration-500";
     const listItemClasses = "my-2";
     return (
       <>
         <li className={listItemClasses}>
           <Link href={{ pathname: "/", hash: "about" }}>
             <a
-              className={router.pathname != "/" ? resetClasses : linkClasses}
+              className={router.pathname != "/" ? linkClasses : linkClasses}
               onClick={linkClicked}
             >
               About
