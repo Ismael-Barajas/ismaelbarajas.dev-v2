@@ -1,7 +1,8 @@
 import { MutableRefObject, useEffect, useState } from "react";
+import { ChevronDoubleUpIcon } from "@heroicons/react/outline";
 
 interface Props {
-  elementRef: MutableRefObject<null>;
+  elementRef: MutableRefObject<Element>;
 }
 
 const BackToTop = ({ elementRef }: Props) => {
@@ -13,7 +14,7 @@ const BackToTop = ({ elementRef }: Props) => {
       threshold: 0.3,
     };
     if (elementRef.current) {
-      observer = new IntersectionObserver((entries, observer) => {
+      observer = new IntersectionObserver((entries) => {
         entries[0].isIntersecting ? setIsVisible(false) : setIsVisible(true);
       }, options);
       observer.observe(elementRef.current);
@@ -27,15 +28,14 @@ const BackToTop = ({ elementRef }: Props) => {
     document.body.scrollIntoView({ behavior: "smooth" });
   };
 
-  console.log(isVisible);
   return (
     <button
       onClick={scrollUp}
       className={`${
-        !isVisible && "hidden"
-      } bg-primary hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all text-white fixed bottom-0 right-0 mb-3 mr-3 duration-700  transform  md:transform-none `}
+        isVisible ? "translate-x-0" : "translate-x-16"
+      } bg-primary hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all ease-in-out rounded-full fixed bottom-0 right-0 mb-3 mr-3 duration-700 transform shadow-card p-[6px] z-50`}
     >
-      Top
+      <ChevronDoubleUpIcon className="text-[#cef9ff] h-9 w-9" />
     </button>
   );
 };
