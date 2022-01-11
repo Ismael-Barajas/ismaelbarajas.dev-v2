@@ -1,8 +1,18 @@
 import useSWR from "swr";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { animate } from "motion";
 import fetcher from "lib/fetcher";
 import Image from "next/image";
+import { usePalette } from "react-palette";
+
+interface PaletteColors {
+  vibrant?: string;
+  muted?: string;
+  darkVibrant?: string;
+  darkMuted?: string;
+  lightVibrant?: string;
+  lightMuted?: string;
+}
 
 interface NowPlayingSong {
   album: string;
@@ -75,10 +85,31 @@ const AnimatedBars = () => {
 
 const NowPlaying = () => {
   const { data } = useSWR<NowPlayingSong>("/api/now-playing", fetcher);
+  const [colorPalette, setColorPalette] = useState<PaletteColors>();
+  const {
+    data: colors,
+    loading,
+    error,
+  } = usePalette(data?.albumImageUrl || "");
+
+  useEffect(() => {
+    setColorPalette(colors);
+  }, [colors]);
+
+  // TODO: https://developer.spotify.com/documentation/general/design-and-branding/
+  // update the look of this component to match the example: https://i.imgur.com/Hnfuiok.png
 
   return (
     <div className="flex mt-2 flex-row-reverse justify-center items-center sm:flex-row  space-x-0 sm:space-x-2 w-full">
-      <div className="bg-secondary transition-colors duration-700 p-2 rounded inline-flex justify-center flex-col items-center sm:flex-row truncate">
+      <div
+        style={{
+          backgroundColor: colorPalette?.muted || "#191414",
+          backgroundImage: `linear-gradient(${
+            colorPalette?.muted || "#191414"
+          }, #191414 85%)`,
+        }}
+        className="transition-colors duration-700 p-2 rounded inline-flex justify-center flex-col items-center sm:flex-row truncate"
+      >
         {data?.songUrl ? (
           <AnimatedBars />
         ) : (
@@ -91,7 +122,7 @@ const NowPlaying = () => {
         )}
         {data?.songUrl ? (
           <a
-            className="text-text font-medium  max-w-max truncate"
+            className="text-[color:var(--secondary-light)] font-medium  max-w-max truncate"
             href={data.songUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -101,10 +132,8 @@ const NowPlaying = () => {
         ) : (
           <p className="text-text font-medium">Not Playing</p>
         )}
-        <span className="mx-2 text-gray-500 dark:text-gray-300 hidden sm:block">
-          {" - "}
-        </span>
-        <p className="text-gray-500 dark:text-gray-300 max-w-max truncate">
+        <span className="mx-2 text-gray-300 hidden sm:block">{" - "}</span>
+        <p className="text-gray-300 max-w-max truncate">
           {data?.artist ?? "Spotify"}
         </p>
         {data?.albumImageUrl && (
