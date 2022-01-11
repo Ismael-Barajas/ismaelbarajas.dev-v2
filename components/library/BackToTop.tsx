@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useState } from "react";
 import { ChevronDoubleUpIcon } from "@heroicons/react/outline";
 
 interface Props {
-  elementRef: MutableRefObject<Element>;
+  elementRef: MutableRefObject<null>;
 }
 
 const BackToTop = ({ elementRef }: Props) => {
