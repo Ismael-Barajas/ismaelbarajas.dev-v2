@@ -3,7 +3,7 @@ import { ExperienceCard } from "components";
 
 const Experience = () => {
   return (
-    <div className="container mx-auto min-h-screen-without-nav items-center content-center px-3 pb-16">
+    <div className="container min-h-screen-without-nav pb-12">
       {/* TODO: Header text needs to stand out more think about it */}
       <h2 className="text-center py-5">Experience</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
