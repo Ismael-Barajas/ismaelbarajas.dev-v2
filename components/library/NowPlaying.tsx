@@ -98,9 +98,6 @@ const NowPlaying = () => {
     setColorPalette(colors);
   }, [colors]);
 
-  // TODO: https://developer.spotify.com/documentation/general/design-and-branding/
-  // update the look of this component to match the example: https://i.imgur.com/Hnfuiok.png
-
   return (
     <div className="flex mt-2 justify-center w-full">
       <div
