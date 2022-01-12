@@ -111,7 +111,7 @@ const NavBar = () => {
   return (
     <>
       <nav className="transition-[background-color] duration-700 ease-in-out fixed text-text bg-secondary bg-opacity-60 h-16 w-full z-50">
-        <div className="flex h-full container mx-auto justify-between items-center px-6 md:px-0">
+        <div className="flex h-full container justify-between items-center px-6 md:px-0">
           <a
             href="#about"
             className="absolute px-1 py-1 transition-transform duration-200 transform -translate-y-12 focus:translate-y-16 bg-secondary"
