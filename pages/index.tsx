@@ -22,6 +22,19 @@ const Home: NextPage = () => {
   }, []);
 
   useEffect(() => {
+    var barTimeout: NodeJS.Timeout;
+    document.body.onscroll = () => {
+      if (barTimeout) {
+        clearTimeout(barTimeout);
+      }
+      barTimeout = setTimeout(() => {
+        document.body.classList.remove("scrolling");
+      }, 700);
+      document.body.classList.add("scrolling");
+    };
+  }, []);
+
+  useEffect(() => {
     let observer: IntersectionObserver;
     if (
       aboutRef.current &&
