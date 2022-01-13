@@ -19,7 +19,13 @@ const ProjectsCard = ({ img, url, github_url, tags, body }: Props) => {
     <div className="rounded-md shadow-card hover:shadow-h-card  transition-all ease-in-out duration-300 text-text bg-background max-w-lg">
       <div className="h-full">
         <div className="relative h-52 max-h-52 text-center mb-2">
-          <Image src={img} layout="fill" alt="test" objectFit="cover" />
+          <Image
+            priority
+            src={img}
+            layout="fill"
+            alt="test"
+            objectFit="cover"
+          />
         </div>
         <div className="flex justify-center py-3">
           <a
