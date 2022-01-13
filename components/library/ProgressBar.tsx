@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const ProgressBar = () => {
-  const [progress, setProgress] = useState("");
+  const [progress, setProgress] = useState("0");
 
   useEffect(() => {
     let computeProgress = () => {
