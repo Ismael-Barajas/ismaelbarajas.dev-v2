@@ -24,6 +24,8 @@ module.exports = {
         text: "var(--text)",
         roseDust: "var(--rose-dust)",
         persianGreen: "var(--persian-green)",
+        "secondary-light": "#dfc7ad",
+        "secondary-dark": "#5e6088",
       },
       boxShadow: {
         card: "0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.24)",
