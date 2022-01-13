@@ -12,7 +12,7 @@ const Metatags: NextPage<Props> = (props) => {
   const {
     title = "Ismael Barajas",
     description = `Ismael's Personal Website/Portfolio`,
-    image = "",
+    image = "https://i.imgur.com/6gYNaAy.png",
     type = "website",
   } = props;
 
@@ -21,8 +21,6 @@ const Metatags: NextPage<Props> = (props) => {
       <title>{title}</title>
       <meta name="robots" content="follow, index" />
       <meta content={description} name="description" />
-      {/* <meta property="og:url" content={`https://leerob.io${router.asPath}`} />
-            <link rel="canonical" href={`https://leerob.io${router.asPath}`} /> */}
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content="Ismael Barajas" />
       <meta property="og:description" content={description} />
