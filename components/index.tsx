@@ -8,6 +8,7 @@ export { default as ProjectsCard } from "./library/ProjectsCard";
 export { default as NowPlaying } from "./library/NowPlaying";
 export { default as TopTracks } from "./library/TopTracks";
 export { default as BackToTop } from "./library/BackToTop";
+export { default as ProgressBar } from "./library/ProgressBar";
 
 export { default as Hero } from "./layouts/Hero";
 export { default as About } from "./layouts/About";
