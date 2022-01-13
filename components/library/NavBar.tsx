@@ -94,7 +94,7 @@ const NavBar = () => {
             </a>
           </Link>
         </li>
-        <li className={listItemClasses}>
+        {/* <li className={listItemClasses}>
           <Link href="/cv">
             <a
               onClick={linkClicked}
@@ -103,7 +103,7 @@ const NavBar = () => {
               CV
             </a>
           </Link>
-        </li>
+        </li> */}
       </>
     );
   };
