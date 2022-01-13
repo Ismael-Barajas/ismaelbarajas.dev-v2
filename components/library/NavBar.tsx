@@ -110,7 +110,7 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="transition-[background-color] duration-700 ease-in-out fixed text-text bg-secondary bg-opacity-60 h-16 w-full z-50">
+      <nav className="transition-[background-color] duration-700 ease-in-out fixed text-text bg-secondary-light dark:bg-secondary-dark/75 bg-opacity-75 h-16 w-full z-50">
         <div className="flex h-full container justify-between items-center px-6 md:px-0">
           <a
             href="#about"
