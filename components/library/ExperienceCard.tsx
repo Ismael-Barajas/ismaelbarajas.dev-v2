@@ -23,7 +23,13 @@ const ExperienceCard = ({ img, position, body, tags }: Props) => {
       <div className="h-full">
         <a target="_blank" href="#" rel="noopener" className="h-full">
           <div className="relative h-24 max-h-24 text-center mb-2 transition-shadow duration-500 ease-in-out hover:shadow-h-card rounded-sm">
-            <Image src={img} layout="fill" alt="test" objectFit="contain" />
+            <Image
+              priority
+              src={img}
+              layout="fill"
+              alt="test"
+              objectFit="contain"
+            />
           </div>
         </a>
         <div className="text-center text-sm py-3 text-gray-500 dark:text-gray-400">
