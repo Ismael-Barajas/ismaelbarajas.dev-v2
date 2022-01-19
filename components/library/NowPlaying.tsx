@@ -86,7 +86,9 @@ const AnimatedBars = () => {
 };
 
 const NowPlaying = () => {
-  const { data } = useSWR<NowPlayingSong>("/api/now-playing", fetcher);
+  const { data } = useSWR<NowPlayingSong>("/api/now-playing", fetcher, {
+    refreshInterval: 4500,
+  });
   const [colorPalette, setColorPalette] = useState<PaletteColors>();
   const {
     data: colors,
