@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
@@ -10,6 +10,7 @@ const NavBar = () => {
   const navigationMobileRef = useRef<HTMLUListElement>(null);
   const mobileIconRef = useRef(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [onTop, setOnTop] = useState(true);
   const isMounted = useIsMounted();
   const router = useRouter();
   const { width } = useWindowSize();
@@ -20,6 +21,19 @@ const NavBar = () => {
     navigationMobileRef.current?.classList.toggle("translate-x-full");
     setMobileNavOpen(!mobileNavOpen);
   };
+
+  const handleScroll = () => {
+    if (onTop !== (window.pageYOffset === 0)) {
+      setOnTop(window.pageYOffset === 0);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  });
 
   const linkClicked = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
@@ -36,11 +50,11 @@ const NavBar = () => {
 
   const renderNavigationItems = () => {
     const linkClasses =
-      "relative px-4 shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500";
+      "relative px-4 shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500 font-medium";
     const linkPage =
-      "relative px-4 ease-in-out shadow-h-link transition-shadow duration-500";
+      "relative px-4 ease-in-out shadow-h-link transition-shadow duration-500 font-medium";
     const resetClasses =
-      "relative px-4 shadow-link hover:shadow-h-link ease-in-out transition-shadow duration-500";
+      "relative px-4 shadow-link hover:shadow-h-link ease-in-out transition-shadow duration-500 font-medium";
     const listItemClasses = "my-2";
     return (
       <>
@@ -109,8 +123,12 @@ const NavBar = () => {
   };
 
   return (
-    <>
-      <nav className="transition-[background-color] duration-700 ease-in-out fixed text-text bg-secondary-light dark:bg-secondary-dark/95 bg-opacity-95 h-16 w-full z-50">
+    <header>
+      <nav
+        className={`transition-all duration-700 ease-in-out fixed text-text bg-secondary-light dark:bg-secondary-dark/95 bg-opacity-95 h-16 w-full z-50 ${
+          onTop ? "" : "shadow-card"
+        }`}
+      >
         <div className="flex h-full container justify-between items-center px-6 md:px-0">
           <a
             href="#about"
@@ -119,11 +137,12 @@ const NavBar = () => {
             Skip to content
           </a>
           <Link passHref href={{ pathname: "/" }}>
-            <a className="flex flex-row text-text text-lg lg:text-2xl w-[115px]">
+            <a className="flex flex-row text-text text-lg lg:text-2xl w-[115px] font-medium">
               <TypedText
                 strings={["Ismael Barajas"]}
                 loop={false}
                 whiteSpace={"pre"}
+                className={"animated-underline"}
               />
             </a>
           </Link>
@@ -180,7 +199,7 @@ const NavBar = () => {
         </div>
         <ProgressBar />
       </nav>
-    </>
+    </header>
   );
 };
 
