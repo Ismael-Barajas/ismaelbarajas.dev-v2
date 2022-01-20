@@ -98,56 +98,81 @@ section {
 }
 
 .react-btn {
-  background-color: #61dafb;
+  background-color: #61dafb7b;
   color: black;
 }
 
 .next-btn {
-  background-color: black;
+  background-color: #0000007b;
   color: white;
 }
 
 .javascript-btn {
-  background-color: #f0db4f;
+  background-color: #f0db4f7b;
   color: black;
 }
 
 .typescript-btn {
-  background-color: #007acc;
+  background-color: #007acc7b;
   color: white;
 }
 
 .redux-btn {
-  background-color: #764abc;
+  background-color: #764abc7b;
   color: white;
 }
 
 .python-btn {
-  background-color: #366f9f;
+  background-color: #366f9f7b;
   color: #ffd650;
 }
 
 .redis-btn {
-  background-color: #a41e11;
+  background-color: #a41e117b;
   color: white;
 }
 
 .aws-btn {
-  background-color: #f58534;
+  background-color: #f585347b;
   color: black;
 }
 
 .sqlite-btn {
-  background-color: #003b57;
+  background-color: #003b577b;
   color: #8fd4f3;
 }
 
 .beanstalk-btn {
-  background-color: #62c472;
+  background-color: #62c4727b;
   color: #24723c;
 }
 
 .firebase-btn {
-  background-color: #ffa000;
+  background-color: #ffa0007b;
   color: #63666a;
+}
+
+@layer utilities {
+  .animated-underline {
+    background-image: linear-gradient(#33333300, #33333300),
+      linear-gradient(to right, #dfafa9, var(--primary));
+    background-size: 100% 2px, 0 2px;
+    background-position: 100% 100%, 0 100%;
+    background-repeat: no-repeat;
+    transition: 0.5s ease;
+    transition-property: background-size, color, background-color, border-color;
+  }
+  .animated-underline:hover,
+  .animated-underline:focus-visible,
+  .project-card:hover .animated-underline,
+  .project-card:focus-visible .animated-underline {
+    background-size: 0 2px, 100% 2px;
+  }
+
+  /* #region  /**=========== Animate Shadow =========== */
+  .animate-shadow {
+    @apply after:absolute after:inset-0 after:opacity-0 after:transition-opacity after:z-[-1] hover:after:opacity-100;
+    @apply after:shadow-md dark:after:shadow-none;
+  }
+  /* #endregion  /**======== Animate Shadow =========== */
 }
