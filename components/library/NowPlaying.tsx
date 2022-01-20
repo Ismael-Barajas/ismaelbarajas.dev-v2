@@ -107,9 +107,9 @@ const NowPlaying = () => {
           backgroundColor: colorPalette?.muted || "#191414",
           backgroundImage: `linear-gradient(${
             colorPalette?.muted || "#191414"
-          }, #191414 85%)`,
+          }, #191414 100%)`,
         }}
-        className="transition-colors duration-700 p-4 rounded-lg inline-flex justify-center flex-col items-center sm:flex-row truncate gap-3"
+        className="transition-colors duration-700 p-4 rounded-lg inline-flex justify-center flex-col items-center sm:flex-row truncate gap-3 shadow-card"
       >
         {data?.albumImageUrl ? (
           <div className="flex">
@@ -140,7 +140,7 @@ const NowPlaying = () => {
           )}
           {data?.songUrl ? (
             <a href={data.songUrl} target="_blank" rel="noopener noreferrer">
-              <p className="text-[color:var(--secondary-light)] font-medium truncate text-lg">
+              <p className="text-[color:var(--secondary-light)] animated-underline font-medium truncate text-lg w-fit">
                 {data.title}
               </p>
             </a>
