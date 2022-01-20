@@ -19,10 +19,10 @@ interface Tag {
 
 const ExperienceCard = ({ img, position, body, tags }: Props) => {
   return (
-    <div className="rounded-md p-6 shadow-card hover:shadow-h-card  transition-all ease-in-out duration-300 text-text bg-secondary">
+    <div className="rounded-md p-6 shadow-card hover:shadow-h-card  transition-all ease-in-out duration-300 text-text bg-secondary  transform-gpu scale-100 hover:scale-[1.01]">
       <div className="h-full">
         <a target="_blank" href="#" rel="noopener" className="h-full">
-          <div className="relative h-24 max-h-24 text-center mb-2 transition-shadow duration-500 ease-in-out hover:shadow-h-card rounded-sm">
+          <div className="relative h-24 max-h-24 text-center mb-2 transition-all duration-500 ease-in-out hover:shadow-card rounded-sm transform-gpu active:scale-[0.97] active:shadow-inner">
             <Image
               priority
               src={img}

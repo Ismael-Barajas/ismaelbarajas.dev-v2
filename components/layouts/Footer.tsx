@@ -10,7 +10,7 @@ const Footer = () => {
             href="https://github.com/Ismael-Barajas"
             target="_blank"
             rel="noreferrer"
-            className="text-persianGreen"
+            className="text-persianGreen animated-underline  font-medium"
           >
             Ismael Barajas
           </a>
