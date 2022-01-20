@@ -29,15 +29,15 @@ const TopTracks = () => {
           <p className="text-sm font-bold text-roseDust">{index + 1}</p>
           <div className="flex flex-col pl-3">
             <a
-              className="font-medium text-text truncate w-60 sm:w-96 md:w-full"
+              className="font-medium text-text truncate"
               href={track.songUrl}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {track.title}
+              <p className="animated-underline w-fit">{track.title}</p>
             </a>
             <p
-              className="text-gray-500 dark:text-gray-400 mb-4 truncate w-60 sm:w-96 md:w-full"
+              className="text-gray-500 dark:text-gray-400 mb-4 truncate"
               color="gray.500"
             >
               {track.artist}
