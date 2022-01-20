@@ -11,9 +11,10 @@ interface Props {
     | "pre-wrap"
     | "pre-line"
     | "break-spaces";
+  className?: string;
 }
 
-const TypedText = ({ strings, loop, whiteSpace }: Props) => {
+const TypedText = ({ strings, loop, whiteSpace, className }: Props) => {
   const el = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -29,7 +30,13 @@ const TypedText = ({ strings, loop, whiteSpace }: Props) => {
     };
   }, []);
 
-  return <span style={{ whiteSpace: whiteSpace }} ref={el} />;
+  return (
+    <span
+      className={`${className ? className : ""}`}
+      style={{ whiteSpace: whiteSpace }}
+      ref={el}
+    />
+  );
 };
 
 export default TypedText;
