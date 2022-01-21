@@ -1,4 +1,6 @@
 import Image from "next/image";
+// TODO: replace this with react-icons
+// TODO: remove Heroicons dep once done
 import { CodeIcon, ExternalLinkIcon } from "@heroicons/react/outline";
 
 interface Props {
@@ -13,6 +15,8 @@ interface Tag {
   text: string;
   class: string;
 }
+
+// TODO: redo the tags to have icons and tool tips instead
 
 const ProjectsCard = ({ img, url, github_url, tags, body }: Props) => {
   return (
