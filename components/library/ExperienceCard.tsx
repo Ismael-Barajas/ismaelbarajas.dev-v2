@@ -1,10 +1,12 @@
 import Image from "next/image";
+import { TagIcons } from "components";
+import { TechListType } from "./TagIcons";
 
 interface Props {
   img: string;
   position: Position;
   body: string[];
-  tags: Tag[];
+  tags: Array<TechListType>;
 }
 
 interface Position {
@@ -41,7 +43,8 @@ const ExperienceCard = ({ img, position, body, tags }: Props) => {
             return <p key={index}>{paragraph}</p>;
           })}
         </div>
-        <div className="flex flex-col mt-4 flex-grow justify-end">
+        <TagIcons techs={tags} />
+        {/* <div className="flex flex-col mt-4 flex-grow justify-end">
           <ul className="flex flex-wrap">
             {tags.map((tag, index) => {
               return (
@@ -54,7 +57,7 @@ const ExperienceCard = ({ img, position, body, tags }: Props) => {
               );
             })}
           </ul>
-        </div>
+        </div> */}
       </div>
     </div>
   );
