@@ -14,11 +14,6 @@ interface Position {
   time_commitment: string;
 }
 
-interface Tag {
-  text: string;
-  class: string;
-}
-
 const ExperienceCard = ({ img, position, body, tags }: Props) => {
   return (
     <div className="rounded-md p-6 shadow-card hover:shadow-h-card  transition-all ease-in-out duration-300 text-text bg-secondary  transform-gpu scale-100 hover:scale-[1.01]">

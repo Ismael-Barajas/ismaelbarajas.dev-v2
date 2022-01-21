@@ -1,4 +1,5 @@
 import { ProjectsCard } from "components";
+import { TechListType } from "components/library/TagIcons";
 import projects from "constants/projects.json";
 
 const Projects = () => {
@@ -13,7 +14,7 @@ const Projects = () => {
               body={project.body}
               github_url={project.github_url}
               img={project.img}
-              tags={project.tags}
+              tags={project.tags as Array<TechListType>}
               url={project.url}
             />
           );

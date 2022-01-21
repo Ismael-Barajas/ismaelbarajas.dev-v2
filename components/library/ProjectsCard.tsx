@@ -12,8 +12,6 @@ interface Props {
   tags: Array<TechListType>;
 }
 
-// TODO: redo the tags to have icons and tool tips instead
-
 const ProjectsCard = ({ img, url, github_url, tags, body }: Props) => {
   return (
     <div className="rounded-md shadow-card hover:shadow-h-card transition-all ease-in-out duration-300 text-text bg-background max-w-lg transform-gpu scale-100 hover:scale-[1.01]">

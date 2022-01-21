@@ -1,5 +1,6 @@
 import experience from "constants/experience.json";
 import { ExperienceCard } from "components";
+import { TechListType } from "components/library/TagIcons";
 
 const Experience = () => {
   return (
@@ -13,7 +14,7 @@ const Experience = () => {
               img={job.img}
               body={job.body}
               position={job.position}
-              tags={job.tags}
+              tags={job.tags as Array<TechListType>}
               key={index}
             />
           );
