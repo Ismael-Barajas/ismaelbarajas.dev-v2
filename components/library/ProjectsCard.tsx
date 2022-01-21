@@ -1,19 +1,15 @@
 import Image from "next/image";
-// TODO: replace this with react-icons
-// TODO: remove Heroicons dep once done
-import { CodeIcon, ExternalLinkIcon } from "@heroicons/react/outline";
+import { SiGithub } from "react-icons/si";
+import { HiOutlineExternalLink } from "react-icons/hi";
+import { ToolTip } from "components";
+import TagIcons, { TechListType } from "./TagIcons";
 
 interface Props {
   img: string;
   url: string;
   github_url: string;
   body: string[];
-  tags: Tag[];
-}
-
-interface Tag {
-  text: string;
-  class: string;
+  tags: Array<TechListType>;
 }
 
 // TODO: redo the tags to have icons and tool tips instead
@@ -30,7 +26,8 @@ const ProjectsCard = ({ img, url, github_url, tags, body }: Props) => {
             alt="test"
             objectFit="cover"
           />
-          <div className="absolute bottom-0 flex flex-col flex-grow justify-end px-2">
+          <TagIcons techs={tags} className="absolute px-2" />
+          {/* <div className="absolute bottom-0 flex flex-col flex-grow justify-end px-2">
             <ul className="flex flex-wrap">
               {tags.map((tag, index) => {
                 return (
@@ -43,27 +40,30 @@ const ProjectsCard = ({ img, url, github_url, tags, body }: Props) => {
                 );
               })}
             </ul>
-          </div>
+          </div> */}
         </div>
         <div className="flex justify-center py-3">
-          <a
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-            className="flex transition-all ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-500 hover:bg-[#ce4f35dc] transform-gpu active:scale-[1.08]"
-          >
-            <ExternalLinkIcon className="h-5 w-5 mr-1" />
-            Visit
-          </a>
-          <a
-            href={github_url}
-            target="_blank"
-            rel="noreferrer"
-            className="flex transition-all ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-500 hover:bg-[#ce4f35dc] transform-gpu active:scale-[1.08]"
-          >
-            <CodeIcon className="h-5 w-5 mr-1" />
-            GitHub
-          </a>
+          <ToolTip content="Visit the live site!" position="left">
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex transition-all ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-500 hover:bg-[#ce4f35dc] transform-gpu active:scale-[1.08]"
+            >
+              <HiOutlineExternalLink className="h-5 w-5" />
+            </a>
+          </ToolTip>
+          <ToolTip content={"View the GitHub!"} position="right">
+            <a
+              href={github_url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex transition-all ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-500 hover:bg-[#ce4f35dc] transform-gpu active:scale-[1.08]"
+            >
+              <SiGithub className="h-5 w-5" />
+              {/* GitHub */}
+            </a>
+          </ToolTip>
         </div>
         <div className="text-lg leading-relaxed px-3 pb-3">
           {body.map((paragraph, index) => {
