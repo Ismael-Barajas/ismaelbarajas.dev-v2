@@ -1,5 +1,5 @@
 import { MutableRefObject, useEffect, useState } from "react";
-import { ChevronDoubleUpIcon } from "@heroicons/react/outline";
+import { HiOutlineChevronDoubleUp } from "react-icons/hi";
 
 interface Props {
   elementRef: MutableRefObject<null>;
@@ -35,7 +35,7 @@ const BackToTop = ({ elementRef }: Props) => {
         isVisible ? "translate-x-0" : "translate-x-16"
       } bg-primary hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all ease-in-out rounded-full fixed bottom-0 right-0 mb-3 mr-3 duration-700 transform shadow-card p-[6px] z-50`}
     >
-      <ChevronDoubleUpIcon className="text-[#cef9ff] h-9 w-9" />
+      <HiOutlineChevronDoubleUp className="text-[#cef9ff] h-9 w-9" />
     </button>
   );
 };

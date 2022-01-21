@@ -3,8 +3,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 import { useWindowSize, useIsMounted } from "hooks";
-import { ProgressBar, TypedText } from "..";
-import { SunIcon, MoonIcon } from "@heroicons/react/outline";
+import { ProgressBar, ToolTip, TypedText } from "..";
+import { FiSun } from "react-icons/fi";
+import { BsMoonStars } from "react-icons/bs";
 
 const NavBar = () => {
   const navigationMobileRef = useRef<HTMLUListElement>(null);
@@ -180,22 +181,27 @@ const NavBar = () => {
               }`}
             ></span>
           </button>
-          <button
-            aria-label="Toggle Dark Mode"
-            type="button"
-            className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform  duration-700 -translate-x-2/4 md:transform-none md:relative md:left-0 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          <ToolTip
+            position="bottom"
+            content={theme === "dark" ? "Light Mode" : "Dark Mode"}
           >
-            {isMounted.current && (
-              <>
-                {theme === "dark" ? (
-                  <SunIcon className="w-5 h-5 text-blue-100" />
-                ) : (
-                  <MoonIcon className="w-5 h-5 text-blue-100" />
-                )}
-              </>
-            )}
-          </button>
+            <button
+              aria-label="Toggle Dark Mode"
+              type="button"
+              className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform  duration-700 -translate-x-2/4 -translate-y-[18px] md:transform-none md:relative md:left-0 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {isMounted.current && (
+                <>
+                  {theme === "dark" ? (
+                    <FiSun className="w-5 h-5 text-blue-100" />
+                  ) : (
+                    <BsMoonStars className="w-5 h-5 text-blue-100" />
+                  )}
+                </>
+              )}
+            </button>
+          </ToolTip>
         </div>
         <ProgressBar />
       </nav>
