@@ -176,3 +176,12 @@ section {
   }
   /* #endregion  /**======== Animate Shadow =========== */
 }
+
+/* Tippy */
+.tippy-tooltip [x-circle] {
+  background-color: transparent !important;
+}
+
+.tippy-tooltip {
+  padding: 0 0.8rem !important;
+}
