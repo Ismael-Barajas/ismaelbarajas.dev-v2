@@ -102,7 +102,17 @@ section {
   color: black;
 }
 
+.materialui-btn {
+  background-color: white;
+  color: #007fff;
+}
+
 .next-btn {
+  background-color: #0000007b;
+  color: white;
+}
+
+.flask-btn {
   background-color: #0000007b;
   color: white;
 }
@@ -144,7 +154,12 @@ section {
 
 .beanstalk-btn {
   background-color: #62c4727b;
-  color: #24723c;
+  color: #d2dfd6;
+}
+
+.leaflet-btn {
+  background-color: white;
+  color: #93b550;
 }
 
 .firebase-btn {

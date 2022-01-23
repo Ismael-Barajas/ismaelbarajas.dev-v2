@@ -19,7 +19,11 @@ import {
   SiAmazonaws,
   SiSqlite,
   SiAmazondynamodb,
+  SiMaterialui,
+  SiLeaflet,
+  SiFlask,
 } from "react-icons/si";
+import { GiArtificialIntelligence } from "react-icons/gi";
 import { ToolTip } from "components";
 
 export type TechListType = keyof typeof techList;
@@ -145,5 +149,25 @@ const techList = {
     icon: GiBeanstalk,
     name: "Beanstalkd",
     className: "beanstalk-btn",
+  },
+  mui: {
+    icon: SiMaterialui,
+    name: "Material-UI",
+    className: "materialui-btn",
+  },
+  leaflet: {
+    icon: SiLeaflet,
+    name: "Leaflet.js",
+    className: "leaflet-btn",
+  },
+  flask: {
+    icon: SiFlask,
+    name: "Flask",
+    className: "flask-btn",
+  },
+  ai: {
+    icon: GiArtificialIntelligence,
+    name: "Machine Learning",
+    className: "flask-btn",
   },
 };
