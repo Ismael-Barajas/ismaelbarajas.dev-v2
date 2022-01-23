@@ -16,6 +16,7 @@ const Projects = () => {
               img={project.img}
               tags={project.tags as Array<TechListType>}
               url={project.url}
+              name={project.name}
             />
           );
         })}
