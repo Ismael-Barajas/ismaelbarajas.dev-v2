@@ -1,29 +1,70 @@
 [
   {
-    "img": "/PurposerLogo.png",
-    "url": "#",
-    "github_url": "https://github.com",
+    "img": "https://opengraph.githubassets.com/68e6433c7e0ca077f7860541cd143d43d18b4ae60a760c784091922d156bc5ce/Ismael-Barajas/Twitter-like-microblogging-service",
+    "name": "Twitter like Micro-Blogging Service",
+    "url": "https://github.com/Ismael-Barajas/Twitter-like-microblogging-service",
+    "github_url": "https://github.com/Ismael-Barajas/Twitter-like-microblogging-service",
     "body": [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+      "Users can post messages, repost messages, view global messages, see a timeline of messages from other users, narrow timelines to consist of only users they are following, follow or unfollow users, update user profile info, see who you are following and who is following you, like messages, create polls, and view/respond to polls. Asynchronous messaging queues are used for Asynchronous Posting and performing background processing using workers."
     ],
-    "tags": [
-      "react",
-      "nextjs",
-      "tailwindcss",
-      "firebase",
-      "redux",
-      "mdx",
-      "git",
-      "python",
-      "redis",
-      "aws",
-      "dynamodb",
-      "sqlite",
-      "beanstalkd",
-      "prettier",
-      "swr",
-      "nodejs",
-      "typescript"
-    ]
+    "tags": ["python", "redis", "dynamodb", "sqlite", "beanstalkd"]
+  },
+  {
+    "img": "/images/somliere.png",
+    "name": "soMLiere",
+    "url": "https://somliere.vercel.app/",
+    "github_url": "https://github.com/Ismael-Barajas/somliere",
+    "body": ["Predict and assign a 'quality' score rating to a bottle of wine"],
+    "tags": ["react", "nextjs", "javascript", "aws", "mui", "python", "ai"]
+  },
+  {
+    "img": "/images/nxt-fire-app.png",
+    "name": "Next Fire Application",
+    "url": "https://nxt-fire-app.vercel.app/",
+    "github_url": "https://github.com/Ismael-Barajas/nxt-fire-app",
+    "body": [
+      "A Full-stack Social Blogging Platform. A part of Next.js Firebase Course project."
+    ],
+    "tags": ["react", "nextjs", "firebase", "javascript"]
+  },
+  {
+    "img": "/images/TimeLines.png",
+    "name": "TimeLines",
+    "url": "https://timelines-ismael-barajas.vercel.app/",
+    "github_url": "https://github.com/Ismael-Barajas/Timelines",
+    "body": [
+      "A web application project created with the idea of being able to easily search up or share someone's Github repository history in a consolidated view."
+    ],
+    "tags": ["react", "nextjs", "javascript", "mui"]
+  },
+  {
+    "img": "/images/Covid19.png",
+    "name": "COVID-19 Watch",
+    "url": "https://covid-19-watch-349.herokuapp.com/",
+    "github_url": "https://github.com/Ismael-Barajas/Covid19-Website",
+    "body": [
+      "A 'COVID-Tracker' website that includes updated COVID-19 related information and visuals such as graphs and a map to depict the data."
+    ],
+    "tags": ["react", "javascript", "mui", "leaflet"]
+  },
+  {
+    "img": "/images/PersonalWebsite.png",
+    "name": "ismaelbarajas.dev-v1",
+    "url": "https://ismaelbarajas.dev/",
+    "github_url": "https://github.com/Ismael-Barajas/ismaelbarajas.dev",
+    "body": [
+      "Personal website built with React, Bootstrapped with Create React App. Hosted/Deployed with Firebase."
+    ],
+    "tags": ["react", "javascript", "mui", "firebase"]
+  },
+  {
+    "img": "/images/QuizzieBizzie.png",
+    "name": "QuizzieBizzie",
+    "url": "https://quizziebizzie.herokuapp.com/",
+    "github_url": "https://github.com/Ismael-Barajas/QuizzieBizzie",
+    "body": [
+      "Website where users can create and take quizzes. Built using Flask, Python, and SQLite."
+    ],
+    "tags": ["flask", "python", "sqlite"]
   }
 ]
