@@ -123,7 +123,7 @@ const NowPlaying = () => {
         ) : (
           <div className="w-[90px] h-[90px] animate-pulse bg-[#2b2828]" />
         )}
-        <div className="max-w-xs">
+        <div className="max-w-xs flex flex-col">
           {data?.songUrl ? (
             <div className="">
               <AnimatedBars />
@@ -145,7 +145,7 @@ const NowPlaying = () => {
               </p>
             </a>
           ) : (
-            <p className="text-[color:var(--secondary-light)] font-medium truncate text-lg ">
+            <p className="text-[color:var(--secondary-light)] font-medium truncate text-lg">
               Not Playing
             </p>
           )}
