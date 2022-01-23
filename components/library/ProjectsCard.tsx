@@ -5,6 +5,7 @@ import { ToolTip } from "components";
 import TagIcons, { TechListType } from "./TagIcons";
 
 interface Props {
+  name: string;
   img: string;
   url: string;
   github_url: string;
@@ -12,7 +13,7 @@ interface Props {
   tags: Array<TechListType>;
 }
 
-const ProjectsCard = ({ img, url, github_url, tags, body }: Props) => {
+const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
   return (
     <div className="rounded-md shadow-card hover:shadow-h-card transition-all ease-in-out duration-300 text-text bg-background max-w-lg transform-gpu scale-100 hover:scale-[1.01]">
       <div className="h-full">
@@ -23,8 +24,9 @@ const ProjectsCard = ({ img, url, github_url, tags, body }: Props) => {
             layout="fill"
             alt="test"
             objectFit="cover"
+            className="rounded-t-md"
           />
-          <TagIcons techs={tags} className="absolute px-2" />
+          <TagIcons techs={tags} className="absolute px-2 pb-1" />
           {/* <div className="absolute bottom-0 flex flex-col flex-grow justify-end px-2">
             <ul className="flex flex-wrap">
               {tags.map((tag, index) => {
@@ -40,6 +42,7 @@ const ProjectsCard = ({ img, url, github_url, tags, body }: Props) => {
             </ul>
           </div> */}
         </div>
+        <h3 className="text-text text-2xl text-center font-semibold">{name}</h3>
         <div className="flex justify-center py-3">
           <ToolTip content="Visit the live site!" position="left">
             <a
