@@ -1,5 +1,15 @@
 [
   {
+    "img": "/images/ismaelbarajasv2.png",
+    "name": "ismaelbarajas.dev-v2",
+    "url": "/",
+    "github_url": "https://github.com/Ismael-Barajas/ismaelbarajas.dev-v2",
+    "body": [
+      "Personal website built with Next.js. Hosted and deployed on Vercel."
+    ],
+    "tags": ["react", "nextjs", "tailwindcss", "git", "typescript", "swr"]
+  },
+  {
     "img": "https://opengraph.githubassets.com/68e6433c7e0ca077f7860541cd143d43d18b4ae60a760c784091922d156bc5ce/Ismael-Barajas/Twitter-like-microblogging-service",
     "name": "Twitter like Micro-Blogging Service",
     "url": "https://github.com/Ismael-Barajas/Twitter-like-microblogging-service",
@@ -7,7 +17,7 @@
     "body": [
       "Users can post messages, repost messages, view global messages, see a timeline of messages from other users, narrow timelines to consist of only users they are following, follow or unfollow users, update user profile info, see who you are following and who is following you, like messages, create polls, and view/respond to polls. Asynchronous messaging queues are used for Asynchronous Posting and performing background processing using workers."
     ],
-    "tags": ["python", "redis", "dynamodb", "sqlite", "beanstalkd"]
+    "tags": ["python", "git", "redis", "dynamodb", "sqlite", "beanstalkd"]
   },
   {
     "img": "/images/somliere.png",
@@ -15,7 +25,16 @@
     "url": "https://somliere.vercel.app/",
     "github_url": "https://github.com/Ismael-Barajas/somliere",
     "body": ["Predict and assign a 'quality' score rating to a bottle of wine"],
-    "tags": ["react", "nextjs", "javascript", "aws", "mui", "python", "ai"]
+    "tags": [
+      "react",
+      "nextjs",
+      "javascript",
+      "git",
+      "aws",
+      "mui",
+      "python",
+      "ai"
+    ]
   },
   {
     "img": "/images/nxt-fire-app.png",
@@ -25,7 +44,7 @@
     "body": [
       "A Full-stack Social Blogging Platform. A part of Next.js Firebase Course project."
     ],
-    "tags": ["react", "nextjs", "firebase", "javascript"]
+    "tags": ["react", "nextjs", "firebase", "javascript", "git"]
   },
   {
     "img": "/images/TimeLines.png",
@@ -35,7 +54,7 @@
     "body": [
       "A web application project created with the idea of being able to easily search up or share someone's Github repository history in a consolidated view."
     ],
-    "tags": ["react", "nextjs", "javascript", "mui"]
+    "tags": ["react", "nextjs", "javascript", "git", "mui"]
   },
   {
     "img": "/images/Covid19.png",
@@ -45,17 +64,17 @@
     "body": [
       "A 'COVID-Tracker' website that includes updated COVID-19 related information and visuals such as graphs and a map to depict the data."
     ],
-    "tags": ["react", "javascript", "mui", "leaflet"]
+    "tags": ["react", "javascript", "mui", "leaflet", "git"]
   },
   {
     "img": "/images/PersonalWebsite.png",
     "name": "ismaelbarajas.dev-v1",
-    "url": "https://ismaelbarajas.dev/",
+    "url": "https://my-website-9655b.web.app/",
     "github_url": "https://github.com/Ismael-Barajas/ismaelbarajas.dev",
     "body": [
       "Personal website built with React, Bootstrapped with Create React App. Hosted/Deployed with Firebase."
     ],
-    "tags": ["react", "javascript", "mui", "firebase"]
+    "tags": ["react", "git", "javascript", "mui", "firebase"]
   },
   {
     "img": "/images/QuizzieBizzie.png",
@@ -65,6 +84,6 @@
     "body": [
       "Website where users can create and take quizzes. Built using Flask, Python, and SQLite."
     ],
-    "tags": ["flask", "python", "sqlite"]
+    "tags": ["flask", "python", "sqlite", "git"]
   }
 ]
