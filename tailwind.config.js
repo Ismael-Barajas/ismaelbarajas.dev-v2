@@ -16,6 +16,7 @@ module.exports = {
       },
       minHeight: {
         "screen-without-nav": "calc(100vh - 4rem)",
+        "screen-contact": "calc(100vh - 10rem)",
       },
       colors: {
         primary: "var(--primary)",
