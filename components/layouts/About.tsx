@@ -1,3 +1,4 @@
+import { TypedText } from "components";
 import { calculateAge } from "lib/age";
 import { useEffect, useState } from "react";
 
@@ -13,7 +14,15 @@ const About = () => {
 
   return (
     <div className="container min-h-screen-without-nav">
-      <div className="text-text text-center py-12 text-xl">
+      <h2 className="font-bold text-center py-5 text-text text-4xl">
+        <TypedText
+          className="animated-underline"
+          strings={["About Me."]}
+          loop={false}
+          whiteSpace={"normal"}
+        />
+      </h2>
+      <div className="text-text text-center pb-12 text-xl">
         <p>Hi! My name is Ismael Barajas.</p>
         <br />
         <p>
@@ -36,9 +45,17 @@ const About = () => {
         </p>
         <br />
         <p>
-          Feel free to contact me anytime through any of the platforms above!
-          Thanks for stopping by!
+          Feel free to contact me anytime through any of the platforms{" "}
+          <a
+            href="#contact"
+            className="shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500"
+          >
+            below
+          </a>
+          !
         </p>
+        <br />
+        <p>Thanks for stopping by!</p>
       </div>
     </div>
   );
