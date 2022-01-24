@@ -7,6 +7,7 @@ interface Props {
   position: Position;
   body: string[];
   tags: Array<TechListType>;
+  url: string;
 }
 
 interface Position {
@@ -14,11 +15,16 @@ interface Position {
   time_commitment: string;
 }
 
-const ExperienceCard = ({ img, position, body, tags }: Props) => {
+const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
   return (
     <div className="rounded-md p-6 shadow-card hover:shadow-h-card  transition-all ease-in-out duration-300 text-text bg-secondary  transform-gpu scale-100 hover:scale-[1.01]">
       <div className="h-full">
-        <a target="_blank" href="#" rel="noopener" className="h-full">
+        <a
+          target="_blank"
+          href={url}
+          rel="noopener noreferrer"
+          className="h-full"
+        >
           <div className="relative h-24 max-h-24 text-center mb-2 transition-all duration-500 ease-in-out hover:shadow-card rounded-sm transform-gpu active:scale-[0.97] active:shadow-inner">
             <Image
               priority
@@ -38,7 +44,7 @@ const ExperienceCard = ({ img, position, body, tags }: Props) => {
             return <p key={index}>{paragraph}</p>;
           })}
         </div>
-        <TagIcons techs={tags} />
+        <TagIcons techs={tags} className="mt-2" />
         {/* <div className="flex flex-col mt-4 flex-grow justify-end">
           <ul className="flex flex-wrap">
             {tags.map((tag, index) => {

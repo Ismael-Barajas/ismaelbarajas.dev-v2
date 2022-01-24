@@ -73,7 +73,7 @@ const techList = {
   tailwindcss: {
     icon: SiTailwindcss,
     name: "Tailwind CSS",
-    className: "",
+    className: "tailwind-btn",
   },
   javascript: {
     icon: SiJavascript,
@@ -88,7 +88,7 @@ const techList = {
   nodejs: {
     icon: SiNodedotjs,
     name: "Node.js",
-    className: "-btn",
+    className: "nodejs-btn",
   },
   firebase: {
     icon: SiFirebase,
@@ -113,12 +113,12 @@ const techList = {
   prettier: {
     icon: SiPrettier,
     name: "Prettier",
-    className: "-btn",
+    className: "prettier-btn",
   },
   git: {
     icon: SiGit,
     name: "Git",
-    className: "-btn",
+    className: "git-btn",
   },
   python: {
     icon: SiPython,

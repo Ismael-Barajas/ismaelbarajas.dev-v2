@@ -103,7 +103,7 @@ section {
 }
 
 .materialui-btn {
-  background-color: white;
+  background-color: #ffffff7b;
   color: #007fff;
 }
 
@@ -125,6 +125,10 @@ section {
 .typescript-btn {
   background-color: #007acc7b;
   color: white;
+}
+.tailwind-btn {
+  background-color: #0b11207b;
+  color: #38bdf8;
 }
 
 .redux-btn {
@@ -158,13 +162,28 @@ section {
 }
 
 .leaflet-btn {
-  background-color: white;
+  background-color: #ffffff7b;
   color: #93b550;
+}
+
+.nodejs-btn {
+  background-color: #3333337b;
+  color: #73aa62;
 }
 
 .firebase-btn {
   background-color: #ffa0007b;
   color: #63666a;
+}
+
+.prettier-btn {
+  background-color: #56b3b47b;
+  color: #c596c7;
+}
+
+.git-btn {
+  background-color: #ffffff7b;
+  color: #f44d27;
 }
 
 @layer utilities {
