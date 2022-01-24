@@ -98,91 +98,91 @@ section {
 }
 
 .react-btn {
-  background-color: #61dafb7b;
+  background-color: #61dafbc9;
   color: black;
 }
 
 .materialui-btn {
-  background-color: #ffffff7b;
+  background-color: #ffffffc9;
   color: #007fff;
 }
 
 .next-btn {
-  background-color: #0000007b;
+  background-color: #000000c9;
   color: white;
 }
 
 .flask-btn {
-  background-color: #0000007b;
+  background-color: #000000c9;
   color: white;
 }
 
 .javascript-btn {
-  background-color: #f0db4f7b;
+  background-color: #f0db4fc9;
   color: black;
 }
 
 .typescript-btn {
-  background-color: #007acc7b;
+  background-color: #007accc9;
   color: white;
 }
 .tailwind-btn {
-  background-color: #0b11207b;
+  background-color: #0b1120c9;
   color: #38bdf8;
 }
 
 .redux-btn {
-  background-color: #764abc7b;
+  background-color: #764abcc9;
   color: white;
 }
 
 .python-btn {
-  background-color: #366f9f7b;
+  background-color: #366f9fc9;
   color: #ffd650;
 }
 
 .redis-btn {
-  background-color: #a41e117b;
+  background-color: #a41e11c9;
   color: white;
 }
 
 .aws-btn {
-  background-color: #f585347b;
+  background-color: #f58534c9;
   color: black;
 }
 
 .sqlite-btn {
-  background-color: #003b577b;
+  background-color: #003b57c9;
   color: #8fd4f3;
 }
 
 .beanstalk-btn {
-  background-color: #62c4727b;
+  background-color: #62c472c9;
   color: #d2dfd6;
 }
 
 .leaflet-btn {
-  background-color: #ffffff7b;
+  background-color: #ffffffc9;
   color: #93b550;
 }
 
 .nodejs-btn {
-  background-color: #3333337b;
+  background-color: #333333c9;
   color: #73aa62;
 }
 
 .firebase-btn {
-  background-color: #ffa0007b;
+  background-color: #ffa000c9;
   color: #63666a;
 }
 
 .prettier-btn {
-  background-color: #56b3b47b;
+  background-color: #56b3b4c9;
   color: #c596c7;
 }
 
 .git-btn {
-  background-color: #ffffff7b;
+  background-color: #ffffffc9;
   color: #f44d27;
 }
 
