@@ -126,7 +126,7 @@ const NavBar = () => {
   return (
     <header>
       <nav
-        className={`transition-all duration-700 ease-in-out fixed text-text bg-secondary-light dark:bg-secondary-dark/95 bg-opacity-95 h-16 w-full z-50 ${
+        className={`transition-all duration-700 ease-in-out fixed text-text bg-secondary-light dark:bg-secondary-dark/70 backdrop-blur-sm bg-opacity-70 h-16 w-full z-50 ${
           onTop ? "" : "shadow-card"
         }`}
       >
