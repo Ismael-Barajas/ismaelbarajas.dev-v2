@@ -14,7 +14,7 @@ const Hero = () => {
           <TypedText
             strings={[
               "Hi!^750",
-              "Wow, thanks for stopping by! Site is still being worked on so some stuff might be broken/missing oops (:",
+              "Site is still being worked on so some stuff might be broken/missing oops :3",
             ]}
             loop={false}
             whiteSpace={"normal"}
