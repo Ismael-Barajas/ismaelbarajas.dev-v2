@@ -26,11 +26,10 @@ const About = () => {
         <p>Hi! My name is Ismael Barajas.</p>
         <br />
         <p>
-          I&apos;m a {age} year old senior student at California State
-          University, Fullerton. Expected to graduate in May 2022 with an B.S.
-          in Computer Science. When I&apos;m not coding, I enjoy playing video
-          games (unhealthy amount of Valorant) and building/collecting
-          keyboards.
+          I&apos;m a {age} year old recent graduate from California State
+          University, Fullerton with a B.S. in Computer Science. When I&apos;m
+          not coding, I enjoy playing video games (an unhealthy amount of
+          Valorant) and building/collecting keyboards.
         </p>
         <br />
         <p>
