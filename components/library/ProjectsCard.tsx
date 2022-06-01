@@ -22,7 +22,7 @@ const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
             priority
             src={img}
             layout="fill"
-            alt="test"
+            alt={name}
             objectFit="cover"
             className="rounded-t-md"
           />
