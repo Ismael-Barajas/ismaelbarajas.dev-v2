@@ -1,6 +1,7 @@
 import { TypedText } from "components";
 import { calculateAge } from "lib/age";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const About = () => {
   const [age, setAge] = useState("");
@@ -23,6 +24,15 @@ const About = () => {
         />
       </h2>
       <div className="text-text text-center pb-12 text-xl">
+        <Image
+          src="/images/ismaelbarajas.jpg"
+          alt="Rounded Avatar"
+          width={240}
+          height={240}
+          objectFit="cover"
+          className="rounded-full"
+          quality={100}
+        />
         <p>Hi! My name is Ismael Barajas.</p>
         <br />
         <p>
