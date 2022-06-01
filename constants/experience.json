@@ -3,11 +3,11 @@
     "img": "/images/PurposerLogo.png",
     "url": "https://www.purposer.com/",
     "position": {
-      "position": "Front-End Developer - Internship",
-      "time_commitment": "Jul 2021 - Current"
+      "position": "Software Developer - Internship",
+      "time_commitment": "Jul 2021 - May 2022"
     },
     "body": [
-      "Agile startup project environment with small team of developers. Developed web and mobile user interfaces for desktop web. Developed interfaces/user experiences for over a hundred React components/layouts."
+      "Agile startup project environment with small team of developers. Developed web and mobile user interfaces for desktop web. Developed interfaces/user experiences for over a hundred React components/layouts. Worked on API and database design and implementation."
     ],
     "tags": [
       "react",
