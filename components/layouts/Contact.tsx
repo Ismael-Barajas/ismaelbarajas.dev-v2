@@ -1,5 +1,11 @@
 import { TypedText } from "components";
-import { FaTwitter, FaInstagram, FaGithub, FaLinkedin } from "react-icons/fa";
+import {
+  FaTwitter,
+  FaInstagram,
+  FaGithub,
+  FaLinkedin,
+  FaTwitch,
+} from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
 
 const contactInfo = [
@@ -22,6 +28,10 @@ const contactInfo = [
   {
     icon: <FaInstagram className="h-10 w-10" />,
     url: "https://instagram.com/lnxanee",
+  },
+  {
+    icon: <FaTwitch className="h-10 w-10" />,
+    url: "https://www.twitch.tv/inxanee",
   },
 ];
 
