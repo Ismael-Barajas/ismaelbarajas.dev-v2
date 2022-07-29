@@ -27,7 +27,7 @@ const Hero = () => {
           <span className="animated-underline text-primary ">Ismael</span> but
           you can call me{" "}
           <TypedText
-            strings={["ish^2000 or ishy! :3"]}
+            strings={["ish^1400 or ishy! :3"]}
             loop={false}
             whiteSpace={"normal"}
           />
