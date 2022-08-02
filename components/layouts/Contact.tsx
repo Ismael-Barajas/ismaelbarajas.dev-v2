@@ -47,7 +47,7 @@ const Contact = () => {
         />
       </h2>
       <div className="flex justify-center items-center content-center min-h-screen-contact">
-        <div className="flex gap-4 lg:gap-6 justify-center">
+        <div className="flex gap-4 lg:gap-6 justify-center flex-wrap">
           {contactInfo.map((contact, index) => {
             return (
               <a
