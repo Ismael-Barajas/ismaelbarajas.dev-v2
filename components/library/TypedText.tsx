@@ -12,15 +12,22 @@ interface Props {
     | "pre-line"
     | "break-spaces";
   className?: string;
+  typeSpeed?: number;
 }
 
-const TypedText = ({ strings, loop, whiteSpace, className }: Props) => {
+const TypedText = ({
+  strings,
+  loop,
+  whiteSpace,
+  className,
+  typeSpeed,
+}: Props) => {
   const el = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const options = {
       strings: strings,
-      typeSpeed: 100,
+      typeSpeed: typeSpeed ? typeSpeed : 100,
       backSpeed: 75,
       loop: loop,
     };
