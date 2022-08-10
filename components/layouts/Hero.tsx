@@ -23,13 +23,13 @@ const Hero = () => {
           />
         </h1> */}
         <h1 className="text-text mt-1 text-3xl md:text-5xl 2xl:text-6xl">
-          My name is{" "}
-          <span className="animated-underline text-primary ">Ismael</span> but
-          you can call me{" "}
           <TypedText
-            strings={["ish^1400 or ishy! :3"]}
+            strings={[
+              "My name is plastered everywhere here im sure you can figure it out, if not you can call me ish or ishy :3",
+            ]}
             loop={false}
             whiteSpace={"normal"}
+            typeSpeed={40}
           />
         </h1>
         <p
