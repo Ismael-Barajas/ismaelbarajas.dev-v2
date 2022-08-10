@@ -1,6 +1,7 @@
 import { TypedText } from "components";
 import { calculateAge } from "lib/age";
 import { useEffect, useState } from "react";
+import { ToolTip } from "..";
 import Image from "next/image";
 
 const About = () => {
@@ -39,7 +40,12 @@ const About = () => {
           I&apos;m a {age} year old recent graduate from California State
           University, Fullerton with a B.S. in Computer Science. When I&apos;m
           not coding, I enjoy playing video games (an unhealthy amount of
-          Valorant) and building/collecting keyboards.
+          Valorant) and building/collecting{" "}
+          <ToolTip position="bottom" content={"Coming soon!"}>
+            <a className="shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500">
+              keyboards.
+            </a>
+          </ToolTip>
         </p>
         <br />
         <p>
