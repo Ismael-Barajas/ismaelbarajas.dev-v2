@@ -1,9 +1,23 @@
 [
   {
+    "img": "/images/GM-logo-2021.png",
+    "url": "https://www.gm.com/",
+    "position": {
+      "position": "Software Developer",
+      "time_commitment": "Jul 2022 - Current"
+    },
+    "body": [
+      "GPSC Software Developer.",
+      "Project has not started yet.",
+      "So this will update once that gets going :)"
+    ],
+    "tags": []
+  },
+  {
     "img": "/images/PurposerLogo.png",
     "url": "https://www.purposer.com/",
     "position": {
-      "position": "Software Developer - Internship",
+      "position": "Full-Stack Developer - Internship",
       "time_commitment": "Jul 2021 - May 2022"
     },
     "body": [
