@@ -2,10 +2,8 @@
   {
     "img": "/images/GM-logo-2021.png",
     "url": "https://www.gm.com/",
-    "position": {
-      "position": "Software Developer",
-      "time_commitment": "Jul 2022 - Current"
-    },
+    "position": "Software Developer",
+    "time_commitment": "Jul 2022 - Current",
     "body": [
       "GPSC Software Developer.",
       "Project has not started yet.",
@@ -16,10 +14,8 @@
   {
     "img": "/images/PurposerLogo.png",
     "url": "https://www.purposer.com/",
-    "position": {
-      "position": "Full-Stack Developer - Internship",
-      "time_commitment": "Jul 2021 - May 2022"
-    },
+    "position": "Full-Stack Developer - Internship",
+    "time_commitment": "Jul 2021 - May 2022",
     "body": [
       "Agile startup project environment with small team of developers. Developed web and mobile user interfaces for desktop web. Developed interfaces/user experiences for over a hundred React components/layouts. Worked on API and database design and implementation."
     ],

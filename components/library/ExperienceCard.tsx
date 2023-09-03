@@ -4,18 +4,21 @@ import { TechListType } from "./TagIcons";
 
 interface Props {
   img: string;
-  position: Position;
   body: string[];
   tags: Array<TechListType>;
   url: string;
-}
-
-interface Position {
   position: string;
   time_commitment: string;
 }
 
-const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
+const ExperienceCard = ({
+  img,
+  position,
+  body,
+  tags,
+  url,
+  time_commitment,
+}: Props) => {
   return (
     <div className="rounded-md p-6 shadow-card hover:shadow-h-card  transition-all ease-in-out duration-300 text-text bg-secondary  transform-gpu scale-100 hover:scale-[1.01]">
       <div className="h-full">
@@ -36,8 +39,8 @@ const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
           </div>
         </a>
         <div className="text-center text-sm py-3 text-gray-500 dark:text-gray-400">
-          <p>{position.position}</p>
-          <p>{position.time_commitment}</p>
+          <p>{position}</p>
+          <p>{time_commitment}</p>
         </div>
         <div className="text-lg leading-relaxed">
           {body.map((paragraph, index) => {
