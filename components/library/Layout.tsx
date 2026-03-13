@@ -1,7 +1,8 @@
 import { NextComponentType } from "next";
+import { ReactNode } from "react";
 import { NavBar } from "..";
 
-const Layout: NextComponentType = ({ children }) => {
+const Layout: NextComponentType<any, any, { children: ReactNode }> = ({ children }) => {
   return (
     <>
       <NavBar />

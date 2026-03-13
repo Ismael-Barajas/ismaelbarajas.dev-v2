@@ -37,7 +37,7 @@ const NavBar = () => {
   });
 
   const linkClicked = (
-    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
     if (event.currentTarget.href.indexOf("cv") > -1) {
       document.querySelectorAll("nav li a").forEach((navEl) => {
@@ -60,65 +60,50 @@ const NavBar = () => {
     return (
       <>
         <li className={listItemClasses}>
-          <Link href={{ pathname: "/", hash: "about" }}>
-            <a
-              className={router.pathname != "/" ? resetClasses : linkClasses}
-              onClick={linkClicked}
-            >
-              About
-            </a>
+          <Link
+            href={{ pathname: "/", hash: "about" }}
+            className={router.pathname != "/" ? resetClasses : linkClasses}
+            onClick={linkClicked}
+          >
+            About
           </Link>
         </li>
         <li className={listItemClasses}>
-          <Link href={{ pathname: "/", hash: "experience" }}>
-            <a
-              className={router.pathname != "/" ? resetClasses : linkClasses}
-              onClick={linkClicked}
-            >
-              Experience
-            </a>
+          <Link
+            href={{ pathname: "/", hash: "experience" }}
+            className={router.pathname != "/" ? resetClasses : linkClasses}
+            onClick={linkClicked}
+          >
+            Experience
           </Link>
         </li>
         <li className={listItemClasses}>
-          <Link href={{ pathname: "/", hash: "projects" }}>
-            <a
-              className={router.pathname != "/" ? resetClasses : linkClasses}
-              onClick={linkClicked}
-            >
-              Projects
-            </a>
+          <Link
+            href={{ pathname: "/", hash: "projects" }}
+            className={router.pathname != "/" ? resetClasses : linkClasses}
+            onClick={linkClicked}
+          >
+            Projects
           </Link>
         </li>
         <li className={listItemClasses}>
-          <Link href={{ pathname: "/", hash: "contact" }}>
-            <a
-              className={router.pathname != "/" ? resetClasses : linkClasses}
-              onClick={linkClicked}
-            >
-              Contact
-            </a>
+          <Link
+            href={{ pathname: "/", hash: "contact" }}
+            className={router.pathname != "/" ? resetClasses : linkClasses}
+            onClick={linkClicked}
+          >
+            Contact
           </Link>
         </li>
         <li className={listItemClasses}>
-          <Link href={{ pathname: "/listen" }}>
-            <a
-              className={router.pathname === "/listen" ? linkPage : linkClasses}
-              onClick={linkClicked}
-            >
-              Listen
-            </a>
+          <Link
+            href={{ pathname: "/listen" }}
+            className={router.pathname === "/listen" ? linkPage : linkClasses}
+            onClick={linkClicked}
+          >
+            Listen
           </Link>
         </li>
-        {/* <li className={listItemClasses}>
-          <Link href="/cv">
-            <a
-              onClick={linkClicked}
-              className={router.pathname === "/cv" ? linkPage : linkClasses}
-            >
-              CV
-            </a>
-          </Link>
-        </li> */}
       </>
     );
   };
@@ -137,15 +122,13 @@ const NavBar = () => {
           >
             Skip to content
           </a>
-          <Link passHref href={{ pathname: "/" }}>
-            <a className="flex flex-row text-text text-lg lg:text-2xl w-[115px] font-medium">
-              <TypedText
-                strings={["Ismael Barajas"]}
-                loop={false}
-                whiteSpace={"pre"}
-                className={"animated-underline"}
-              />
-            </a>
+          <Link href={{ pathname: "/" }} className="flex flex-row text-text text-lg lg:text-2xl w-[115px] font-medium">
+            <TypedText
+              strings={["Ismael Barajas"]}
+              loop={false}
+              whiteSpace={"pre"}
+              className={"animated-underline"}
+            />
           </Link>
           <ul className="hidden md:flex md:gap-4 lg:gap-6">
             {renderNavigationItems()}
@@ -188,7 +171,7 @@ const NavBar = () => {
             <button
               aria-label="Toggle Dark Mode"
               type="button"
-              className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 absolute left-2/4 transform  duration-700 -translate-x-2/4 -translate-y-[18px] md:transform-none md:relative md:left-0 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all"
+              className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all duration-700"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
               {isMounted.current && (

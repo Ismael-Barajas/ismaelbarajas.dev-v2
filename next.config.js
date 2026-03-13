@@ -2,6 +2,10 @@
 module.exports = {
   reactStrictMode: true,
   images: {
-    domains: ["i.scdn.co", "opengraph.githubassets.com"],
+    qualities: [75, 100],
+    remotePatterns: [
+      { protocol: "https", hostname: "i.scdn.co" },
+      { protocol: "https", hostname: "opengraph.githubassets.com" },
+    ],
   },
 };

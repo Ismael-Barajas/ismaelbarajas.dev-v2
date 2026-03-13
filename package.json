@@ -1,6 +1,9 @@
 {
   "name": "ismaelbarajas.dev-rebuild",
   "private": true,
+  "engines": {
+    "node": ">=22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -8,28 +11,29 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "clsx": "^1.1.1",
-    "motion": "^10.5.0",
-    "next": "^12.0.7",
-    "next-themes": "^0.0.15",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-icons": "^4.3.1",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@tailwindcss/postcss": "^4.2.1",
+    "clsx": "^2.1.1",
+    "motion": "^12.36.0",
+    "next": "^16.1.6",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-icons": "^5.6.0",
     "react-palette": "^1.0.2",
-    "react-tippy": "^1.4.0",
     "smoothscroll-polyfill": "^0.4.4",
-    "swr": "^1.1.2",
-    "typed.js": "^2.0.12",
+    "swr": "^2.4.1",
+    "typed.js": "^3.0.0",
     "use-delayed-render": "^0.0.7"
   },
   "devDependencies": {
-    "@types/node": "16.11.10",
-    "@types/react": "17.0.37",
-    "autoprefixer": "^10.4.0",
-    "eslint": "7.32.0",
-    "eslint-config-next": "12.0.4",
-    "postcss": "^8.4.5",
-    "tailwindcss": "^3.0.7",
-    "typescript": "4.5.2"
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^10.0.3",
+    "eslint-config-next": "^16.1.6",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3"
   }
 }
