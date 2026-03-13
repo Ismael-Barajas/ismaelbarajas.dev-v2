@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 /* Works on Firefox */
 * {
@@ -211,11 +210,3 @@ section {
   /* #endregion  /**======== Animate Shadow =========== */
 }
 
-/* Tippy */
-.tippy-tooltip [x-circle] {
-  background-color: transparent !important;
-}
-
-.tippy-tooltip {
-  padding: 0 0.8rem !important;
-}

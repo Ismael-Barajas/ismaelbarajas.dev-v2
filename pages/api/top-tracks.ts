@@ -7,13 +7,17 @@ export default async function topTracks(
   res: NextApiResponse
 ) {
   const response = await getTopTracks();
-  const { items } = await response.json();
+  const data = await response.json();
 
-  const tracks = items
+  if (!response.ok || !data.items) {
+    return res.status(200).json({ tracks: [] });
+  }
+
+  const tracks = data.items
     .slice(0, 10)
     .map(
       (track: {
-        artists: any[];
+        artists: { name: any }[];
         external_urls: { spotify: any };
         name: any;
       }) => ({

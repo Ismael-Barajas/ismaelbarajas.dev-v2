@@ -25,15 +25,17 @@ const About = () => {
         />
       </h2>
       <div className="text-text text-center pb-12 text-xl">
-        <Image
-          src="/images/ismaelbarajas.jpg"
-          alt="Rounded Avatar"
-          width={240}
-          height={240}
-          objectFit="cover"
-          className="rounded-full"
-          quality={100}
-        />
+        <div className="flex justify-center mb-6">
+          <div className="relative w-60 h-60 rounded-full overflow-hidden">
+            <Image
+              src="/images/ismaelbarajas.jpg"
+              alt="Rounded Avatar"
+              fill
+              className="object-cover"
+              quality={100}
+            />
+          </div>
+        </div>
         <p>Hi! My name is Ismael Barajas.</p>
         <br />
         <p>

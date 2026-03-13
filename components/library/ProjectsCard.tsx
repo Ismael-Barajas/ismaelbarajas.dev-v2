@@ -21,10 +21,9 @@ const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
           <Image
             priority
             src={img}
-            layout="fill"
+            fill
             alt={name}
-            objectFit="cover"
-            className="rounded-t-md"
+            className="rounded-t-md object-cover"
           />
           <TagIcons techs={tags} className="absolute px-2 pb-1" />
           {/* <div className="absolute bottom-0 flex flex-col flex-grow justify-end px-2">

@@ -29,9 +29,9 @@ const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
             <Image
               priority
               src={img}
-              layout="fill"
+              fill
               alt="test"
-              objectFit="contain"
+              className="object-contain"
             />
           </div>
         </a>

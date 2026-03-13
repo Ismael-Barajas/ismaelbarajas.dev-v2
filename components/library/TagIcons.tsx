@@ -16,13 +16,12 @@ import {
   SiRedis,
   SiTailwindcss,
   SiTypescript,
-  SiAmazonaws,
   SiSqlite,
-  SiAmazondynamodb,
-  SiMaterialui,
+  SiMui,
   SiLeaflet,
   SiFlask,
 } from "react-icons/si";
+import { FaAws } from "react-icons/fa6";
 import { GiArtificialIntelligence } from "react-icons/gi";
 import { ToolTip } from "components";
 
@@ -131,12 +130,12 @@ const techList = {
     className: "redis-btn",
   },
   aws: {
-    icon: SiAmazonaws,
+    icon: FaAws,
     name: "AWS",
     className: "aws-btn",
   },
   dynamodb: {
-    icon: SiAmazondynamodb,
+    icon: FaAws,
     name: "DynamoDB",
     className: "aws-btn",
   },
@@ -151,7 +150,7 @@ const techList = {
     className: "beanstalk-btn",
   },
   mui: {
-    icon: SiMaterialui,
+    icon: SiMui,
     name: "Material-UI",
     className: "materialui-btn",
   },
