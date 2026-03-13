@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { animate } from "motion/mini";
 import fetcher from "lib/fetcher";
 import Image from "next/image";
-import { usePalette } from "react-palette";
+import { Vibrant } from "node-vibrant/browser";
 
 interface PaletteColors {
   vibrant?: string;
@@ -97,15 +97,23 @@ const NowPlaying = () => {
     refreshInterval: 4500,
   });
   const [colorPalette, setColorPalette] = useState<PaletteColors>();
-  const {
-    data: colors,
-    loading,
-    error,
-  } = usePalette(data?.albumImageUrl || "");
 
   useEffect(() => {
-    setColorPalette(colors);
-  }, [colors]);
+    if (!data?.albumImageUrl) return;
+    Vibrant.from(data.albumImageUrl)
+      .getPalette()
+      .then((palette) => {
+        setColorPalette({
+          vibrant: palette.Vibrant?.hex,
+          muted: palette.Muted?.hex,
+          darkVibrant: palette.DarkVibrant?.hex,
+          darkMuted: palette.DarkMuted?.hex,
+          lightVibrant: palette.LightVibrant?.hex,
+          lightMuted: palette.LightMuted?.hex,
+        });
+      })
+      .catch(() => {});
+  }, [data?.albumImageUrl]);
 
   return (
     <div className="flex mt-2 justify-center w-full">

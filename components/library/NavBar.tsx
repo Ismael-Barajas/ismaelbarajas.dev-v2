@@ -122,7 +122,10 @@ const NavBar = () => {
           >
             Skip to content
           </a>
-          <Link href={{ pathname: "/" }} className="flex flex-row text-text text-lg lg:text-2xl w-[115px] font-medium">
+          <Link
+            href={{ pathname: "/" }}
+            className="flex flex-row text-text text-lg lg:text-2xl w-[115px] font-medium"
+          >
             <TypedText
               strings={["Ismael Barajas"]}
               loop={false}
