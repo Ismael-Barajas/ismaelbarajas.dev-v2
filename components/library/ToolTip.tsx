@@ -41,7 +41,7 @@ export default function ToolTip({
             className={clsx(
               className,
               "z-50 inline-block p-2 text-text bg-secondary rounded-md shadow-md",
-              "border border-[#ed9785]",
+              "border border-primary/30",
               "animate-in fade-in-0 zoom-in-95"
             )}
           >

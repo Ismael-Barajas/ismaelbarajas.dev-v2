@@ -20,8 +20,14 @@ import {
   SiMui,
   SiLeaflet,
   SiFlask,
+  SiAngular,
+  SiSpring,
+  SiTerraform,
+  SiKubernetes,
+  SiDocker,
 } from "react-icons/si";
-import { FaAws } from "react-icons/fa6";
+import { VscAzure } from "react-icons/vsc";
+import { FaAws, FaJava } from "react-icons/fa6";
 import { GiArtificialIntelligence } from "react-icons/gi";
 import { ToolTip } from "components";
 
@@ -47,6 +53,7 @@ export default function TagIcons({ className, techs }: TechIconsProps) {
                   current.className,
                   "text-md py-1 px-2 rounded-md"
                 )}
+                style={current.style}
               >
                 <current.icon />
               </div>
@@ -58,7 +65,14 @@ export default function TagIcons({ className, techs }: TechIconsProps) {
   );
 }
 
-const techList = {
+type TechEntry = {
+  icon: React.ComponentType;
+  name: string;
+  className: string;
+  style?: React.CSSProperties;
+};
+
+const techList: Record<string, TechEntry> = {
   react: {
     icon: SiReact,
     name: "React",
@@ -168,5 +182,43 @@ const techList = {
     icon: GiArtificialIntelligence,
     name: "Machine Learning",
     className: "flask-btn",
+  },
+  angular: {
+    icon: SiAngular,
+    name: "Angular",
+    className: "angular-btn",
+  },
+  java: {
+    icon: FaJava,
+    name: "Java",
+    className: "java-btn",
+  },
+  spring: {
+    icon: SiSpring,
+    name: "Spring Boot",
+    className: "spring-btn",
+  },
+  terraform: {
+    icon: SiTerraform,
+    name: "Terraform",
+    className: "terraform-btn",
+  },
+  kubernetes: {
+    icon: SiKubernetes,
+    name: "Kubernetes",
+    className: "kubernetes-btn",
+    style: { backgroundColor: "#326ce5c9", color: "white" },
+  },
+  docker: {
+    icon: SiDocker,
+    name: "Docker",
+    className: "docker-btn",
+    style: { backgroundColor: "#2496edc9", color: "white" },
+  },
+  azure: {
+    icon: VscAzure,
+    name: "Azure",
+    className: "azure-btn",
+    style: { backgroundColor: "#0089d6c9", color: "white" },
   },
 };

@@ -25,7 +25,20 @@ const BackToTop = ({ elementRef }: Props) => {
   }, [elementRef]);
 
   const scrollUp = () => {
-    document.body.scrollIntoView({ behavior: "smooth" });
+    const startY = window.scrollY;
+    if (startY === 0) return;
+    let start: number | null = null;
+    const duration = 600;
+
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 4);
+      window.scrollTo(0, startY * (1 - ease));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+
+    requestAnimationFrame(step);
   };
 
   return (

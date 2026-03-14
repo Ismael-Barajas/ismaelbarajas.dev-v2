@@ -103,14 +103,22 @@ const NowPlaying = () => {
     Vibrant.from(data.albumImageUrl)
       .getPalette()
       .then((palette) => {
-        setColorPalette({
+        const colors = {
           vibrant: palette.Vibrant?.hex,
           muted: palette.Muted?.hex,
           darkVibrant: palette.DarkVibrant?.hex,
           darkMuted: palette.DarkMuted?.hex,
           lightVibrant: palette.LightVibrant?.hex,
           lightMuted: palette.LightMuted?.hex,
-        });
+        };
+        setColorPalette(colors);
+        const accent = colors.vibrant || colors.muted;
+        if (accent) {
+          document.documentElement.style.setProperty(
+            "--now-playing-accent",
+            accent
+          );
+        }
       })
       .catch(() => {});
   }, [data?.albumImageUrl]);

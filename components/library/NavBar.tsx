@@ -12,6 +12,7 @@ const NavBar = () => {
   const mobileIconRef = useRef(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [onTop, setOnTop] = useState(true);
+  const [activeSection, setActiveSection] = useState("");
   const isMounted = useIsMounted();
   const router = useRouter();
   const { width } = useWindowSize();
@@ -22,6 +23,24 @@ const NavBar = () => {
     navigationMobileRef.current?.classList.toggle("translate-x-full");
     setMobileNavOpen(!mobileNavOpen);
   };
+
+  useEffect(() => {
+    const sections = ["about", "experience", "projects", "contact"];
+    const handleSectionScroll = () => {
+      const mid = window.innerHeight / 2;
+      let current = "";
+      sections.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const { top, bottom } = el.getBoundingClientRect();
+        if (top <= mid && bottom >= mid) current = id;
+      });
+      setActiveSection(current);
+    };
+    window.addEventListener("scroll", handleSectionScroll, { passive: true });
+    handleSectionScroll();
+    return () => window.removeEventListener("scroll", handleSectionScroll);
+  }, []);
 
   const handleScroll = () => {
     if (onTop !== (window.pageYOffset === 0)) {
@@ -39,6 +58,12 @@ const NavBar = () => {
   const linkClicked = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
+    const href = event.currentTarget.getAttribute("href") ?? "";
+    const hash = href.includes("#") ? href.split("#")[1] : null;
+    if (hash) {
+      event.preventDefault();
+      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+    }
     if (event.currentTarget.href.indexOf("cv") > -1) {
       document.querySelectorAll("nav li a").forEach((navEl) => {
         navEl.classList.remove("active");
@@ -49,56 +74,79 @@ const NavBar = () => {
     }
   };
 
+  const smoothScrollTo = (targetY: number, duration = 600) => {
+    const startY = window.scrollY;
+    const diff = targetY - startY;
+    if (diff === 0) return;
+    let start: number | null = null;
+
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out quint — fast start, gentle deceleration
+      const ease = 1 - Math.pow(1 - progress, 4);
+
+      window.scrollTo(0, startY + diff * ease);
+
+      if (progress < 1) requestAnimationFrame(step);
+    };
+
+    requestAnimationFrame(step);
+  };
+
   const renderNavigationItems = () => {
     const linkClasses =
-      "relative px-4 shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500 font-medium";
+      "relative px-4 shadow-link ease-in-out hover:shadow-h-link hover:-translate-y-0.5 transition-[box-shadow,transform,color] duration-300 font-medium";
     const linkPage =
-      "relative px-4 ease-in-out shadow-h-link transition-shadow duration-500 font-medium";
+      "relative px-4 ease-in-out shadow-h-link -translate-y-0.5 transition-[box-shadow,transform,color] duration-300 font-medium";
     const resetClasses =
-      "relative px-4 shadow-link hover:shadow-h-link ease-in-out transition-shadow duration-500 font-medium";
+      "relative px-4 shadow-link hover:shadow-h-link hover:-translate-y-0.5 ease-in-out transition-[box-shadow,transform,color] duration-300 font-medium";
     const listItemClasses = "my-2";
     return (
       <>
-        <li className={listItemClasses}>
-          <Link
-            href={{ pathname: "/", hash: "about" }}
-            className={router.pathname != "/" ? resetClasses : linkClasses}
-            onClick={linkClicked}
-          >
-            About
-          </Link>
-        </li>
-        <li className={listItemClasses}>
-          <Link
-            href={{ pathname: "/", hash: "experience" }}
-            className={router.pathname != "/" ? resetClasses : linkClasses}
-            onClick={linkClicked}
-          >
-            Experience
-          </Link>
-        </li>
-        <li className={listItemClasses}>
-          <Link
-            href={{ pathname: "/", hash: "projects" }}
-            className={router.pathname != "/" ? resetClasses : linkClasses}
-            onClick={linkClicked}
-          >
-            Projects
-          </Link>
-        </li>
-        <li className={listItemClasses}>
-          <Link
-            href={{ pathname: "/", hash: "contact" }}
-            className={router.pathname != "/" ? resetClasses : linkClasses}
-            onClick={linkClicked}
-          >
-            Contact
-          </Link>
-        </li>
+        {[
+          { hash: "about", label: "About" },
+          { hash: "experience", label: "Experience" },
+          { hash: "projects", label: "Projects" },
+          { hash: "contact", label: "Contact" },
+        ].map(({ hash, label }) => {
+          const isActive = router.pathname === "/" && activeSection === hash;
+          return (
+            <li key={hash} className={listItemClasses}>
+              {router.pathname === "/" ? (
+                <button
+                  className={isActive ? linkPage : linkClasses}
+                  style={isActive ? { color: "#E0E0E0" } : undefined}
+                  onClick={() => {
+                    const el = document.getElementById(hash);
+                    if (el) {
+                      const top = el.getBoundingClientRect().top + window.scrollY - 64;
+                      smoothScrollTo(top);
+                    }
+                    window.history.pushState(null, "", `#${hash}`);
+                    if (width! <= 768) toggleMobileNavigation();
+                  }}
+                >
+                  {label}
+                </button>
+              ) : (
+                <Link
+                  href={{ pathname: "/", hash }}
+                  className={resetClasses}
+                  onClick={() => { if (width! <= 768) toggleMobileNavigation(); }}
+                >
+                  {label}
+                </Link>
+              )}
+            </li>
+          );
+        })}
         <li className={listItemClasses}>
           <Link
             href={{ pathname: "/listen" }}
             className={router.pathname === "/listen" ? linkPage : linkClasses}
+            style={router.pathname === "/listen" ? { color: "#E0E0E0" } : undefined}
             onClick={linkClicked}
           >
             Listen

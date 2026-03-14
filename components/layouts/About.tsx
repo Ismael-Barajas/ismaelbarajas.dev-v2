@@ -16,7 +16,7 @@ const About = () => {
 
   return (
     <div className="container min-h-screen-without-nav">
-      <h2 className="font-bold text-center py-5 text-text text-4xl">
+      <h2 className="font-black text-center py-5 text-text text-4xl">
         <TypedText
           className="animated-underline"
           strings={["About Me."]}
@@ -39,26 +39,23 @@ const About = () => {
         <p>Hi! My name is Ismael Barajas.</p>
         <br />
         <p>
-          I&apos;m a {age} year old recent graduate from California State
-          University, Fullerton with a B.S. in Computer Science. When I&apos;m
-          not coding, I enjoy playing video games (an unhealthy amount of
-          Valorant) and building/collecting{" "}
+          I&apos;m a {age} year old Software Engineer based in California with a
+          B.S. in Computer Science from California State University, Fullerton.
+          When I&apos;m not coding, I enjoy playing video games and still have a
+          collection of{" "}
           <ToolTip position="bottom" content={"Coming soon!"}>
             <a className="shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500">
-              keyboards.
+              keyboards
             </a>
           </ToolTip>
+          {" "}I&apos;ve built over the years.
         </p>
         <br />
         <p>
-          As of late I&apos;ve taken an interest in Front End developing with
-          React also into Back End development. You can check out some of the
-          projects I have worked on below! I would say I&apos;m most proficient
-          with React, JavaScript/JSX, Python, and C++. I&apos;m also familiar
-          with other languages as well, such as C. I wouldn&apos;t consider
-          myself a Front End Developer just yet because it&apos;s very early in
-          my career and interests change over time. So who knows what other
-          projects, languages, and career opportunities await!
+          I work as a full stack engineer, building and shipping products across
+          the entire stack — from React and TypeScript on the front end to APIs,
+          databases, and cloud infrastructure on the back end. You can check out
+          some of the projects I&apos;ve worked on below!
         </p>
         <br />
         <p>

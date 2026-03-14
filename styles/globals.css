@@ -37,36 +37,37 @@ body::-webkit-scrollbar-thumb:hover {
   border: 1px solid #ffffff4a;
 }
 
-/* https://coolors.co/355070-6d597a-b56576-e56b6f-eaac8b */
-/* https://coolors.co/264653-228176-e9c46a-f4a261-e76f51 */
 :root {
-  --dark-gray: #837b82;
-  --persian-green: #00a693;
-  --rose-dust: #9e5e6f;
-  --secondary-light: #dfc7ad;
-  --secondary-dark: #5e6088;
+  --dark-gray: #121212;
+  --secondary-light: #B0B0B0;
+  --secondary-dark: #1e1e1e;
 }
 
-/* https://coolors.co/ffcdb2-ffb4a2-e5989b-b5838d-6d6875 */
+@property --now-playing-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+
 html {
-  --primary: #aa5140;
-  --secondary: #dfc7ad;
-  --background: #e6fcff;
-  --text: #373141;
+  --primary: #444444;
+  --secondary: #B0B0B0;
+  --background: #E0E0E0;
+  --text: #121212;
 }
 
-/* https://coolors.co/22223b-4a4e69-9a8c98-c9ada7-f2e9e4 */
 html.dark {
-  --secondary: #5e6088;
-  --background: var(--dark-gray);
-  --text: #ffedd9;
+  --primary: #888888;
+  --secondary: #444444;
+  --background: #121212;
+  --text: #E0E0E0;
 }
 
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: 'Synonym', -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+  font-weight: 500;
   overflow: overlay;
   transition-property: background-color;
   transition-timing-function: ease-in-out;
@@ -87,6 +88,11 @@ a {
   text-decoration: none;
 }
 
+nav a:hover {
+  color: #E0E0E0;
+}
+
+
 * {
   box-sizing: border-box;
 }
@@ -94,6 +100,11 @@ a {
 section {
   scroll-margin-top: 4rem;
   scroll-snap-margin-top: 4rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Chillax', sans-serif;
+  font-weight: 600;
 }
 
 .react-btn {
@@ -185,10 +196,45 @@ section {
   color: #f44d27;
 }
 
+.angular-btn {
+  background-color: #dd0031c9;
+  color: white;
+}
+
+.java-btn {
+  background-color: #f89820c9;
+  color: #333333;
+}
+
+.spring-btn {
+  background-color: #6db33fc9;
+  color: white;
+}
+
+.terraform-btn {
+  background-color: #7b42bcc9;
+  color: white;
+}
+
+.kubernetes-btn {
+  background-color: #326ce5c9;
+  color: white;
+}
+
+.docker-btn {
+  background-color: #2496edc9;
+  color: white;
+}
+
+.azure-btn {
+  background-color: #0089d6c9;
+  color: white;
+}
+
 @layer utilities {
   .animated-underline {
     background-image: linear-gradient(#33333300, #33333300),
-      linear-gradient(to right, #dfafa9, var(--primary));
+      linear-gradient(to right, #B0B0B0, var(--primary));
     background-size: 100% 2px, 0 2px;
     background-position: 100% 100%, 0 100%;
     background-repeat: no-repeat;

@@ -17,8 +17,8 @@ interface Position {
 
 const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
   return (
-    <div className="rounded-md p-6 shadow-card hover:shadow-h-card  transition-all ease-in-out duration-300 text-text bg-secondary  transform-gpu scale-100 hover:scale-[1.01]">
-      <div className="h-full">
+    <div className="rounded-md bg-linear-to-br from-primary/20 via-transparent to-transparent p-px shadow-card hover:shadow-h-card transition-all ease-in-out duration-300 transform-gpu hover:scale-[1.01] hover:-translate-y-1">
+      <div className="rounded-[inherit] p-6 h-full bg-secondary/60 dark:bg-black/30 backdrop-blur-md text-text">
         <a
           target="_blank"
           href={url}
@@ -40,25 +40,11 @@ const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
           <p>{position.time_commitment}</p>
         </div>
         <div className="text-lg leading-relaxed">
-          {body.map((paragraph, index) => {
-            return <p key={index}>{paragraph}</p>;
-          })}
+          {body.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
         </div>
         <TagIcons techs={tags} className="mt-2" />
-        {/* <div className="flex flex-col mt-4 flex-grow justify-end">
-          <ul className="flex flex-wrap">
-            {tags.map((tag, index) => {
-              return (
-                <li
-                  key={index}
-                  className={`${tag.class} text-sm my-1 py-1 px-4 mr-2 rounded-md`}
-                >
-                  {tag.text}
-                </li>
-              );
-            })}
-          </ul>
-        </div> */}
       </div>
     </div>
   );

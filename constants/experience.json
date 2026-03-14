@@ -3,15 +3,24 @@
     "img": "/images/GM-logo-2021.png",
     "url": "https://www.gm.com/",
     "position": {
-      "position": "Software Developer",
+      "position": "Software Engineer",
       "time_commitment": "Jul 2022 - Current"
     },
     "body": [
-      "GPSC Software Developer.",
-      "Project has not started yet.",
-      "So this will update once that gets going :)"
+      "Full stack software engineer contributing across multiple teams, spanning risk management and cloud infrastructure.",
+      "Designed and delivered risk management features using Angular and Java Spring Boot, writing optimized native queries and owning development end-to-end from UI to data layer.",
+      "Provisioned and managed scalable cloud infrastructure on Azure using Terraform, Docker, and Kubernetes — automating deployments and driving infrastructure-as-code practices across the team."
     ],
-    "tags": []
+    "tags": [
+      "angular",
+      "java",
+      "spring",
+      "terraform",
+      "kubernetes",
+      "docker",
+      "azure",
+      "git"
+    ]
   },
   {
     "img": "/images/PurposerLogo.png",
@@ -21,7 +30,9 @@
       "time_commitment": "Jul 2021 - May 2022"
     },
     "body": [
-      "Agile startup project environment with small team of developers. Developed web and mobile user interfaces for desktop web. Developed interfaces/user experiences for over a hundred React components/layouts. Worked on API and database design and implementation."
+      "Worked in an agile startup environment as part of a small, fast-moving dev team.",
+      "Built and shipped over a hundred React components and layouts, crafting responsive interfaces and polished user experiences for web.",
+      "Contributed to API design and database architecture, working across the stack from front end through to data layer."
     ],
     "tags": [
       "react",

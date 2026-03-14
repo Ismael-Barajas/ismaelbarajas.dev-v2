@@ -28,7 +28,7 @@ const ProgressBar = () => {
   return (
     <div className="fixed inset-x-0 -translate-y-1 z-50">
       <div
-        className="h-1 bg-gradient-to-r to-primary from-[#dcc3c0] via-[#ed9785]"
+        className="h-1 bg-gradient-to-r from-[#B0B0B0] via-[#888888] to-[#444444]"
         style={{ width: `${progress}%` }}
       />
     </div>

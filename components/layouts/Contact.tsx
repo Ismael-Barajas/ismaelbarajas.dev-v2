@@ -1,4 +1,4 @@
-import { TypedText } from "components";
+import { TypedText, MagneticButton } from "components";
 import {
   FaTwitter,
   FaInstagram,
@@ -37,8 +37,19 @@ const contactInfo = [
 
 const Contact = () => {
   return (
-    <div className="container min-h-screen-without-nav">
-      <h2 className="font-bold text-center py-5 text-text text-4xl">
+    <div className="relative min-h-screen-without-nav">
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 50%, var(--now-playing-accent) 0%, transparent 70%)",
+          opacity: 0.2,
+          transition: "--now-playing-accent 1200ms ease-in-out",
+        }}
+      />
+      <div className="container min-h-screen-without-nav relative z-10">
+      <h2 className="font-black text-center py-5 text-text text-4xl">
         <TypedText
           className="animated-underline"
           strings={["Contact Me."]}
@@ -50,17 +61,20 @@ const Contact = () => {
         <div className="flex gap-4 lg:gap-6 justify-center flex-wrap">
           {contactInfo.map((contact, index) => {
             return (
-              <a
-                href={contact.url}
-                className="flex items-center justify-center rounded-full h-16 w-16 hover:bg-secondary text-text content-center transition-all hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200"
-                target={`_blank`}
-                key={index}
-              >
-                {contact.icon}
-              </a>
+              <MagneticButton key={index}>
+                <a
+                  href={contact.url}
+                  className="flex items-center justify-center rounded-full h-16 w-16 hover:bg-secondary text-text content-center transition-all hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {contact.icon}
+                </a>
+              </MagneticButton>
             );
           })}
         </div>
+      </div>
       </div>
     </div>
   );
