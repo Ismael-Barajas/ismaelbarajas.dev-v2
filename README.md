@@ -14,11 +14,11 @@ Personal portfolio website built with Next.js, TypeScript, and Tailwind CSS. Fea
 - **Theming:** next-themes (dark/light mode)
 - **File Storage:** Vercel Blob
 - **Testing:** Vitest
-- **Integrations:** Spotify Web API
+- **Integrations:** Spotify Web API (access token cached server-side for its full lifetime to reduce refresh calls)
 
 ## Features
 
-- Real-time Spotify "Now Playing" widget with album art color extraction
+- Real-time Spotify "Now Playing" widget with animated equalizer bars, album art color extraction, and palette-driven accent colors (bars and artist text adopt colors derived from the current album art)
 - Top tracks page showing listening history
 - Dark/light theme with system preference detection
 - Responsive portfolio sections: Hero, About, Experience, Projects, Contact
