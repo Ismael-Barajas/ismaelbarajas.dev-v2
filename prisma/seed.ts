@@ -13,7 +13,7 @@ async function main() {
   await prisma.experience.createMany({
     data: [
       {
-        img: "/images/GM-logo-2021.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/GM-logo-2021.png",
         url: "https://www.gm.com/",
         position: "Software Engineer",
         timeCommitment: "Jul 2022 - Current",
@@ -22,11 +22,20 @@ async function main() {
           "Designed and delivered risk management features using Angular and Java Spring Boot, writing optimized native queries and owning development end-to-end from UI to data layer.",
           "Provisioned and managed scalable cloud infrastructure on Azure using Terraform, Docker, and Kubernetes — automating deployments and driving infrastructure-as-code practices across the team.",
         ],
-        tags: ["angular", "java", "spring", "terraform", "kubernetes", "docker", "azure", "git"],
+        tags: [
+          "angular",
+          "java",
+          "spring",
+          "terraform",
+          "kubernetes",
+          "docker",
+          "azure",
+          "git",
+        ],
         order: 0,
       },
       {
-        img: "/images/PurposerLogo.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/PurposerLogo.png",
         url: "https://www.purposer.com/",
         position: "Full-Stack Developer - Internship",
         timeCommitment: "Jul 2021 - May 2022",
@@ -35,7 +44,17 @@ async function main() {
           "Built and shipped over a hundred React components and layouts, crafting responsive interfaces and polished user experiences for web.",
           "Contributed to API design and database architecture, working across the stack from front end through to data layer.",
         ],
-        tags: ["react", "dynamodb", "redux", "git", "aws", "prettier", "nodejs", "mui", "leaflet"],
+        tags: [
+          "react",
+          "dynamodb",
+          "redux",
+          "git",
+          "aws",
+          "prettier",
+          "nodejs",
+          "mui",
+          "leaflet",
+        ],
         order: 1,
       },
     ],
@@ -44,7 +63,7 @@ async function main() {
   await prisma.project.createMany({
     data: [
       {
-        img: "/images/ismaelbarajasv2.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/ismaelbarajasdev2.png",
         name: "ismaelbarajas.dev-v2",
         url: "/",
         githubUrl: "https://github.com/Ismael-Barajas/ismaelbarajas.dev-v2",
@@ -59,7 +78,8 @@ async function main() {
         img: "https://opengraph.githubassets.com/68e6433c7e0ca077f7860541cd143d43d18b4ae60a760c784091922d156bc5ce/Ismael-Barajas/Twitter-like-microblogging-service",
         name: "Twitter-like Micro-Blogging Service",
         url: "https://github.com/Ismael-Barajas/Twitter-like-microblogging-service",
-        githubUrl: "https://github.com/Ismael-Barajas/Twitter-like-microblogging-service",
+        githubUrl:
+          "https://github.com/Ismael-Barajas/Twitter-like-microblogging-service",
         body: [
           "A fully featured micro-blogging platform built with Python, supporting posts, re-posts, likes, polls, follows, and user timelines.",
           "Leverages asynchronous message queues via Beanstalkd for background processing, with Redis caching and SQLite for data persistence.",
@@ -68,7 +88,7 @@ async function main() {
         order: 1,
       },
       {
-        img: "/images/somliere.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/somliere.png",
         name: "soMLiere",
         url: "https://somliere.vercel.app/",
         githubUrl: "https://github.com/Ismael-Barajas/somliere",
@@ -76,11 +96,20 @@ async function main() {
           "A machine learning web app that predicts a quality score for a bottle of wine based on its chemical properties.",
           "Built with a Python ML model on the backend and a Next.js frontend, deployed on AWS and Vercel.",
         ],
-        tags: ["react", "nextjs", "javascript", "git", "aws", "mui", "python", "ai"],
+        tags: [
+          "react",
+          "nextjs",
+          "javascript",
+          "git",
+          "aws",
+          "mui",
+          "python",
+          "ai",
+        ],
         order: 2,
       },
       {
-        img: "/images/nxt-fire-app.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/nxt-fire-app.png",
         name: "Next Fire Application",
         url: "https://nxt-fire-app.vercel.app/",
         githubUrl: "https://github.com/Ismael-Barajas/nxt-fire-app",
@@ -92,7 +121,7 @@ async function main() {
         order: 3,
       },
       {
-        img: "/images/TimeLines.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/TimeLines.png",
         name: "TimeLines",
         url: "https://timelines-ismael-barajas.vercel.app/",
         githubUrl: "https://github.com/Ismael-Barajas/Timelines",
@@ -104,7 +133,7 @@ async function main() {
         order: 4,
       },
       {
-        img: "/images/Covid19.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/Covid19.png",
         name: "COVID-19 Watch",
         url: "https://covid-19-watch-349.herokuapp.com/",
         githubUrl: "https://github.com/Ismael-Barajas/Covid19-Website",
@@ -116,7 +145,7 @@ async function main() {
         order: 5,
       },
       {
-        img: "/images/PersonalWebsite.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/PersonalWebsite.png",
         name: "ismaelbarajas.dev-v1",
         url: "https://my-website-9655b.web.app/",
         githubUrl: "https://github.com/Ismael-Barajas/ismaelbarajas.dev",
@@ -128,7 +157,7 @@ async function main() {
         order: 6,
       },
       {
-        img: "/images/QuizzieBizzie.png",
+        img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/QuizzieBizzie.png",
         name: "QuizzieBizzie",
         url: "https://quizziebizzie.herokuapp.com/",
         githubUrl: "https://github.com/Ismael-Barajas/QuizzieBizzie",
