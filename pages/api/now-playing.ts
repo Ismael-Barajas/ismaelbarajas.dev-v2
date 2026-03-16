@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getNowPlaying } from "lib/spotify";
+import { Vibrant } from "node-vibrant/node";
 
 export default async function nowPlaying(
   req: NextApiRequest,
@@ -27,9 +28,24 @@ export default async function nowPlaying(
     const albumImageUrl: string = song.item.album.images[0].url;
     const songUrl: string = song.item.external_urls.spotify;
 
+    let palette: Record<string, string | undefined> = {};
+    try {
+      const vibrantPalette = await Vibrant.from(albumImageUrl).getPalette();
+      palette = {
+        vibrant: vibrantPalette.Vibrant?.hex,
+        muted: vibrantPalette.Muted?.hex,
+        darkVibrant: vibrantPalette.DarkVibrant?.hex,
+        darkMuted: vibrantPalette.DarkMuted?.hex,
+        lightVibrant: vibrantPalette.LightVibrant?.hex,
+        lightMuted: vibrantPalette.LightMuted?.hex,
+      };
+    } catch {
+      // Palette extraction is non-critical; return song data without it
+    }
+
     res.setHeader(
       "Cache-Control",
-      "public, s-maxage=60, stale-while-revalidate=30",
+      "public, s-maxage=10, stale-while-revalidate=10",
     );
 
     return res.status(200).json({
@@ -37,6 +53,7 @@ export default async function nowPlaying(
       albumImageUrl,
       artist,
       isPlaying,
+      palette,
       songUrl,
       title,
     });

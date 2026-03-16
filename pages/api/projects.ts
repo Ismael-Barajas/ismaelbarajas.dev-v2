@@ -24,7 +24,7 @@ export default async function projects(
 
     res.setHeader(
       "Cache-Control",
-      "public, s-maxage=3600, stale-while-revalidate=1800"
+      "public, s-maxage=60, stale-while-revalidate=30"
     );
 
     return res.status(200).json({ items });

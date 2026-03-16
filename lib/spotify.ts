@@ -2,7 +2,13 @@ const NOW_PLAYING_ENDPOINT = `https://api.spotify.com/v1/me/player/currently-pla
 const TOP_TRACKS_ENDPOINT = `https://api.spotify.com/v1/me/top/tracks`;
 const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
 
-const getAccessToken = async () => {
+let cachedToken: { accessToken: string; expiresAt: number } | null = null;
+
+const getAccessToken = async (): Promise<string> => {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) {
+    return cachedToken.accessToken;
+  }
+
   const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN } =
     process.env;
 
@@ -30,25 +36,32 @@ const getAccessToken = async () => {
     throw new Error(`Failed to get Spotify access token: ${response.status}`);
   }
 
-  return response.json() as Promise<{ access_token: string }>;
+  const data = await response.json() as { access_token: string; expires_in: number };
+
+  cachedToken = {
+    accessToken: data.access_token,
+    expiresAt: Date.now() + (data.expires_in - 60) * 1000,
+  };
+
+  return cachedToken.accessToken;
 };
 
 export const getNowPlaying = async () => {
-  const { access_token } = await getAccessToken();
+  const accessToken = await getAccessToken();
 
   return fetch(NOW_PLAYING_ENDPOINT, {
     headers: {
-      Authorization: `Bearer ${access_token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 };
 
 export const getTopTracks = async () => {
-  const { access_token } = await getAccessToken();
+  const accessToken = await getAccessToken();
 
   return fetch(TOP_TRACKS_ENDPOINT, {
     headers: {
-      Authorization: `Bearer ${access_token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 };
