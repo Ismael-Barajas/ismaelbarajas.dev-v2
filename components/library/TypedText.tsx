@@ -35,7 +35,7 @@ const TypedText = ({
     return () => {
       typed.destroy();
     };
-  }, []);
+  }, [strings, loop, typeSpeed]);
 
   return (
     <span
