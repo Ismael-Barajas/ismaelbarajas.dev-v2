@@ -97,4 +97,55 @@ describe("spotify", () => {
     const expected = Buffer.from("test-client-id:test-client-secret").toString("base64");
     expect(headers.Authorization).toBe(`Basic ${expected}`);
   });
+
+  describe("token caching", () => {
+    beforeEach(() => {
+      vi.resetModules();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("reuses a valid cached token without re-fetching", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ access_token: "cached-token", expires_in: 3600 }), { status: 200 })
+        )
+        .mockResolvedValue(
+          new Response(JSON.stringify({ is_playing: false }), { status: 200 })
+        );
+
+      const { getNowPlaying: fresh } = await import("../lib/spotify");
+
+      await fresh(); // fetches token + now-playing
+      await fresh(); // reuses cached token, only fetches now-playing
+
+      const tokenCalls = fetchSpy.mock.calls.filter(
+        ([url]) => url === "https://accounts.spotify.com/api/token"
+      );
+      expect(tokenCalls).toHaveLength(1);
+    });
+
+    it("re-fetches a token after it expires", async () => {
+      vi.useFakeTimers();
+
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ access_token: "token", expires_in: 3600 }), { status: 200 })
+        )
+      );
+
+      const { getNowPlaying: fresh } = await import("../lib/spotify");
+
+      await fresh(); // primes the cache (expiresAt = now + 3540s)
+      vi.advanceTimersByTime((3600 - 60 + 1) * 1000); // advance past expiry
+      await fresh(); // cache expired → must re-fetch token
+
+      const tokenCalls = fetchSpy.mock.calls.filter(
+        ([url]) => url === "https://accounts.spotify.com/api/token"
+      );
+      expect(tokenCalls).toHaveLength(2);
+    });
+  });
 });
