@@ -34,7 +34,7 @@ const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
               <a
                 href={url}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="flex transition-all ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-300 hover:brightness-110 transform-gpu active:scale-[1.08]"
               >
                 <HiOutlineExternalLink className="h-5 w-5 text-white" />
@@ -44,7 +44,7 @@ const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
               <a
                 href={github_url}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="flex transition-all ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-300 hover:brightness-110 transform-gpu active:scale-[1.08]"
               >
                 <SiGithub className="h-5 w-5 text-white" />

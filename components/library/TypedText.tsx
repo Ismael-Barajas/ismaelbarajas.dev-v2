@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import Typed from "typed.js";
 
 interface Props {
@@ -23,10 +23,13 @@ const TypedText = ({
   typeSpeed,
 }: Props) => {
   const el = useRef<HTMLSpanElement>(null);
+  // Stabilize the strings array reference so the effect doesn't re-run on every render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const stableStrings = useMemo(() => strings, [JSON.stringify(strings)]);
 
   useEffect(() => {
     const options = {
-      strings: strings,
+      strings: stableStrings,
       typeSpeed: typeSpeed ? typeSpeed : 100,
       backSpeed: 75,
       loop: loop,
@@ -35,7 +38,7 @@ const TypedText = ({
     return () => {
       typed.destroy();
     };
-  }, []);
+  }, [stableStrings, loop, typeSpeed]);
 
   return (
     <span

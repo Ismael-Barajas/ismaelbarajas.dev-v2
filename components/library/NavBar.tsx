@@ -97,11 +97,11 @@ const NavBar = () => {
 
   const renderNavigationItems = () => {
     const linkClasses =
-      "relative px-4 shadow-link ease-in-out hover:shadow-h-link hover:-translate-y-0.5 transition-[box-shadow,transform,color] duration-300 font-medium";
+      "relative px-4 shadow-link ease-in-out hover:shadow-h-link hover:text-[#E0E0E0] transition-[box-shadow,color] duration-300 font-medium";
     const linkPage =
-      "relative px-4 ease-in-out shadow-h-link -translate-y-0.5 transition-[box-shadow,transform,color] duration-300 font-medium";
+      "relative px-4 ease-in-out shadow-h-link transition-[box-shadow,color] duration-300 font-medium";
     const resetClasses =
-      "relative px-4 shadow-link hover:shadow-h-link hover:-translate-y-0.5 ease-in-out transition-[box-shadow,transform,color] duration-300 font-medium";
+      "relative px-4 shadow-link hover:shadow-h-link hover:text-[#E0E0E0] ease-in-out transition-[box-shadow,color] duration-300 font-medium";
     const listItemClasses = "my-2";
     return (
       <>
@@ -159,7 +159,7 @@ const NavBar = () => {
   return (
     <header>
       <nav
-        className={`transition-all duration-700 ease-in-out fixed text-text bg-secondary-light dark:bg-secondary-dark/70 backdrop-blur-sm bg-opacity-70 h-16 w-full z-50 ${
+        className={`transition-[background-color,box-shadow] duration-700 ease-in-out fixed text-text bg-secondary-light dark:bg-secondary-dark/70 backdrop-blur-sm bg-opacity-70 h-16 w-full z-50 ${
           onTop ? "" : "shadow-card"
         }`}
       >

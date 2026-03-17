@@ -28,7 +28,7 @@ const About = () => {
         <div className="flex justify-center mb-6">
           <div className="relative w-60 h-60 rounded-full overflow-hidden">
             <Image
-              src="/images/ismaelbarajas.jpg"
+              src="https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/ismaelbarajas.jpg"
               alt="Rounded Avatar"
               fill
               className="object-cover"

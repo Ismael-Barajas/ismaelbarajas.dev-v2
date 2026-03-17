@@ -1,10 +1,8 @@
 import { TypedText, MagneticButton } from "components";
 import {
-  FaTwitter,
   FaInstagram,
   FaGithub,
   FaLinkedin,
-  FaTwitch,
 } from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
 
@@ -22,16 +20,8 @@ const contactInfo = [
     url: "mailto:ismaelbarajas.dev@gmail.com",
   },
   {
-    icon: <FaTwitter className="h-10 w-10" />,
-    url: "https://twitter.com/inxanee",
-  },
-  {
     icon: <FaInstagram className="h-10 w-10" />,
     url: "https://instagram.com/lnxanee",
-  },
-  {
-    icon: <FaTwitch className="h-10 w-10" />,
-    url: "https://www.twitch.tv/inxanee",
   },
 ];
 

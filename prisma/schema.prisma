@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Experience {
+  id             Int      @id @default(autoincrement())
+  img            String
+  url            String
+  position       String
+  timeCommitment String
+  body           String[]
+  tags           String[]
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  img       String
+  name      String
+  url       String
+  githubUrl String
+  body      String[]
+  tags      String[]
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -83,15 +83,6 @@ html {
   transition-duration: 700ms;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-nav a:hover {
-  color: #E0E0E0;
-}
-
 
 * {
   box-sizing: border-box;
@@ -239,7 +230,7 @@ h1, h2, h3, h4, h5, h6 {
     background-position: 100% 100%, 0 100%;
     background-repeat: no-repeat;
     transition: 0.5s ease;
-    transition-property: background-size, color, background-color, border-color;
+    transition-property: background-size;
   }
   .animated-underline:hover,
   .animated-underline:focus-visible,
