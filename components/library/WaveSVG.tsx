@@ -7,7 +7,7 @@ const WaveSVG = () => {
           transform: "rotate(0deg)",
           transition: "all 700ms ease-in-out",
         }}
-        className="absolute bottom-0 left-0 "
+        className="absolute bottom-0 left-0 pointer-events-none"
         viewBox="0 0 1440 360"
         xmlns="http://www.w3.org/2000/svg"
       >

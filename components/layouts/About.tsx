@@ -31,6 +31,8 @@ const About = () => {
               src="https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/ismaelbarajas.jpg"
               alt="Rounded Avatar"
               fill
+              sizes="240px"
+              loading="eager"
               className="object-cover"
               quality={100}
             />

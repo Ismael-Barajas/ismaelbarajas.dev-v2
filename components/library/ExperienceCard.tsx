@@ -30,6 +30,7 @@ const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
               priority
               src={img}
               fill
+              sizes="(max-width: 768px) 100vw, 200px"
               alt="test"
               className="object-contain"
             />

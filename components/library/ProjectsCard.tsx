@@ -22,6 +22,7 @@ const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
             priority
             src={img}
             fill
+            sizes="(max-width: 768px) 100vw, 512px"
             alt={name}
             className="rounded-t-[inherit] object-cover"
           />

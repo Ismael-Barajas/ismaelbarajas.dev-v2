@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { motion, useMotionValue, useSpring } from "motion/react";
+import gsap from "gsap";
 
 interface Props {
   children: React.ReactNode;
@@ -10,36 +10,37 @@ interface Props {
 const MagneticButton = ({ children, className, strength = 0.35 }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const springX = useSpring(x, { stiffness: 180, damping: 18 });
-  const springY = useSpring(y, { stiffness: 180, damping: 18 });
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    x.set((e.clientX - cx) * strength);
-    y.set((e.clientY - cy) * strength);
+    gsap.to(ref.current, {
+      x: (e.clientX - cx) * strength,
+      y: (e.clientY - cy) * strength,
+      duration: 0.4,
+      ease: "power2.out",
+    });
   };
 
   const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
+    gsap.to(ref.current, {
+      x: 0,
+      y: 0,
+      duration: 0.6,
+      ease: "elastic.out(1, 0.4)",
+    });
   };
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      style={{ x: springX, y: springY }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={className}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 
