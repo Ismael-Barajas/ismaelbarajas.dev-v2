@@ -20,36 +20,37 @@ export default function ToolTip({
   position = "bottom",
 }: TooltipTextProps) {
   return (
-    <RadixTooltip.Provider delayDuration={100}>
-      <RadixTooltip.Root>
-        <RadixTooltip.Trigger asChild>
-          {withUnderline ? (
-            <span
-              className={clsx(spanClassName, "underline cursor-default")}
-              style={{ textDecorationStyle: "dotted" }}
-            >
-              {children}
-            </span>
-          ) : (
-            <span className="inline-flex">{children}</span>
-          )}
-        </RadixTooltip.Trigger>
-        <RadixTooltip.Portal>
-          <RadixTooltip.Content
-            side={position}
-            sideOffset={6}
-            className={clsx(
-              className,
-              "z-50 inline-block p-2 text-text bg-secondary rounded-md shadow-md",
-              "border border-primary/30",
-              "animate-in fade-in-0 zoom-in-95"
-            )}
+    <RadixTooltip.Root>
+      <RadixTooltip.Trigger asChild>
+        {withUnderline ? (
+          <span
+            className={clsx(spanClassName, "underline cursor-default")}
+            style={{ textDecorationStyle: "dotted" }}
           >
-            {content}
-            <RadixTooltip.Arrow className="fill-secondary" />
-          </RadixTooltip.Content>
-        </RadixTooltip.Portal>
-      </RadixTooltip.Root>
-    </RadixTooltip.Provider>
+            {children}
+          </span>
+        ) : (
+          <span className="inline-flex">{children}</span>
+        )}
+      </RadixTooltip.Trigger>
+      <RadixTooltip.Portal>
+        <RadixTooltip.Content
+          side={position}
+          sideOffset={8}
+          className={clsx(
+            className,
+            "tooltip-content",
+            "z-50 px-3 py-1.5 text-sm text-text",
+            "bg-secondary/80 backdrop-blur-md",
+            "rounded-lg shadow-lg",
+            "border border-primary/20",
+            "select-none"
+          )}
+        >
+          {content}
+          <RadixTooltip.Arrow className="fill-secondary/80" />
+        </RadixTooltip.Content>
+      </RadixTooltip.Portal>
+    </RadixTooltip.Root>
   );
 }

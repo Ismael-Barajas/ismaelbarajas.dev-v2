@@ -16,7 +16,7 @@ const NavBar = () => {
   const isMounted = useIsMounted();
   const router = useRouter();
   const { width } = useWindowSize();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   const toggleMobileNavigation = () => {
     navigationMobileRef.current?.classList.add("touched");
@@ -174,7 +174,7 @@ const NavBar = () => {
           </a>
           <Link
             href={{ pathname: "/" }}
-            className="flex flex-row text-text text-lg lg:text-2xl w-fit font-medium"
+            className="inline-block text-text text-lg lg:text-2xl font-medium min-w-[11ch]"
           >
             <TypedText
               strings={["Ismael Barajas"]}
@@ -219,24 +219,22 @@ const NavBar = () => {
           </button>
           <ToolTip
             position="bottom"
-            content={theme === "dark" ? "Light Mode" : "Dark Mode"}
+            content={resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
           >
-            <a
-              aria-label="Toggle Dark Mode"
-              role="button"
-              className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all duration-700"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            <button
+              aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              type="button"
+              className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 cursor-pointer focus-visible:ring-2 ring-offset-2 ring-offset-background ring-text transition-all duration-700"
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             >
               {isMounted.current && (
-                <>
-                  {theme === "dark" ? (
-                    <FiSun className="w-5 h-5 text-blue-100" />
-                  ) : (
-                    <BsMoonStars className="w-5 h-5 text-blue-100" />
-                  )}
-                </>
+                resolvedTheme === "dark" ? (
+                  <FiSun className="w-5 h-5 text-blue-100" />
+                ) : (
+                  <BsMoonStars className="w-5 h-5 text-blue-100" />
+                )
               )}
-            </a>
+            </button>
           </ToolTip>
         </div>
         <ProgressBar />
