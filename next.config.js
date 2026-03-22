@@ -2,6 +2,7 @@
 module.exports = {
   reactStrictMode: true,
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
+  transpilePackages: ["three", "@react-three/fiber", "@react-three/postprocessing", "its-fine"],
   turbopack: {},
   images: {
     qualities: [75, 100],
