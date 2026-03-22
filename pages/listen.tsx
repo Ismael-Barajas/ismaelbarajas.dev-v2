@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { useTheme } from "next-themes";
+import useTheme from "hooks/useTheme";
 import {
   AnimatedContent,
   Metatags,

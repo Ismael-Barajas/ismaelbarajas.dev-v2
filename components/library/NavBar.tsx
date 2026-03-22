@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useTheme } from "next-themes";
+import useTheme from "hooks/useTheme";
 import { useWindowSize, useIsMounted } from "hooks";
 import { ProgressBar, ToolTip, TypedText } from "..";
 import { FiSun } from "react-icons/fi";

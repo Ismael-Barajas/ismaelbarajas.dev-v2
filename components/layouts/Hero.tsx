@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { useTheme } from "next-themes";
+import useTheme from "hooks/useTheme";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BackToTop, WaveSVG } from "..";
 import DecryptedText from "../library/DecryptedText";
