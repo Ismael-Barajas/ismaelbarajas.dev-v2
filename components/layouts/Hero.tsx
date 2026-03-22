@@ -1,12 +1,32 @@
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BackToTop, WaveSVG } from "..";
 import DecryptedText from "../library/DecryptedText";
 
-const Antigravity = dynamic(() => import("../library/Antigravity"), {
+const Dither = dynamic(() => import("../library/Dither"), {
   ssr: false,
 });
+
+function parseColor(color: string): [number, number, number] {
+  const hex = color.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+  if (hex) {
+    return [
+      parseInt(hex[1], 16) / 255,
+      parseInt(hex[2], 16) / 255,
+      parseInt(hex[3], 16) / 255,
+    ];
+  }
+  const rgb = color.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+  if (rgb) {
+    return [
+      parseInt(rgb[1]) / 255,
+      parseInt(rgb[2]) / 255,
+      parseInt(rgb[3]) / 255,
+    ];
+  }
+  return [0.533, 0.533, 0.533];
+}
 
 const Hero = () => {
   const heroRef = useRef(null);
@@ -33,8 +53,15 @@ const Hero = () => {
     return () => observer.disconnect();
   }, []);
 
-  const particleColor =
-    accentColor || (resolvedTheme === "dark" ? "#888888" : "#444444");
+  const waveColor = useMemo<[number, number, number]>(() => {
+    const hex =
+      accentColor || (resolvedTheme === "dark" ? "#888888" : "#444444");
+    return parseColor(hex);
+  }, [accentColor, resolvedTheme]);
+
+  const backgroundColor = useMemo<[number, number, number]>(() => {
+    return parseColor(resolvedTheme === "dark" ? "#121212" : "#E0E0E0");
+  }, [resolvedTheme]);
 
   return (
     <section
@@ -42,7 +69,7 @@ const Hero = () => {
       ref={heroRef}
       className="transition-[background-color] duration-700 ease-in-out relative min-h-screen-without-nav items-center content-center flex pb-44 "
     >
-      <div className="container relative z-10">
+      <div className="container relative z-10 pointer-events-none">
         <h1 className="font-black text-text text-5xl md:text-7xl 2xl:text-8xl leading-none tracking-tight">
           <DecryptedText
             text="Ismael Barajas"
@@ -64,36 +91,20 @@ const Hero = () => {
           />
         </h2>
       </div>
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Antigravity
-          count={3000}
-          magnetRadius={6}
-          ringRadius={13}
-          waveSpeed={0.8}
-          waveAmplitude={0.8}
-          particleSize={1}
-          lerpSpeed={0.1}
-          color={particleColor}
-          autoAnimate={true}
-          particleVariance={1.4}
-          rotationSpeed={0}
-          depthFactor={1}
-          pulseSpeed={3}
-          particleShape="sphere"
-          fieldStrength={2}
+      <div className="absolute inset-0 z-0">
+        <Dither
+          waveColor={waveColor}
+          backgroundColor={backgroundColor}
+          disableAnimation={false}
+          enableMouseInteraction
+          mouseRadius={0.1}
+          colorNum={4}
+          waveAmplitude={0.3}
+          waveFrequency={3}
+          waveSpeed={0.05}
         />
       </div>
       <WaveSVG />
-      <div
-        className="absolute inset-0 pointer-events-none z-5"
-        aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 50% 50%, var(--now-playing-accent) 0%, transparent 70%)",
-          opacity: 0.25,
-          transition: "--now-playing-accent 1200ms ease-in-out",
-        }}
-      />
       <BackToTop elementRef={heroRef} />
     </section>
   );

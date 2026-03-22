@@ -17,7 +17,7 @@ const getAccessToken = async (): Promise<string> => {
   }
 
   const basic = Buffer.from(
-    `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`
+    `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`,
   ).toString("base64");
 
   const response = await fetch(TOKEN_ENDPOINT, {
@@ -36,7 +36,10 @@ const getAccessToken = async (): Promise<string> => {
     throw new Error(`Failed to get Spotify access token: ${response.status}`);
   }
 
-  const data = await response.json() as { access_token: string; expires_in: number };
+  const data = (await response.json()) as {
+    access_token: string;
+    expires_in: number;
+  };
 
   cachedToken = {
     accessToken: data.access_token,
