@@ -20,6 +20,7 @@ export default function ToolTip({
   position = "bottom",
 }: TooltipTextProps) {
   return (
+    <RadixTooltip.Provider delayDuration={100}>
     <RadixTooltip.Root>
       <RadixTooltip.Trigger asChild>
         {withUnderline ? (
@@ -52,5 +53,6 @@ export default function ToolTip({
         </RadixTooltip.Content>
       </RadixTooltip.Portal>
     </RadixTooltip.Root>
+    </RadixTooltip.Provider>
   );
 }
