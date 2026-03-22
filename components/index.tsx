@@ -13,6 +13,7 @@ export { default as ToolTip } from "./library/ToolTip";
 export { default as MagneticButton } from "./library/MagneticButton";
 export { default as TagIcons } from "./library/TagIcons";
 export { default as CursorFollower } from "./library/CursorFollower";
+export { default as TargetCursor } from "./library/TargetCursor";
 export { default as Dither } from "./library/Dither";
 
 export { default as Hero } from "./layouts/Hero";

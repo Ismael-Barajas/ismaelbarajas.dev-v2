@@ -9,17 +9,11 @@ import {
   Metatags,
   Projects,
 } from "components";
-import smoothscroll from "smoothscroll-polyfill";
-
 const Home: NextPage = () => {
   const aboutRef = useRef(null);
   const experienceRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
-
-  useEffect(() => {
-    smoothscroll.polyfill();
-  }, []);
 
   useEffect(() => {
     var barTimeout: NodeJS.Timeout;

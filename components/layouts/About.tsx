@@ -41,16 +41,16 @@ const About = () => {
         <p>Hi! My name is Ismael Barajas.</p>
         <br />
         <p>
-          I&apos;m a {age} year old Software Engineer based in California with a
-          B.S. in Computer Science from California State University, Fullerton.
-          When I&apos;m not coding, I enjoy playing video games and still have a
-          collection of{" "}
+          I&apos;m a {age} year old Software Engineer based in Austin, Texas
+          with a B.S. in Computer Science from California State University,
+          Fullerton. When I&apos;m not coding, I enjoy playing video games and
+          still have a collection of{" "}
           <ToolTip position="bottom" content={"Coming soon!"}>
             <a className="shadow-link ease-in-out hover:shadow-h-link transition-shadow duration-500">
               keyboards
             </a>
-          </ToolTip>
-          {" "}I&apos;ve built over the years.
+          </ToolTip>{" "}
+          I&apos;ve built over the years.
         </p>
         <br />
         <p>

@@ -115,10 +115,12 @@ const NavBar = () => {
           return (
             <li key={hash} className={listItemClasses}>
               {router.pathname === "/" ? (
-                <button
+                <a
+                  href={`#${hash}`}
                   className={isActive ? linkPage : linkClasses}
                   style={isActive ? { color: "#E0E0E0" } : undefined}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     const el = document.getElementById(hash);
                     if (el) {
                       const top = el.getBoundingClientRect().top + window.scrollY - 64;
@@ -129,7 +131,7 @@ const NavBar = () => {
                   }}
                 >
                   {label}
-                </button>
+                </a>
               ) : (
                 <Link
                   href={{ pathname: "/", hash }}
@@ -159,7 +161,7 @@ const NavBar = () => {
   return (
     <header>
       <nav
-        className={`transition-[background-color,box-shadow] duration-700 ease-in-out fixed text-text bg-secondary-light dark:bg-secondary-dark/70 backdrop-blur-sm bg-opacity-70 h-16 w-full z-50 ${
+        className={`transition-[background-color,box-shadow] duration-700 ease-in-out fixed text-text bg-linear-to-b from-secondary-light/90 to-secondary-light/40 dark:from-secondary-dark/90 dark:to-secondary-dark/40 backdrop-blur-md h-16 w-full z-50 ${
           onTop ? "" : "shadow-card"
         }`}
       >
@@ -172,7 +174,7 @@ const NavBar = () => {
           </a>
           <Link
             href={{ pathname: "/" }}
-            className="flex flex-row text-text text-lg lg:text-2xl w-[115px] font-medium"
+            className="flex flex-row text-text text-lg lg:text-2xl w-fit font-medium"
           >
             <TypedText
               strings={["Ismael Barajas"]}
