@@ -221,9 +221,9 @@ const NavBar = () => {
             position="bottom"
             content={theme === "dark" ? "Light Mode" : "Dark Mode"}
           >
-            <button
+            <a
               aria-label="Toggle Dark Mode"
-              type="button"
+              role="button"
               className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center order-2 md:order-3 hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200 transition-all duration-700"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
@@ -236,7 +236,7 @@ const NavBar = () => {
                   )}
                 </>
               )}
-            </button>
+            </a>
           </ToolTip>
         </div>
         <ProgressBar />
