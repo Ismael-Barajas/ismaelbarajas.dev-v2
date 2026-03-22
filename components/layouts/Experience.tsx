@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { ExperienceCard, TypedText } from "components";
+import { AnimatedContent, ExperienceCard, TypedText } from "components";
 import { TechListType } from "components/library/TagIcons";
 import fetcher from "lib/fetcher";
 
@@ -42,14 +42,21 @@ const Experience = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {data?.items.map((job, index) => (
-            <ExperienceCard
+            <AnimatedContent
               key={index}
-              img={job.img}
-              body={job.body}
-              position={{ position: job.position, time_commitment: job.timeCommitment }}
-              tags={job.tags as Array<TechListType>}
-              url={job.url}
-            />
+              distance={60}
+              duration={2}
+              delay={index * 0.1}
+              threshold={0.15}
+            >
+              <ExperienceCard
+                img={job.img}
+                body={job.body}
+                position={{ position: job.position, time_commitment: job.timeCommitment }}
+                tags={job.tags as Array<TechListType>}
+                url={job.url}
+              />
+            </AnimatedContent>
           ))}
         </div>
       </div>

@@ -4,7 +4,7 @@ import { getTopTracks } from "lib/spotify";
 // https://leerob.io/snippets/spotify
 export default async function topTracks(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const response = await getTopTracks();
   const data = await response.json();
@@ -26,12 +26,12 @@ export default async function topTracks(
           .join(", "),
         songUrl: track.external_urls.spotify,
         title: track.name,
-      })
+      }),
     );
 
   res.setHeader(
     "Cache-Control",
-    "public, s-maxage=86400, stale-while-revalidate=43200"
+    "public, s-maxage=86400, stale-while-revalidate=43200",
   );
 
   return res.status(200).json({ tracks });

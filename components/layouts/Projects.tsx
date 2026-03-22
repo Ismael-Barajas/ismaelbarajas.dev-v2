@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { ProjectsCard, TypedText } from "components";
+import { AnimatedContent, ProjectsCard, TypedText } from "components";
 import { TechListType } from "components/library/TagIcons";
 import fetcher from "lib/fetcher";
 
@@ -31,15 +31,22 @@ const Projects = () => {
       </h2>
       <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 justify-items-center">
         {data?.items.map((project, index) => (
-          <ProjectsCard
+          <AnimatedContent
             key={index}
-            body={project.body}
-            github_url={project.githubUrl}
-            img={project.img}
-            tags={project.tags as Array<TechListType>}
-            url={project.url}
-            name={project.name}
-          />
+            distance={60}
+            duration={2}
+            delay={index * 0.1}
+            threshold={0.15}
+          >
+            <ProjectsCard
+              body={project.body}
+              github_url={project.githubUrl}
+              img={project.img}
+              tags={project.tags as Array<TechListType>}
+              url={project.url}
+              name={project.name}
+            />
+          </AnimatedContent>
         ))}
       </div>
     </div>

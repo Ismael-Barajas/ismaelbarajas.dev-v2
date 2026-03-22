@@ -201,6 +201,7 @@ const NowPlaying = () => {
               alt={data?.album}
               width={90}
               height={90}
+              loading="eager"
             />
           </div>
         ) : (

@@ -15,6 +15,8 @@ export { default as TagIcons } from "./library/TagIcons";
 export { default as CursorFollower } from "./library/CursorFollower";
 export { default as TargetCursor } from "./library/TargetCursor";
 export { default as Dither } from "./library/Dither";
+export { default as Plasma } from "./library/Plasma";
+export { default as AnimatedContent } from "./library/AnimatedContent";
 
 export { default as Hero } from "./layouts/Hero";
 export { default as About } from "./layouts/About";
