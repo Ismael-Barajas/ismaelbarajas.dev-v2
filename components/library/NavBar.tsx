@@ -64,11 +64,6 @@ const NavBar = () => {
       event.preventDefault();
       document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
     }
-    if (event.currentTarget.href.indexOf("cv") > -1) {
-      document.querySelectorAll("nav li a").forEach((navEl) => {
-        navEl.classList.remove("active");
-      });
-    }
     if (width! <= 768) {
       toggleMobileNavigation();
     }
