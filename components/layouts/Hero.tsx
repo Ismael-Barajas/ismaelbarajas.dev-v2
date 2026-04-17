@@ -63,6 +63,24 @@ const Hero = () => {
     return parseColor(resolvedTheme === "dark" ? "#121212" : "#E0E0E0");
   }, [resolvedTheme]);
 
+  const dither = useMemo(
+    () => (
+      <Dither
+        waveColor={waveColor}
+        backgroundColor={backgroundColor}
+        disableAnimation={false}
+        enableMouseInteraction
+        mouseRadius={0.1}
+        colorNum={40}
+        pixelSize={2}
+        waveAmplitude={0.41}
+        waveFrequency={2.5}
+        waveSpeed={0.04}
+      />
+    ),
+    [waveColor, backgroundColor],
+  );
+
   return (
     <section
       id="hero"
@@ -91,19 +109,7 @@ const Hero = () => {
           />
         </h2>
       </div>
-      <div className="absolute inset-0 z-0">
-        <Dither
-          waveColor={waveColor}
-          backgroundColor={backgroundColor}
-          disableAnimation={false}
-          enableMouseInteraction
-          mouseRadius={0.1}
-          colorNum={4}
-          waveAmplitude={0.3}
-          waveFrequency={3}
-          waveSpeed={0.05}
-        />
-      </div>
+      <div className="absolute inset-0 z-0">{dither}</div>
       <WaveSVG />
       <BackToTop elementRef={heroRef} />
     </section>

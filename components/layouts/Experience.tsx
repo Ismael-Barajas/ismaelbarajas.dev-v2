@@ -41,7 +41,7 @@ const Experience = () => {
           />
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {data?.items.map((job, index) => (
+          {data?.items?.map((job, index) => (
             <AnimatedContent
               key={index}
               distance={60}

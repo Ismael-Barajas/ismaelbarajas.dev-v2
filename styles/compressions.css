@@ -1,0 +1,407 @@
+/* ============================================================
+   Compressions landing page — scoped theme
+   Active under [data-page="compressions"] only.
+   ============================================================ */
+
+[data-page="compressions"] {
+  --c-bg: #faf8f5;
+  --c-bg-secondary: #f0ede8;
+  --c-bg-tertiary: #e5e1db;
+  --c-bg-elevated: #ffffff;
+  --c-text: #1a1816;
+  --c-text-muted: #6b6560;
+  --c-text-soft: #a09890;
+  --c-border: #dcd7d0;
+  --c-border-hover: #c8c0b8;
+  --c-accent: #b8862e;
+  --c-accent-hover: #a07528;
+  --c-accent-glow: rgba(184, 134, 46, 0.18);
+  --c-accent-fg: #ffffff;
+  --c-success: #1a8a5c;
+  --c-error: #c44040;
+  --c-noise-opacity: 0.035;
+
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  min-height: calc(100vh - 4rem);
+  position: relative;
+  isolation: isolate;
+  transition: background 700ms ease, color 700ms ease;
+}
+
+html.dark [data-page="compressions"] {
+  --c-bg: #0e0e10;
+  --c-bg-secondary: #18181c;
+  --c-bg-tertiary: #222228;
+  --c-bg-elevated: #1e1e24;
+  --c-text: #e6e2dc;
+  --c-text-muted: #918b82;
+  --c-text-soft: #5c5750;
+  --c-border: #2a2a30;
+  --c-border-hover: #3a3a42;
+  --c-accent: #d4a053;
+  --c-accent-hover: #e8b566;
+  --c-accent-glow: rgba(212, 160, 83, 0.16);
+  --c-accent-fg: #0e0e10;
+  --c-success: #3dd68c;
+  --c-error: #f06060;
+  --c-noise-opacity: 0.05;
+}
+
+/* ---- Background layer 1: 40px grid across viewport ---- */
+[data-page="compressions"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--c-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: -1px -1px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: -2;
+  transition: opacity 700ms ease;
+}
+html.dark [data-page="compressions"]::before { opacity: 0.55; }
+
+/* ---- Background layer 2: bronze inner-edge glow (always-on drop-zone vibe) ---- */
+[data-page="compressions"]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  box-shadow:
+    inset 0 0 180px 40px var(--c-accent-glow),
+    inset 0 0 60px 10px var(--c-accent-glow);
+  pointer-events: none;
+  z-index: -1;
+  animation: c-page-edge-pulse 6s ease-in-out infinite;
+}
+
+@keyframes c-page-edge-pulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 140px 30px var(--c-accent-glow),
+      inset 0 0 50px 8px var(--c-accent-glow);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 220px 55px var(--c-accent-glow),
+      inset 0 0 80px 14px var(--c-accent-glow);
+  }
+}
+
+/* ---- Optional noise overlay (matches the app's atmosphere) ---- */
+[data-page="compressions"] .c-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: var(--c-noise-opacity);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* ============================================================
+   Typography & primitives (scoped)
+   ============================================================ */
+
+[data-page="compressions"] .c-mono {
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+}
+[data-page="compressions"] .c-display {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-variation-settings: "opsz" 96;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+[data-page="compressions"] h1,
+[data-page="compressions"] h2,
+[data-page="compressions"] h3 {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--c-text);
+}
+
+/* Sharp corners by default — opt out via .c-rounded */
+[data-page="compressions"] button,
+[data-page="compressions"] .c-card,
+[data-page="compressions"] .c-pill,
+[data-page="compressions"] .c-input,
+[data-page="compressions"] figure {
+  border-radius: 0;
+}
+
+/* ---- Buttons ---- */
+[data-page="compressions"] .c-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem;
+  background: var(--c-accent);
+  color: var(--c-accent-fg);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid var(--c-accent);
+  cursor: pointer;
+  transition: background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+[data-page="compressions"] .c-btn-primary:hover {
+  background: var(--c-accent-hover);
+  box-shadow: 0 0 24px var(--c-accent-glow);
+}
+
+[data-page="compressions"] .c-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem;
+  background: transparent;
+  color: var(--c-text);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  transition: border-color 200ms ease, color 200ms ease, background 200ms ease;
+}
+[data-page="compressions"] .c-btn-secondary:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+
+/* ---- Cards & surfaces ---- */
+[data-page="compressions"] .c-card {
+  background: color-mix(in srgb, var(--c-bg-elevated) 65%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--c-border);
+  transition: border-color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
+}
+[data-page="compressions"] .c-card:hover {
+  border-color: var(--c-border-hover);
+  box-shadow: 0 0 32px var(--c-accent-glow);
+}
+
+/* ---- Pills ---- */
+[data-page="compressions"] .c-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--c-text);
+  background: var(--c-bg-secondary);
+  border: 1px solid var(--c-border);
+}
+[data-page="compressions"] .c-pill-accent {
+  background: var(--c-accent);
+  color: var(--c-accent-fg);
+  border-color: var(--c-accent);
+}
+
+/* ---- Eyebrow / kicker label ---- */
+[data-page="compressions"] .c-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+[data-page="compressions"] .c-kicker::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--c-accent);
+}
+
+/* ---- Blinking caret (used by BrandSwap during backspace) ---- */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ---- Bars logo animation ---- */
+@keyframes c-bars-stagger {
+  0%, 100% { transform: scaleX(1); opacity: var(--bar-op, 1); }
+  50%      { transform: scaleX(0.92); opacity: calc(var(--bar-op, 1) * 0.75); }
+}
+[data-page="compressions"] .c-bar {
+  transform-origin: center;
+  animation: c-bars-stagger 3.4s ease-in-out infinite;
+}
+[data-page="compressions"] .c-bar:nth-child(2) { animation-delay: 0.18s; }
+[data-page="compressions"] .c-bar:nth-child(3) { animation-delay: 0.36s; }
+
+/* ---- Screenshot placeholder slot ---- */
+[data-page="compressions"] .c-shot-slot {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 14px,
+      color-mix(in srgb, var(--c-accent) 7%, transparent) 14px,
+      color-mix(in srgb, var(--c-accent) 7%, transparent) 15px
+    ),
+    var(--c-bg-secondary);
+  border: 1px dashed var(--c-border-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-text-muted);
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding: 1rem;
+}
+[data-page="compressions"] .c-shot-slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 60px var(--c-accent-glow);
+}
+
+/* ---- Container ---- */
+[data-page="compressions"] .c-wrap {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+@media (min-width: 768px) {
+  [data-page="compressions"] .c-wrap {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+/* ---- Section ---- */
+[data-page="compressions"] .c-section {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+@media (max-width: 640px) {
+  [data-page="compressions"] .c-section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* ---- Mono numerals ---- */
+[data-page="compressions"] .c-tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Animated diagonal reduction stripes (echo of compression) ---- */
+[data-page="compressions"] .c-stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--c-accent) 0,
+    var(--c-accent) 1px,
+    transparent 1px,
+    transparent 8px
+  );
+  opacity: 0.18;
+}
+
+/* ============================================================
+   NavBar palette transition (active when on /compressions)
+   ============================================================ */
+
+nav[data-route="compressions"] {
+  background: linear-gradient(
+    to bottom,
+    rgba(250, 248, 245, 0.92),
+    rgba(250, 248, 245, 0.55)
+  ) !important;
+  color: #1a1816 !important;
+  transition:
+    background-color 700ms ease,
+    background 700ms ease,
+    color 700ms ease,
+    box-shadow 700ms ease,
+    border-color 700ms ease !important;
+  border-bottom: 1px solid rgba(184, 134, 46, 0.25);
+}
+html.dark nav[data-route="compressions"] {
+  background: linear-gradient(
+    to bottom,
+    rgba(14, 14, 16, 0.92),
+    rgba(14, 14, 16, 0.55)
+  ) !important;
+  color: #e6e2dc !important;
+  border-bottom-color: rgba(212, 160, 83, 0.22);
+}
+nav[data-route="compressions"] a { transition: color 500ms ease, box-shadow 500ms ease; }
+nav[data-route="compressions"] a:hover { color: #b8862e !important; }
+html.dark nav[data-route="compressions"] a:hover { color: #d4a053 !important; }
+
+/* Active Compressions tab: bronze color + bronze pill instead of gray */
+nav[data-route="compressions"] a[href="/compressions"] { color: #b8862e !important; }
+html.dark nav[data-route="compressions"] a[href="/compressions"] { color: #d4a053 !important; }
+
+/* Re-color the hover/active "pill" on nav items only (not the brand link) */
+nav[data-route="compressions"] ul a[href="/compressions"],
+nav[data-route="compressions"] ul a:hover {
+  box-shadow: inset 0 -20px 0 rgba(184, 134, 46, 0.18) !important;
+}
+html.dark nav[data-route="compressions"] ul a[href="/compressions"],
+html.dark nav[data-route="compressions"] ul a:hover {
+  box-shadow: inset 0 -20px 0 rgba(212, 160, 83, 0.22) !important;
+}
+/* Strip the gray pill from the brand link on hover */
+nav[data-route="compressions"] a[href="/"]:hover {
+  box-shadow: none !important;
+}
+
+/* Scroll progress bar in bronze gradient */
+nav[data-route="compressions"] .bg-gradient-to-r,
+nav[data-route="compressions"] .bg-linear-to-r {
+  background-image: linear-gradient(
+    to right,
+    #8a6220,
+    #b8862e,
+    #d4a053
+  ) !important;
+}
+html.dark nav[data-route="compressions"] .bg-gradient-to-r,
+html.dark nav[data-route="compressions"] .bg-linear-to-r {
+  background-image: linear-gradient(
+    to right,
+    #6b4d18,
+    #b8862e,
+    #e8b566
+  ) !important;
+}
+
+/* Theme toggle button blends with new palette */
+nav[data-route="compressions"] button[aria-label*="mode"] {
+  background: #b8862e !important;
+  transition:
+    background 700ms ease,
+    color 500ms ease;
+}
+nav[data-route="compressions"] button[aria-label*="mode"]:hover {
+  background: #a07528 !important;
+}
+nav[data-route="compressions"] button[aria-label*="mode"] svg {
+  color: #faf8f5 !important;
+}
+html.dark nav[data-route="compressions"] button[aria-label*="mode"] {
+  background: rgba(212, 160, 83, 0.18) !important;
+}
+html.dark nav[data-route="compressions"] button[aria-label*="mode"] svg {
+  color: #d4a053 !important;
+}

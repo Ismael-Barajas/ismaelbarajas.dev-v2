@@ -3,7 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import useTheme from "hooks/useTheme";
 import { useWindowSize, useIsMounted } from "hooks";
-import { ProgressBar, ToolTip, TypedText } from "..";
+import { ProgressBar, ToolTip } from "..";
+import BrandSwap from "components/compressions/BrandSwap";
 import { FiSun } from "react-icons/fi";
 import { BsMoonStars } from "react-icons/bs";
 
@@ -149,6 +150,16 @@ const NavBar = () => {
             Listen
           </Link>
         </li>
+        <li className={listItemClasses}>
+          <Link
+            href={{ pathname: "/compressions" }}
+            className={router.pathname === "/compressions" ? linkPage : linkClasses}
+            style={router.pathname === "/compressions" ? { color: "#E0E0E0" } : undefined}
+            onClick={linkClicked}
+          >
+            Compressions
+          </Link>
+        </li>
       </>
     );
   };
@@ -156,7 +167,8 @@ const NavBar = () => {
   return (
     <header>
       <nav
-        className={`transition-[background-color,box-shadow] duration-700 ease-in-out fixed text-text bg-linear-to-b from-secondary-light/90 to-secondary-light/40 dark:from-secondary-dark/90 dark:to-secondary-dark/40 backdrop-blur-md h-16 w-full z-50 ${
+        data-route={router.pathname === "/compressions" ? "compressions" : undefined}
+        className={`transition-[background-color,color,box-shadow] duration-700 ease-in-out fixed text-text bg-linear-to-b from-secondary-light/90 to-secondary-light/40 dark:from-secondary-dark/90 dark:to-secondary-dark/40 backdrop-blur-md h-16 w-full z-50 ${
           onTop ? "" : "shadow-card"
         }`}
       >
@@ -171,12 +183,7 @@ const NavBar = () => {
             href={{ pathname: "/" }}
             className="inline-block text-text text-lg lg:text-2xl font-medium min-w-[11ch]"
           >
-            <TypedText
-              strings={["Ismael Barajas"]}
-              loop={false}
-              whiteSpace={"pre"}
-              className={"animated-underline"}
-            />
+            <BrandSwap key={router.pathname === "/compressions" ? "c" : "n"} />
           </Link>
           <ul className="hidden md:flex md:gap-4 lg:gap-6">
             {renderNavigationItems()}
