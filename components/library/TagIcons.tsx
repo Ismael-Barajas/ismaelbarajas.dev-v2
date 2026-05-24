@@ -25,6 +25,10 @@ import {
   SiTerraform,
   SiKubernetes,
   SiDocker,
+  SiElectron,
+  SiTauri,
+  SiFfmpeg,
+  SiRust,
 } from "react-icons/si";
 import { VscAzure } from "react-icons/vsc";
 import { FaAws, FaJava } from "react-icons/fa6";
@@ -220,5 +224,25 @@ const techList: Record<string, TechEntry> = {
     name: "Azure",
     className: "azure-btn",
     style: { backgroundColor: "#0089d6c9", color: "white" },
+  },
+  electron: {
+    icon: SiElectron,
+    name: "Electron",
+    className: "electron-btn",
+  },
+  tauri: {
+    icon: SiTauri,
+    name: "Tauri",
+    className: "tauri-btn",
+  },
+  ffmpeg: {
+    icon: SiFfmpeg,
+    name: "FFmpeg",
+    className: "ffmpeg-btn",
+  },
+  rust: {
+    icon: SiRust,
+    name: "Rust",
+    className: "rust-btn",
   },
 };

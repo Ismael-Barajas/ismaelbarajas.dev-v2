@@ -24,8 +24,9 @@ const TypedText = ({
 }: Props) => {
   const el = useRef<HTMLSpanElement>(null);
   // Stabilize the strings array reference so the effect doesn't re-run on every render
+  const stableStringsKey = JSON.stringify(strings);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stableStrings = useMemo(() => strings, [JSON.stringify(strings)]);
+  const stableStrings = useMemo(() => strings, [stableStringsKey]);
 
   useEffect(() => {
     const options = {

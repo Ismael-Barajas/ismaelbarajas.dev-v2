@@ -41,13 +41,13 @@ const Experience = () => {
           />
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {data?.items.map((job, index) => (
+          {data?.items?.map((job, index) => (
             <AnimatedContent
               key={index}
-              distance={60}
-              duration={2}
-              delay={index * 0.1}
-              threshold={0.15}
+              distance={40}
+              duration={0.5}
+              delay={index * 0.05}
+              threshold={0.05}
             >
               <ExperienceCard
                 img={job.img}

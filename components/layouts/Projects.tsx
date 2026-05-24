@@ -30,13 +30,13 @@ const Projects = () => {
         />
       </h2>
       <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 justify-items-center">
-        {data?.items.map((project, index) => (
+        {data?.items?.map((project, index) => (
           <AnimatedContent
             key={index}
-            distance={60}
-            duration={2}
-            delay={index * 0.1}
-            threshold={0.15}
+            distance={40}
+            duration={0.5}
+            delay={index * 0.05}
+            threshold={0.05}
           >
             <ProjectsCard
               body={project.body}

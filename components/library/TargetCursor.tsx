@@ -51,6 +51,7 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
   useEffect(() => {
     if (isMobile || !cursorRef.current) return;
 
+    const activeStrength = activeStrengthRef.current;
     const originalCursor = document.documentElement.style.cursor;
     if (hideDefaultCursor) {
       document.documentElement.style.cursor = "none";
@@ -316,7 +317,7 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
       document.documentElement.style.cursor = originalCursor;
       isActiveRef.current = false;
       targetCornerPositionsRef.current = null;
-      activeStrengthRef.current.current = 0;
+      activeStrength.current = 0;
     };
   }, [
     targetSelector,
