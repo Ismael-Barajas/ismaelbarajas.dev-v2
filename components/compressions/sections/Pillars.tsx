@@ -32,7 +32,7 @@ const Pillars = () => {
     <section className="c-section" id="why">
       <div className="c-wrap">
         <div className="c-kicker" style={{ marginBottom: "1rem" }}>
-          Why it's different
+          Why it&apos;s different
         </div>
         <h2
           style={{

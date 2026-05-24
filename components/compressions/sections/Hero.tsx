@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { FiDownload, FiGithub, FiShieldOff, FiZap } from "react-icons/fi";
 import BarsMark from "../atoms/BarsMark";
@@ -26,9 +26,15 @@ const platformLabel: Record<Exclude<Platform, null>, string> = {
   linux: "Linux",
 };
 
+const subscribePlatform = () => () => {};
+const getServerPlatform = (): Platform => null;
+
 const Hero = ({ release }: Props) => {
-  const [platform, setPlatform] = useState<Platform>(null);
-  useEffect(() => setPlatform(detectPlatform()), []);
+  const platform = useSyncExternalStore(
+    subscribePlatform,
+    detectPlatform,
+    getServerPlatform,
+  );
 
   const downloadAsset =
     release && platform ? release.assets[platform] : null;
