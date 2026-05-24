@@ -33,10 +33,10 @@ const Projects = () => {
         {data?.items?.map((project, index) => (
           <AnimatedContent
             key={index}
-            distance={60}
-            duration={2}
-            delay={index * 0.1}
-            threshold={0.15}
+            distance={40}
+            duration={0.5}
+            delay={index * 0.05}
+            threshold={0.05}
           >
             <ProjectsCard
               body={project.body}

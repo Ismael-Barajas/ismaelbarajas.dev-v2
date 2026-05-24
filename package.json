@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "seed": "tsx prisma/seed.ts",
+    "upload:compressions": "tsx scripts/upload-compressions-screenshots.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

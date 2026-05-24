@@ -225,6 +225,26 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
 }
 
+.electron-btn {
+  background-color: #47848fc9;
+  color: white;
+}
+
+.tauri-btn {
+  background-color: #ffc131c9;
+  color: #1a1a1a;
+}
+
+.ffmpeg-btn {
+  background-color: #007808c9;
+  color: white;
+}
+
+.rust-btn {
+  background-color: #000000c9;
+  color: #dea584;
+}
+
 @keyframes tooltip-in {
   from {
     opacity: 0;
