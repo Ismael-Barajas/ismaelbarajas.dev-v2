@@ -134,12 +134,19 @@ void mainImage(in vec4 inputColor, in vec2 uv, out vec4 outputColor) {
 }
 `;
 
+interface RetroEffectOptions {
+  colorNum?: number;
+  pixelSize?: number;
+}
+
 class RetroEffectImpl extends Effect {
   public uniforms: Map<string, THREE.Uniform<any>>;
-  constructor() {
+  // `wrapEffect` (@react-three/postprocessing >= 3.1) derives the accepted JSX props from
+  // the first constructor parameter, so colorNum/pixelSize must be declared here.
+  constructor({ colorNum = 4.0, pixelSize = 2.0 }: RetroEffectOptions = {}) {
     const uniforms = new Map<string, THREE.Uniform<any>>([
-      ['colorNum', new THREE.Uniform(4.0)],
-      ['pixelSize', new THREE.Uniform(2.0)]
+      ['colorNum', new THREE.Uniform(colorNum)],
+      ['pixelSize', new THREE.Uniform(pixelSize)]
     ]);
     super('RetroEffect', ditherFragmentShader, { uniforms });
     this.uniforms = uniforms;

@@ -1,27 +1,83 @@
 import useSWR from "swr";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { animate } from "motion/mini";
-import fetcher from "lib/fetcher";
+import nowPlayingFetcher, { type NowPlayingSong } from "lib/nowPlayingFetcher";
 import Image from "next/image";
 
-interface PaletteColors {
-  vibrant?: string;
-  muted?: string;
-  darkVibrant?: string;
-  darkMuted?: string;
-  lightVibrant?: string;
-  lightMuted?: string;
-}
+const formatTime = (ms: number): string => {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
 
-interface NowPlayingSong {
-  album: string;
-  albumImageUrl: string;
-  artist: string;
-  isPlaying: boolean;
-  palette?: PaletteColors;
-  songUrl: string;
-  title: string;
-}
+/**
+ * Interpolates song position between API polls. Each poll gives a fresh
+ * progressMs; while the song is playing we add the wall-clock time elapsed
+ * since that poll arrived so the bar moves smoothly instead of jumping every
+ * 10 seconds. Pausing or seeking on Spotify is picked up on the next poll.
+ */
+const useSongProgress = (data?: NowPlayingSong) => {
+  const progressMs = data?.progressMs ?? 0;
+  const durationMs = data?.durationMs ?? 0;
+  const isPlaying = data?.isPlaying ?? false;
+  const receivedAt = data?.receivedAt ?? 0;
+
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    if (!isPlaying || durationMs === 0) return;
+    const id = window.setInterval(() => setNow(Date.now()), 250);
+    return () => window.clearInterval(id);
+  }, [isPlaying, durationMs]);
+
+  const elapsed =
+    isPlaying && receivedAt > 0 ? Math.max(0, now - receivedAt) : 0;
+  const progress = Math.min(progressMs + elapsed, durationMs);
+
+  return { progress, duration: durationMs };
+};
+
+const ProgressBar = ({
+  progress,
+  duration,
+  fillColor,
+  textColor,
+}: {
+  progress: number;
+  duration: number;
+  fillColor?: string;
+  textColor: string;
+}) => {
+  const percent = duration > 0 ? (progress / duration) * 100 : 0;
+
+  return (
+    <div className="w-full mt-2 flex flex-col gap-1">
+      <div
+        className="w-full h-1 rounded-full overflow-hidden bg-white/15"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={duration}
+        aria-valuenow={progress}
+        aria-label="Song progress"
+      >
+        <div
+          className="h-full rounded-full transition-[width] duration-300 ease-linear"
+          style={{
+            width: `${percent}%`,
+            backgroundColor: fillColor || "#1ED760",
+          }}
+        />
+      </div>
+      <div
+        className="flex justify-between text-xs tabular-nums leading-none"
+        style={{ color: textColor }}
+      >
+        <span>{formatTime(progress)}</span>
+        <span>{formatTime(duration)}</span>
+      </div>
+    </div>
+  );
+};
 
 const mixWithWhite = (hex: string, weight: number): string => {
   const n = parseInt(hex.replace("#", ""), 16);
@@ -118,13 +174,14 @@ const AnimatedBars = ({ color }: { color?: string }) => {
 const NowPlaying = () => {
   const { data, error, isLoading } = useSWR<NowPlayingSong>(
     "/api/now-playing",
-    fetcher,
+    nowPlayingFetcher,
     {
       refreshInterval: 10000,
     },
   );
 
   const colorPalette = data?.palette;
+  const { progress, duration } = useSongProgress(data);
 
   useEffect(() => {
     const accent = colorPalette?.vibrant || colorPalette?.muted;
@@ -207,7 +264,7 @@ const NowPlaying = () => {
         ) : (
           <div className="w-[90px] h-[90px] animate-pulse bg-[#2b2828] rounded" />
         )}
-        <div className="max-w-xs flex flex-col">
+        <div className="max-w-xs min-w-[200px] flex flex-col">
           {data?.songUrl ? (
             <div>
               <AnimatedBars color={barColor} />
@@ -245,6 +302,14 @@ const NowPlaying = () => {
           >
             {data?.artist ?? "Spotify"}
           </p>
+          {data?.songUrl && duration > 0 && (
+            <ProgressBar
+              progress={progress}
+              duration={duration}
+              fillColor={barColor}
+              textColor={artistColor}
+            />
+          )}
         </div>
       </div>
     </div>

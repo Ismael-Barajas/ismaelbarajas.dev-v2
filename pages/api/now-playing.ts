@@ -27,6 +27,8 @@ export default async function nowPlaying(
     const album: string = song.item.album.name;
     const albumImageUrl: string = song.item.album.images[0].url;
     const songUrl: string = song.item.external_urls.spotify;
+    const progressMs: number = song.progress_ms ?? 0;
+    const durationMs: number = song.item.duration_ms ?? 0;
 
     let palette: Record<string, string | undefined> = {};
     try {
@@ -43,17 +45,21 @@ export default async function nowPlaying(
       // Palette extraction is non-critical; return song data without it
     }
 
+    // Short cache: the client interpolates progress from when it received the
+    // response, so a long CDN cache would make the bar lag behind Spotify.
     res.setHeader(
       "Cache-Control",
-      "public, s-maxage=10, stale-while-revalidate=10",
+      "public, s-maxage=5, stale-while-revalidate=5",
     );
 
     return res.status(200).json({
       album,
       albumImageUrl,
       artist,
+      durationMs,
       isPlaying,
       palette,
+      progressMs,
       songUrl,
       title,
     });

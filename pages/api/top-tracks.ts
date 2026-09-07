@@ -6,10 +6,16 @@ export default async function topTracks(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const response = await getTopTracks();
-  const data = await response.json();
+  let data;
+  try {
+    const response = await getTopTracks();
+    data = await response.json();
 
-  if (!response.ok || !data.items) {
+    if (!response.ok || !data.items) {
+      return res.status(200).json({ tracks: [] });
+    }
+  } catch (error) {
+    console.error("top-tracks error:", error);
     return res.status(200).json({ tracks: [] });
   }
 

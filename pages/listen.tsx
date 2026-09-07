@@ -7,21 +7,18 @@ import {
   Plasma,
   TopTracks,
 } from "components";
-import fetcher from "lib/fetcher";
+import nowPlayingFetcher, { type NowPlayingSong } from "lib/nowPlayingFetcher";
 import type { NextPage } from "next";
-
-interface NowPlayingData {
-  palette?: {
-    vibrant?: string;
-    muted?: string;
-  };
-}
 
 const Listen: NextPage = () => {
   const { resolvedTheme } = useTheme();
-  const { data } = useSWR<NowPlayingData>("/api/now-playing", fetcher, {
-    refreshInterval: 10000,
-  });
+  const { data } = useSWR<NowPlayingSong>(
+    "/api/now-playing",
+    nowPlayingFetcher,
+    {
+      refreshInterval: 10000,
+    },
+  );
 
   const accentColor = data?.palette?.vibrant || data?.palette?.muted || null;
   const plasmaColor =

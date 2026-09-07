@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "seed": "tsx prisma/seed.ts",
     "upload:compressions": "tsx scripts/upload-compressions-screenshots.ts",
+    "spotify:token": "node scripts/spotify-refresh-token.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {
