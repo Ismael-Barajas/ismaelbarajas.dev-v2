@@ -1,7 +1,7 @@
-import useSWR from "swr";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { animate } from "motion/mini";
-import nowPlayingFetcher, { type NowPlayingSong } from "lib/nowPlayingFetcher";
+import useNowPlaying from "hooks/useNowPlaying";
+import type { NowPlayingSong } from "lib/nowPlayingFetcher";
 import { mixWithWhite } from "lib/color";
 import { formatDuration, timeAgo } from "lib/time";
 import PopularityFlame from "./PopularityFlame";
@@ -21,10 +21,17 @@ const CARD_STYLE = "backdrop" as CardStyle;
 /**
  * Interpolates song position between API polls. Each poll gives a fresh
  * progressMs; while the song is playing we add the wall-clock time elapsed
- * since that poll arrived so the bar moves smoothly instead of jumping every
- * 10 seconds. Pausing or seeking on Spotify is picked up on the next poll.
+ * since that poll arrived so the bar moves smoothly instead of jumping on
+ * every poll. Pausing or seeking on Spotify is picked up on the next poll.
+ *
+ * When the interpolated position reaches the end of the track we ask SWR to
+ * revalidate right away, so the next song shows up within a couple of seconds
+ * instead of waiting out the poll interval plus the CDN cache.
  */
-const useSongProgress = (data?: NowPlayingSong) => {
+const useSongProgress = (
+  data?: NowPlayingSong,
+  revalidate?: () => Promise<unknown>,
+) => {
   const progressMs = data?.progressMs ?? 0;
   const durationMs = data?.durationMs ?? 0;
   const isPlaying = data?.isPlaying ?? false;
@@ -40,6 +47,17 @@ const useSongProgress = (data?: NowPlayingSong) => {
   const elapsed =
     isPlaying && receivedAt > 0 ? Math.max(0, now - receivedAt) : 0;
   const progress = Math.min(progressMs + elapsed, durationMs);
+
+  // One revalidate per sample: receivedAt changes with every poll, so a
+  // sample that still says "playing" at the end of the track (Spotify is
+  // a beat behind, or the edge cache is stale) only fires once.
+  const ended = isPlaying && durationMs > 0 && progress >= durationMs;
+  const firedFor = useRef(0);
+  useEffect(() => {
+    if (!ended || !revalidate || firedFor.current === receivedAt) return;
+    firedFor.current = receivedAt;
+    void revalidate();
+  }, [ended, receivedAt, revalidate]);
 
   return { progress, duration: durationMs };
 };
@@ -265,20 +283,14 @@ export const AnimatedBars = ({
  */
 const NowPlaying = ({ variant = "card" }: { variant?: "card" | "compact" }) => {
   const compact = variant === "compact";
-  const { data, error, isLoading } = useSWR<NowPlayingSong>(
-    "/api/now-playing",
-    nowPlayingFetcher,
-    {
-      refreshInterval: 10000,
-    },
-  );
+  const { data, error, isLoading, mutate } = useNowPlaying();
 
   // Only an actively playing song colors the card and the page accents.
   // Paused and last-played states keep the art and text but drop back to
   // the neutral look so the site doesn't read as "playing".
   const isActive = data?.isPlaying === true;
   const colorPalette = isActive ? data?.palette : undefined;
-  const { progress, duration } = useSongProgress(data);
+  const { progress, duration } = useSongProgress(data, mutate);
 
   useEffect(() => {
     const accent = colorPalette?.vibrant || colorPalette?.muted;

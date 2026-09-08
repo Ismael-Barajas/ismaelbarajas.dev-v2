@@ -3,3 +3,4 @@ export { default as useIsMounted } from "./useIsMounted";
 export { default as useTheme } from "./useTheme";
 export { default as useScrollProgress } from "./useScrollProgress";
 export { default as useNowPlayingAccent } from "./useNowPlayingAccent";
+export { default as useNowPlaying } from "./useNowPlaying";

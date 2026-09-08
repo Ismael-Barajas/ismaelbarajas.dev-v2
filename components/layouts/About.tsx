@@ -1,13 +1,12 @@
 import { TypedText } from "components";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import useSWR from "swr";
 import { FiMapPin, FiBriefcase, FiLayers, FiMail } from "react-icons/fi";
 import { LuGraduationCap } from "react-icons/lu";
 import { HiOutlineArrowDown } from "react-icons/hi";
 import { Button } from "components/library/Button";
 import { AnimatedBars } from "components/library/NowPlaying";
-import nowPlayingFetcher, { type NowPlayingSong } from "lib/nowPlayingFetcher";
+import useNowPlaying from "hooks/useNowPlaying";
 
 const BIRTH_DATE = new Date(1997, 0, 30);
 
@@ -33,11 +32,7 @@ const scrollToSection = (id: string) => {
 
 const About = () => {
   const [age, setAge] = useState(getAge);
-  const { data: song } = useSWR<NowPlayingSong>(
-    "/api/now-playing",
-    nowPlayingFetcher,
-    { refreshInterval: 10000 },
-  );
+  const { data: song } = useNowPlaying();
   // Only an actively playing track earns the line; paused and last-played
   // states show nothing here.
   const listening = song?.isPlaying && song.songUrl ? song : null;

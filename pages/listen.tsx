@@ -1,4 +1,3 @@
-import useSWR from "swr";
 import useTheme from "hooks/useTheme";
 import {
   AnimatedContent,
@@ -11,19 +10,13 @@ import {
   TopTracks,
 } from "components";
 import { useListenTab } from "components/library/ListenTabs";
-import nowPlayingFetcher, { type NowPlayingSong } from "lib/nowPlayingFetcher";
+import useNowPlaying from "hooks/useNowPlaying";
 import type { NextPage } from "next";
 
 const Listen: NextPage = () => {
   const { resolvedTheme } = useTheme();
   const [tab, setTab] = useListenTab();
-  const { data } = useSWR<NowPlayingSong>(
-    "/api/now-playing",
-    nowPlayingFetcher,
-    {
-      refreshInterval: 10000,
-    },
-  );
+  const { data } = useNowPlaying();
 
   // Match the widget: only an actively playing song tints the plasma.
   const accentColor = data?.isPlaying
