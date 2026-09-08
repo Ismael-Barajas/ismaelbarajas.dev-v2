@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import useTheme from "hooks/useTheme";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BackToTop, WaveSVG } from "..";
+import { BackToTop } from "..";
 import DecryptedText from "../library/DecryptedText";
 
 const Dither = dynamic(() => import("../library/Dither"), {
@@ -85,7 +85,7 @@ const Hero = () => {
     <section
       id="hero"
       ref={heroRef}
-      className="transition-[background-color] duration-700 ease-in-out relative min-h-screen-without-nav items-center content-center flex pb-44 "
+      className="transition-[background-color] duration-700 ease-in-out relative -mt-16 min-h-screen items-center content-center flex pt-16 pb-44"
     >
       <div className="container relative z-10 pointer-events-none">
         <h1 className="font-black text-text text-5xl md:text-7xl 2xl:text-8xl leading-none tracking-tight">
@@ -110,7 +110,11 @@ const Hero = () => {
         </h2>
       </div>
       <div className="absolute inset-0 z-0">{dither}</div>
-      <WaveSVG />
+      {/* Dissolve the dither into the page over the bottom third. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-1/3 bg-gradient-to-b from-transparent to-background transition-colors duration-700"
+      />
       <BackToTop elementRef={heroRef} />
     </section>
   );

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { SiGithub } from "react-icons/si";
 import { HiOutlineExternalLink } from "react-icons/hi";
 import { ToolTip } from "components";
+import { FROSTED_CARD, IconButton } from "./Button";
 import TagIcons, { TechListType } from "./TagIcons";
 
 interface Props {
@@ -13,53 +14,67 @@ interface Props {
   tags: Array<TechListType>;
 }
 
+/**
+ * Image-header card: the screenshot fills the top and fades into the card,
+ * the title sits on the fade, and the two link buttons float on the image.
+ */
 const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
   return (
-    <div className="rounded-md bg-linear-to-br from-primary/20 via-transparent to-transparent p-px shadow-card hover:shadow-h-card transition-all ease-in-out duration-300 transform-gpu hover:scale-[1.01] hover:-translate-y-1 max-w-lg">
-      <div className="rounded-[inherit] h-full bg-background/70 dark:bg-black/30 backdrop-blur-md text-text">
-        <div className="relative h-52 max-h-52 text-center mb-2">
-          <Image
-            priority
-            src={img}
-            fill
-            sizes="(max-width: 768px) 100vw, 512px"
-            alt={name}
-            className="rounded-t-[inherit] object-cover"
-          />
-          <TagIcons techs={tags} className="absolute px-2 pb-1" />
+    <article
+      className={`${FROSTED_CARD} group relative w-full max-w-lg overflow-hidden transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.18)]`}
+    >
+      <div className="relative h-52 overflow-hidden">
+        <Image
+          priority
+          src={img}
+          fill
+          sizes="(max-width: 768px) 100vw, 512px"
+          alt={name}
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#E0E0E0]/95 dark:to-[#141214]/95"
+        />
+        <div className="absolute right-3 top-3 flex gap-2">
+          <ToolTip content="Visit the live site" position="bottom">
+            <IconButton
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Visit ${name}`}
+              size="sm"
+              className="bg-white/80 text-[#121212] backdrop-blur-md hover:bg-white dark:bg-black/60 dark:text-[#e6e6e6] dark:hover:bg-black/80"
+            >
+              <HiOutlineExternalLink className="h-4 w-4" />
+            </IconButton>
+          </ToolTip>
+          <ToolTip content="View on GitHub" position="bottom">
+            <IconButton
+              href={github_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${name} on GitHub`}
+              size="sm"
+              className="bg-white/80 text-[#121212] backdrop-blur-md hover:bg-white dark:bg-black/60 dark:text-[#e6e6e6] dark:hover:bg-black/80"
+            >
+              <SiGithub className="h-4 w-4" />
+            </IconButton>
+          </ToolTip>
         </div>
-        <h3 className="text-text text-2xl text-center font-semibold">{name}</h3>
-        <div className="flex justify-center py-3">
-          <div className="flex">
-            <ToolTip content="Visit the live site!" position="left">
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex transition-all ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-300 hover:brightness-110 transform-gpu active:scale-[1.08]"
-              >
-                <HiOutlineExternalLink className="h-5 w-5 text-white" />
-              </a>
-            </ToolTip>
-            <ToolTip content="View the GitHub!" position="right">
-              <a
-                href={github_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex transition-all ease-in-out hover:shadow-card items-center bg-primary text-white text-sm my-1 py-1 px-3 mr-2 rounded-md duration-300 hover:brightness-110 transform-gpu active:scale-[1.08]"
-              >
-                <SiGithub className="h-5 w-5 text-white" />
-              </a>
-            </ToolTip>
-          </div>
-        </div>
-        <div className="text-lg leading-relaxed px-3 pb-3">
+        <h3 className="absolute bottom-2 left-4 right-4 truncate text-2xl font-semibold text-text">
+          {name}
+        </h3>
+      </div>
+      <div className="px-4 pb-4 pt-1">
+        <div className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
           {body.map((paragraph, index) => (
             <p key={index}>{paragraph}</p>
           ))}
         </div>
+        <TagIcons techs={tags} className="mt-3" />
       </div>
-    </div>
+    </article>
   );
 };
 

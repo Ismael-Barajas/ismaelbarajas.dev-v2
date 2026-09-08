@@ -5,6 +5,8 @@ export interface TargetCursorProps {
   targetSelector?: string;
   hideDefaultCursor?: boolean;
   hoverDuration?: number;
+  /** When true, the ring breaks into corners that lock onto hovered targets. */
+  enableTargeting?: boolean;
 }
 
 const CORNER_SIZE = 10;
@@ -18,6 +20,7 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
   targetSelector = 'button, a, [role="button"]',
   hideDefaultCursor = true,
   hoverDuration = 0.2,
+  enableTargeting = false,
 }) => {
   const ringRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
@@ -138,7 +141,7 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
         cornerSetters[i].y(pos.y);
       });
     };
-    gsap.ticker.add(tickerFn);
+    if (enableTargeting) gsap.ticker.add(tickerFn);
 
     const moveHandler = (e: MouseEvent) => {
       mouse.x = e.clientX;
@@ -171,7 +174,9 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
       if (!target || activeTarget === target) return;
       activate(target);
     };
-    window.addEventListener("mouseover", enterHandler as EventListener);
+    if (enableTargeting) {
+      window.addEventListener("mouseover", enterHandler as EventListener);
+    }
 
     return () => {
       gsap.ticker.remove(tickerFn);
@@ -182,7 +187,14 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
       document.documentElement.style.cursor = originalCursor;
       isActiveRef.current = false;
     };
-  }, [targetSelector, moveCursor, hideDefaultCursor, isMobile, hoverDuration]);
+  }, [
+    targetSelector,
+    moveCursor,
+    hideDefaultCursor,
+    isMobile,
+    hoverDuration,
+    enableTargeting,
+  ]);
 
   if (isMobile) {
     return null;

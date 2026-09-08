@@ -347,13 +347,14 @@ html.dark nav[data-route="compressions"] a:hover { color: #d4a053 !important; }
 nav[data-route="compressions"] a[href="/compressions"] { color: #b8862e !important; }
 html.dark nav[data-route="compressions"] a[href="/compressions"] { color: #d4a053 !important; }
 
-/* Re-color the hover/active "pill" on nav items only (not the brand link) */
-nav[data-route="compressions"] ul a[href="/compressions"],
-nav[data-route="compressions"] ul a:hover {
+/* Re-color the hover/active "pill" on nav items only (not the brand link).
+   Classic nav only: the pill and minimal styles have no filled box. */
+nav[data-route="compressions"][data-nav-style="classic"] ul a[href="/compressions"],
+nav[data-route="compressions"][data-nav-style="classic"] ul a:hover {
   box-shadow: inset 0 -20px 0 rgba(184, 134, 46, 0.18) !important;
 }
-html.dark nav[data-route="compressions"] ul a[href="/compressions"],
-html.dark nav[data-route="compressions"] ul a:hover {
+html.dark nav[data-route="compressions"][data-nav-style="classic"] ul a[href="/compressions"],
+html.dark nav[data-route="compressions"][data-nav-style="classic"] ul a:hover {
   box-shadow: inset 0 -20px 0 rgba(212, 160, 83, 0.22) !important;
 }
 /* Strip the gray pill from the brand link on hover */
