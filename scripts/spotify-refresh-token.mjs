@@ -17,7 +17,13 @@ import { exec } from "node:child_process";
 
 const PORT = 8888;
 const REDIRECT_URI = `http://127.0.0.1:${PORT}/callback`;
-const SCOPES = ["user-read-currently-playing", "user-top-read"];
+const SCOPES = [
+  "playlist-read-private",
+  "user-library-read",
+  "user-read-currently-playing",
+  "user-read-recently-played",
+  "user-top-read",
+];
 
 const env = Object.fromEntries(
   readFileSync(new URL("../.env.local", import.meta.url), "utf8")
@@ -33,7 +39,9 @@ const clientId = env.SPOTIFY_CLIENT_ID;
 const clientSecret = env.SPOTIFY_CLIENT_SECRET;
 
 if (!clientId || !clientSecret) {
-  console.error("SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET must be set in .env.local");
+  console.error(
+    "SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET must be set in .env.local",
+  );
   process.exit(1);
 }
 
@@ -94,7 +102,11 @@ const server = createServer(async (req, res) => {
 
   if (!tokenRes.ok || !body.refresh_token) {
     finish(500, "Token exchange failed. Check the terminal.");
-    console.error("Token exchange failed:", tokenRes.status, JSON.stringify(body));
+    console.error(
+      "Token exchange failed:",
+      tokenRes.status,
+      JSON.stringify(body),
+    );
     return;
   }
 
@@ -107,8 +119,12 @@ const server = createServer(async (req, res) => {
 
 server.listen(PORT, "127.0.0.1", () => {
   console.log(`Listening on ${REDIRECT_URI}`);
-  console.log("Make sure that exact redirect URI is registered on your Spotify app.\n");
-  console.log("Opening the Spotify authorize page. If it does not open, visit:\n");
+  console.log(
+    "Make sure that exact redirect URI is registered on your Spotify app.\n",
+  );
+  console.log(
+    "Opening the Spotify authorize page. If it does not open, visit:\n",
+  );
   console.log(authorizeUrl + "\n");
 
   const opener =

@@ -1,5 +1,12 @@
-const NOW_PLAYING_ENDPOINT = `https://api.spotify.com/v1/me/player/currently-playing`;
+// additional_types is required or Spotify returns a null item for podcast episodes.
+const NOW_PLAYING_ENDPOINT = `https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode`;
 const TOP_TRACKS_ENDPOINT = `https://api.spotify.com/v1/me/top/tracks`;
+const ME_ENDPOINT = `https://api.spotify.com/v1/me`;
+const PLAYLISTS_ENDPOINT = `https://api.spotify.com/v1/me/playlists`;
+const SAVED_TRACKS_ENDPOINT = `https://api.spotify.com/v1/me/tracks`;
+
+export type TimeRange = "short_term" | "medium_term" | "long_term";
+const RECENTLY_PLAYED_ENDPOINT = `https://api.spotify.com/v1/me/player/recently-played`;
 const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`;
 
 let cachedToken: { accessToken: string; expiresAt: number } | null = null;
@@ -59,12 +66,37 @@ export const getNowPlaying = async () => {
   });
 };
 
-export const getTopTracks = async () => {
+/** Requires the user-read-recently-played scope. */
+export const getRecentlyPlayed = async (limit = 1) => {
   const accessToken = await getAccessToken();
 
-  return fetch(TOP_TRACKS_ENDPOINT, {
+  return fetch(`${RECENTLY_PLAYED_ENDPOINT}?limit=${limit}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
 };
+
+const authed = async (url: string) => {
+  const accessToken = await getAccessToken();
+  return fetch(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+};
+
+export const getTopTracks = async (
+  timeRange: TimeRange = "short_term",
+  limit = 10,
+) => authed(`${TOP_TRACKS_ENDPOINT}?time_range=${timeRange}&limit=${limit}`);
+
+export const getMe = async () => authed(ME_ENDPOINT);
+
+/** Requires the playlist-read-private scope. */
+export const getPlaylists = async (limit = 50) =>
+  authed(`${PLAYLISTS_ENDPOINT}?limit=${limit}`);
+
+/** Requires the user-library-read scope. */
+export const getSavedTracks = async (limit = 10) =>
+  authed(`${SAVED_TRACKS_ENDPOINT}?limit=${limit}`);

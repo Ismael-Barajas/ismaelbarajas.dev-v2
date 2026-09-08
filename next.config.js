@@ -8,6 +8,9 @@ module.exports = {
     qualities: [75, 100],
     remotePatterns: [
       { protocol: "https", hostname: "i.scdn.co" },
+      // Playlist covers: auto-generated mosaics and custom uploads.
+      { protocol: "https", hostname: "mosaic.scdn.co" },
+      { protocol: "https", hostname: "*.spotifycdn.com" },
       { protocol: "https", hostname: "opengraph.githubassets.com" },
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],

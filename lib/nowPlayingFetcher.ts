@@ -14,13 +14,19 @@ export interface NowPlayingSong {
   albumImageUrl: string;
   artist: string;
   durationMs?: number;
+  explicit?: boolean;
   isPlaying: boolean;
   palette?: PaletteColors;
+  /** ISO timestamp of when the track finished. Only set on the recently-played fallback. */
+  playedAt?: string;
+  /** 0-100 Spotify popularity score. Only present for tracks. */
+  popularity?: number;
   progressMs?: number;
   /** Client wall-clock time when this sample arrived; added by the fetcher. */
   receivedAt: number;
   songUrl: string;
   title: string;
+  type?: "track" | "episode";
 }
 
 /**
