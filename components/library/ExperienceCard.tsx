@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { TagIcons } from "components";
-import { FROSTED_CARD } from "./Button";
+import { FROSTED_CARD, FROSTED_CARD_HOVER } from "./Button";
 import { TechListType } from "./TagIcons";
 
 interface Props {
@@ -41,9 +41,7 @@ const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
           className="object-contain p-1.5"
         />
       </a>
-      <div
-        className={`${FROSTED_CARD} p-5 transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.18)]`}
-      >
+      <div className={`${FROSTED_CARD} ${FROSTED_CARD_HOVER} p-5`}>
         <p className="text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400">
           {position.time_commitment}
         </p>

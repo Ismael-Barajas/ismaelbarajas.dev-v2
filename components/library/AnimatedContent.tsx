@@ -22,15 +22,18 @@ interface AnimatedContentProps extends React.HTMLAttributes<HTMLDivElement> {
 const AnimatedContent: React.FC<AnimatedContentProps> = ({
   children,
   container,
-  distance = 100,
+  // Defaults are tuned so content resolves into place rather than pops: a
+  // short travel, a slow soft ease, and a start point a little inside the
+  // viewport so the whole transition is seen.
+  distance = 12,
   direction = "vertical",
   reverse = false,
-  duration = 0.8,
-  ease = "power3.out",
+  duration = 0.9,
+  ease = "power2.out",
   initialOpacity = 0,
   animateOpacity = true,
   scale = 1,
-  threshold = 0.1,
+  threshold = 0.15,
   delay = 0,
   className = "",
   ...props
@@ -40,6 +43,12 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    // Respect reduced-motion: show the content, skip the animation.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(el, { visibility: "visible", opacity: 1 });
+      return;
+    }
 
     let scrollerTarget: Element | string | null =
       container !== undefined
@@ -77,7 +86,19 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
       st.kill();
       tl.kill();
     };
-  }, [container, distance, direction, reverse, duration, ease, initialOpacity, animateOpacity, scale, threshold, delay]);
+  }, [
+    container,
+    distance,
+    direction,
+    reverse,
+    duration,
+    ease,
+    initialOpacity,
+    animateOpacity,
+    scale,
+    threshold,
+    delay,
+  ]);
 
   return (
     <div ref={ref} className={`invisible ${className}`} {...props}>

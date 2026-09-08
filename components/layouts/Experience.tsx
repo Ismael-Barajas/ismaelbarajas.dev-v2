@@ -32,7 +32,7 @@ const Experience = () => {
         }}
       />
       <div className="container relative z-10">
-        <h2 className="font-black text-center py-5 text-text text-4xl">
+        <h2 className="font-display font-black text-center py-5 text-text text-4xl">
           <TypedText
             className="animated-underline"
             strings={["Experience."]}
@@ -43,13 +43,7 @@ const Experience = () => {
         {/* Timeline: the spine runs behind the logo nodes, newest first. */}
         <ol className="relative mx-auto flex max-w-3xl flex-col gap-8 before:absolute before:bottom-8 before:left-7 before:top-8 before:w-0.5 before:rounded-full before:bg-black/10 md:before:left-9 dark:before:bg-white/15">
           {data?.items?.map((job, index) => (
-            <AnimatedContent
-              key={index}
-              distance={40}
-              duration={0.5}
-              delay={index * 0.05}
-              threshold={0.05}
-            >
+            <AnimatedContent key={index}>
               <ExperienceCard
                 img={job.img}
                 body={job.body}

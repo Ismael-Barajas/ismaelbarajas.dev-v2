@@ -51,7 +51,7 @@ const About = () => {
     <div className="container min-h-screen-without-nav flex items-center">
       <div className="grid w-full items-center gap-12 py-16 md:grid-cols-[1.25fr_1fr] md:gap-16">
         <div className="order-2 space-y-6 md:order-1">
-          <h2 className="font-black text-text text-5xl">
+          <h2 className="font-display font-black text-text text-5xl">
             <TypedText
               className="animated-underline"
               strings={["About Me."]}

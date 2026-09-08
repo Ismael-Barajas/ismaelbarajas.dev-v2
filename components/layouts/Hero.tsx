@@ -88,7 +88,7 @@ const Hero = () => {
       className="transition-[background-color] duration-700 ease-in-out relative -mt-16 min-h-screen items-center content-center flex pt-16 pb-44"
     >
       <div className="container relative z-10 pointer-events-none">
-        <h1 className="font-black text-text text-5xl md:text-7xl 2xl:text-8xl leading-none tracking-tight">
+        <h1 className="font-display font-black text-text text-5xl md:text-7xl 2xl:text-8xl leading-none tracking-tight">
           <DecryptedText
             text="Ismael Barajas"
             animateOn="view"
@@ -98,7 +98,7 @@ const Hero = () => {
             encryptedClassName="opacity-20"
           />
         </h1>
-        <h2 className="mt-3 text-lg md:text-xl 2xl:text-2xl font-medium tracking-[0.25em] uppercase text-gray-500 dark:text-gray-400">
+        <h2 className="font-display mt-3 text-lg md:text-xl 2xl:text-2xl font-medium tracking-[0.25em] uppercase text-gray-500 dark:text-gray-400">
           <DecryptedText
             text="Software Engineer"
             animateOn="view"

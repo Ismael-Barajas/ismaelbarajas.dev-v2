@@ -1,9 +1,21 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import clsx from "clsx";
 
-/** Frosted surface shared by cards and panels. No border, soft shadow. */
+/**
+ * Frosted surface shared by cards and panels. No border; it reads as a sheet
+ * one step lighter than the page in both themes, with a shadow tuned so it
+ * still registers on the near-black dark page.
+ */
 export const FROSTED_CARD =
-  "rounded-2xl bg-[#E0E0E0]/60 text-text shadow-[0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:bg-[#141214]/60";
+  "rounded-2xl bg-white/50 text-text shadow-[0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl transition-[background-color,box-shadow] duration-500 ease-out dark:bg-white/[0.06] dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)]";
+
+/**
+ * Hover treatment for frosted cards: brighten, don't move. Light mode needs a
+ * bigger step than dark because the surface is already bright, so it goes
+ * near-white and the shadow deepens a touch.
+ */
+export const FROSTED_CARD_HOVER =
+  "hover:bg-white/85 hover:shadow-[0_12px_32px_rgba(0,0,0,0.18)] dark:hover:bg-white/[0.09] dark:hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]";
 
 export type ButtonVariant = "primary" | "frosted" | "ghost";
 

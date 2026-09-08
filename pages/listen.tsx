@@ -34,10 +34,9 @@ const Listen: NextPage = () => {
 
   return (
     <div className="relative -mt-16 min-h-screen pt-16">
-      <div
-        className="absolute inset-0 pointer-events-none z-0"
-        aria-hidden="true"
-      >
+      {/* Pinned to the viewport so its size never follows the active tab's
+          content height, which would rescale the pattern on tab switches. */}
+      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
         <Plasma
           color={plasmaColor}
           speed={0.7}
@@ -52,15 +51,10 @@ const Listen: NextPage = () => {
           title="Jammin out :)"
           description="What im currently listening too."
         />
-        <AnimatedContent distance={50} duration={2} threshold={0.1}>
+        <AnimatedContent>
           <NowPlaying variant="compact" />
         </AnimatedContent>
-        <AnimatedContent
-          distance={50}
-          duration={2}
-          delay={0.15}
-          threshold={0.1}
-        >
+        <AnimatedContent delay={0.1}>
           <div className="mx-auto mt-6 max-w-3xl rounded-xl bg-[#E0E0E0]/70 px-2 py-6 shadow-card backdrop-blur-md dark:bg-[#121212]/70 sm:px-4">
             <ListenTabs active={tab} onChange={setTab} />
             <div id={`listen-panel-${tab}`} role="tabpanel">

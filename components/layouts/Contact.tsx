@@ -40,7 +40,7 @@ const Contact = () => {
         }}
       />
       <div className="container min-h-screen-without-nav relative z-10">
-        <h2 className="font-black text-center py-5 text-text text-4xl">
+        <h2 className="font-display font-black text-center py-5 text-text text-4xl">
           <TypedText
             className="animated-underline"
             strings={["Contact Me."]}

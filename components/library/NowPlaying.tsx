@@ -287,8 +287,11 @@ const NowPlaying = ({ variant = "card" }: { variant?: "card" | "compact" }) => {
         "--now-playing-accent",
         accent,
       );
+      // Unregistered twin: absent when idle so CSS var() fallbacks work.
+      document.documentElement.style.setProperty("--accent-ui", accent);
     } else {
       document.documentElement.style.removeProperty("--now-playing-accent");
+      document.documentElement.style.removeProperty("--accent-ui");
     }
   }, [colorPalette]);
 

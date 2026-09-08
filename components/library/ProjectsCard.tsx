@@ -2,7 +2,7 @@ import Image from "next/image";
 import { SiGithub } from "react-icons/si";
 import { HiOutlineExternalLink } from "react-icons/hi";
 import { ToolTip } from "components";
-import { FROSTED_CARD, IconButton } from "./Button";
+import { FROSTED_CARD, FROSTED_CARD_HOVER, IconButton } from "./Button";
 import TagIcons, { TechListType } from "./TagIcons";
 
 interface Props {
@@ -21,7 +21,7 @@ interface Props {
 const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
   return (
     <article
-      className={`${FROSTED_CARD} group relative w-full max-w-lg overflow-hidden transition-[translate,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.18)]`}
+      className={`${FROSTED_CARD} ${FROSTED_CARD_HOVER} relative w-full max-w-lg overflow-hidden`}
     >
       <div className="relative h-52 overflow-hidden">
         <Image
@@ -30,11 +30,11 @@ const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
           fill
           sizes="(max-width: 768px) 100vw, 512px"
           alt={name}
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+          className="object-cover"
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#E0E0E0]/95 dark:to-[#141214]/95"
+          className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#F0F0F0]/95 dark:to-[#202020]/95"
         />
         <div className="absolute right-3 top-3 flex gap-2">
           <ToolTip content="Visit the live site" position="bottom">
