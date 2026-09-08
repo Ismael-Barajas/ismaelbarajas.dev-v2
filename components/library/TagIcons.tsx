@@ -29,6 +29,7 @@ import {
   SiTauri,
   SiFfmpeg,
   SiRust,
+  SiPalantir,
 } from "react-icons/si";
 import { VscAzure } from "react-icons/vsc";
 import { FaAws, FaJava } from "react-icons/fa6";
@@ -39,9 +40,41 @@ export type TechListType = keyof typeof techList;
 
 export type TechIconsProps = {
   techs: Array<TechListType>;
+  /** "chips" shows icon + name; "icons" is the original icon-only row. */
+  variant?: "chips" | "icons";
 } & React.ComponentPropsWithoutRef<"ul">;
 
-export default function TagIcons({ className, techs }: TechIconsProps) {
+export default function TagIcons({
+  className,
+  techs,
+  variant = "chips",
+}: TechIconsProps) {
+  if (variant === "chips") {
+    return (
+      <ul className={clsx(className, "flex flex-wrap gap-1.5")}>
+        {techs.map((tech) => {
+          const current = techList[tech];
+          if (!current) return null;
+          return (
+            <li
+              key={current.name}
+              className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.06] px-2.5 py-1 text-xs text-gray-700 dark:bg-white/10 dark:text-gray-200"
+            >
+              <span
+                className={clsx(current.className, "text-sm leading-none")}
+                style={current.style}
+                aria-hidden="true"
+              >
+                <current.icon />
+              </span>
+              {current.name}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
+
   return (
     <ul className={clsx(className, "flex flex-wrap gap-1 bottom-0")}>
       {techs.map((tech) => {
@@ -55,7 +88,7 @@ export default function TagIcons({ className, techs }: TechIconsProps) {
               <div
                 className={clsx(
                   current.className,
-                  "text-md py-1 px-2 rounded-md"
+                  "text-md py-1 px-2 rounded-md",
                 )}
                 style={current.style}
               >
@@ -77,6 +110,11 @@ type TechEntry = {
 };
 
 const techList: Record<string, TechEntry> = {
+  foundry: {
+    icon: SiPalantir,
+    name: "Foundry",
+    className: "text-gray-800 dark:text-gray-100",
+  },
   react: {
     icon: SiReact,
     name: "React",

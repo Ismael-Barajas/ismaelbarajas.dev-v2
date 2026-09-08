@@ -20,10 +20,16 @@ const BLOCKS: Block[] = [
   {
     slot: "video-controls",
     kicker: "01 / Video",
-    title: "Granular control over every encode.",
-    body: "CRF or bitrate. Pick a codec, pick a resolution, pick a frame rate. FastStart for web. Hardware acceleration auto-detected.",
-    specs: ["H.264 · H.265 · AV1", "NVENC · VideoToolbox", "CRF 0-51", "FastStart"],
-    caption: "Compress tab — video codec, quality, and resolution controls",
+    title: "Video: codec, quality, size, and frame rate.",
+    body: "H.264, H.265, or AV1. Quality by CRF from 0 to 51, or a bitrate. Downscale to 4K, 1080p, 720p, or 480p with the aspect ratio kept. Set the frame rate, choose an audio track codec, and turn on FastStart for web playback.",
+    specs: [
+      "H.264 · H.265 · AV1",
+      "NVENC · VideoToolbox",
+      "CRF 0 to 51",
+      "FastStart",
+      "AAC · Opus audio",
+    ],
+    caption: "Compress tab: video codec, quality, and resolution controls",
     image: `${BLOB_PUBLIC_HOST}/images/compressions/video-controls.png`,
     width: 905,
     height: 988,
@@ -31,9 +37,16 @@ const BLOCKS: Block[] = [
   {
     slot: "image-batch",
     kicker: "02 / Image",
-    title: "Modern image codecs without the headache.",
-    body: "MozJPEG, oxipng, WebP, AVIF — up to 8 in parallel. Strip metadata, resize on the fly, lock aspect ratio.",
-    specs: ["MozJPEG", "oxipng", "WebP", "AVIF (ravif)", "8x parallel"],
+    title: "Images: JPEG, PNG, WebP, AVIF, and animated GIF.",
+    body: "MozJPEG, oxipng, WebP, and AVIF encoders run in Rust, up to eight files at a time. Resize by one dimension or both, strip or keep EXIF. Animated GIFs are re-quantized frame by frame and stay animated.",
+    specs: [
+      "MozJPEG",
+      "oxipng",
+      "WebP",
+      "AVIF (ravif)",
+      "Animated GIF",
+      "8 in parallel",
+    ],
     caption: "Mixed-media queue with image format and quality settings",
     image: `${BLOB_PUBLIC_HOST}/images/compressions/image-batch.png`,
     width: 1367,
@@ -42,10 +55,15 @@ const BLOCKS: Block[] = [
   {
     slot: "audio-extract",
     kicker: "03 / Audio",
-    title: "Audio compression and extraction in one place.",
-    body: "Compress MP3, AAC, FLAC, Opus. Right-click any video to pull its audio out as MP3, AAC, FLAC, Opus, or WAV.",
-    specs: ["MP3 · AAC · Opus · FLAC", "64-320 kbps", "Extract from video", "Animated waveform"],
-    caption: "Tools tab — extract audio from any video in 5 formats",
+    title: "Audio: compress, or pull it out of a video.",
+    body: "Output MP3, AAC, Opus, FLAC, or WAV, or keep the source format. Bitrate presets from 64k to 320k or a custom value, and a sample rate of your choice. Right-click any video to extract its audio in the same formats.",
+    specs: [
+      "MP3 · AAC · Opus · FLAC · WAV",
+      "64k to 320k",
+      "Extract from video",
+      "Parallel batches",
+    ],
+    caption: "Tools tab: extract audio from any video in five formats",
     image: `${BLOB_PUBLIC_HOST}/images/compressions/audio-extract.png`,
     width: 311,
     height: 466,
@@ -53,10 +71,15 @@ const BLOCKS: Block[] = [
   {
     slot: "gif-conversion",
     kicker: "04 / Bonus",
-    title: "PDFs and Video → GIF, included.",
-    body: "Ghostscript-powered PDF presets from Screen to Prepress. Two-pass palette GIF encoding for tiny, sharp clips.",
-    specs: ["PDF: Screen / Ebook / Printer / Prepress", "GIF: 5-30 fps", "16-256 colors", "Floyd-Steinberg dither"],
-    caption: "GIF conversion controls — frame rate, max width, palette, dither",
+    title: "PDFs, and video to GIF.",
+    body: "PDF presets Screen, Ebook, Printer, and Prepress through Ghostscript, with an image DPI override. GIF conversion builds the palette and encodes in a single FFmpeg pass, with controls for frame rate, width, color count, and dither.",
+    specs: [
+      "Screen · Ebook · Printer · Prepress",
+      "GIF 5 to 30 fps",
+      "16 to 256 colors",
+      "Floyd-Steinberg · Bayer · None",
+    ],
+    caption: "GIF conversion: frame rate, max width, palette, dither",
     image: `${BLOB_PUBLIC_HOST}/images/compressions/gif-conversion.png`,
     width: 301,
     height: 407,
@@ -64,9 +87,9 @@ const BLOCKS: Block[] = [
   {
     slot: "history",
     kicker: "05 / Observability",
-    title: "Every job is auditable.",
-    body: "Searchable history with size savings and duration. A live log viewer filters by ERROR, WARN, INFO, DEBUG, TRACE.",
-    specs: ["Compression history", "Per-file ETA", "Log viewer", "Validated parameters"],
+    title: "History and logs.",
+    body: "A searchable history of the last 1000 compressions with size savings and duration. A log viewer that filters by level and keeps seven days of daily logs. Every parameter is validated before a job starts.",
+    specs: ["Last 1000 jobs", "Per-file ETA", "Log viewer", "7 days of logs"],
     caption: "Compression history with per-file size deltas",
     image: `${BLOB_PUBLIC_HOST}/images/compressions/history.png`,
     width: 672,
@@ -88,7 +111,7 @@ const Capabilities = () => {
             maxWidth: "24ch",
           }}
         >
-          The full toolbox.
+          What it can do.
         </h2>
         <div
           style={{
@@ -101,7 +124,7 @@ const Capabilities = () => {
             flexWrap: "wrap",
           }}
         >
-          <span>One drop of a 412 MB capture later:</span>
+          <span>A 412 MB screen recording after the Web Optimized preset:</span>
           <SizeTicker beforeMB={412} afterMB={38} />
         </div>
 

@@ -17,16 +17,42 @@ const COLUMNS: {
   {
     letter: "I",
     title: "Image",
-    inputs: ["jpg", "png", "webp", "avif", "bmp", "tiff", "gif", "heic", "heif"],
+    inputs: [
+      "jpg",
+      "png",
+      "webp",
+      "avif",
+      "bmp",
+      "tiff",
+      "gif",
+      "heic",
+      "heif",
+    ],
     outputs: ["jpeg", "png", "webp", "avif", "gif"],
     note: "MozJPEG · oxipng · ravif",
   },
   {
     letter: "A",
     title: "Audio",
-    inputs: ["mp3", "aac", "m4a", "flac", "wav", "ogg", "opus", "wma", "aiff", "alac"],
+    inputs: [
+      "mp3",
+      "aac",
+      "m4a",
+      "flac",
+      "wav",
+      "ogg",
+      "opus",
+      "wma",
+      "aiff",
+      "ape",
+      "alac",
+      "ac3",
+      "dts",
+      "pcm",
+      "amr",
+    ],
     outputs: ["mp3", "aac", "opus", "flac", "wav"],
-    note: "Extract from video · custom bitrate / sample rate",
+    note: "Extract from video · bitrate and sample rate",
   },
   {
     letter: "P",
@@ -51,7 +77,7 @@ const Formats = () => {
             maxWidth: "26ch",
           }}
         >
-          Four media families. Dozens of formats. One queue.
+          Four media types, one queue.
         </h2>
 
         <div

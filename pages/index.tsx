@@ -28,66 +28,17 @@ const Home: NextPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    let observer: IntersectionObserver;
-    if (
-      aboutRef.current &&
-      experienceRef.current &&
-      contactRef.current &&
-      projectsRef.current
-    ) {
-      const options = {
-        threshold: 0.2,
-      };
-      observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach((entry) => {
-          const navElement = document.querySelector(
-            `a[href="/#${entry.target.id}"]`
-          );
-          if (
-            entry.isIntersecting &&
-            !navElement?.classList.contains("shadow-h-link")
-          ) {
-            navElement?.classList.add("shadow-h-link");
-            navElement?.classList.remove("shadow-link");
-          } else if (
-            !entry.isIntersecting &&
-            navElement?.classList.contains("shadow-h-link")
-          ) {
-            navElement.classList.remove("shadow-h-link");
-            navElement.classList.add("shadow-link");
-          }
-        });
-      }, options);
-      observer.observe(aboutRef.current);
-      observer.observe(experienceRef.current);
-      observer.observe(contactRef.current);
-      observer.observe(projectsRef.current);
-    }
-    return () => {
-      observer.disconnect();
-    };
-  }, [aboutRef, experienceRef, contactRef, projectsRef]);
-
   return (
     <>
       <Metatags />
       <Hero />
-      <section
-        id="about"
-        className="transition-[background-color] duration-700 ease-in-out bg-secondary"
-        ref={aboutRef}
-      >
+      <section id="about" ref={aboutRef}>
         <About />
       </section>
       <section id="experience" ref={experienceRef}>
         <Experience />
       </section>
-      <section
-        id="projects"
-        className="transition-[background-color] duration-700 ease-in-out bg-secondary"
-        ref={projectsRef}
-      >
+      <section id="projects" ref={projectsRef}>
         <Projects />
       </section>
       <section id="contact" ref={contactRef}>

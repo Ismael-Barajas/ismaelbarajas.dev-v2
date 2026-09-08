@@ -11,6 +11,10 @@ type TooltipTextProps = {
   position?: "top" | "bottom" | "left" | "right";
 };
 
+/**
+ * Small frosted label that pops from the trigger's edge. Inverted contrast
+ * (dark on light pages, light on dark) so it reads without a border or arrow.
+ */
 export default function ToolTip({
   content,
   children,
@@ -20,39 +24,40 @@ export default function ToolTip({
   position = "bottom",
 }: TooltipTextProps) {
   return (
-    <RadixTooltip.Provider delayDuration={100}>
-    <RadixTooltip.Root>
-      <RadixTooltip.Trigger asChild>
-        {withUnderline ? (
-          <span
-            className={clsx(spanClassName, "underline cursor-default")}
-            style={{ textDecorationStyle: "dotted" }}
-          >
-            {children}
-          </span>
-        ) : (
-          <span className="inline-flex">{children}</span>
-        )}
-      </RadixTooltip.Trigger>
-      <RadixTooltip.Portal>
-        <RadixTooltip.Content
-          side={position}
-          sideOffset={8}
-          className={clsx(
-            className,
-            "tooltip-content",
-            "z-50 px-3 py-1.5 text-sm text-text",
-            "bg-secondary/80 backdrop-blur-md",
-            "rounded-lg shadow-lg",
-            "border border-primary/20",
-            "select-none"
+    <RadixTooltip.Provider delayDuration={150} skipDelayDuration={300}>
+      <RadixTooltip.Root>
+        <RadixTooltip.Trigger asChild>
+          {withUnderline ? (
+            <span
+              className={clsx(
+                spanClassName,
+                "cursor-default underline decoration-dotted underline-offset-4",
+              )}
+            >
+              {children}
+            </span>
+          ) : (
+            <span className="inline-flex">{children}</span>
           )}
-        >
-          {content}
-          <RadixTooltip.Arrow className="fill-secondary/80" />
-        </RadixTooltip.Content>
-      </RadixTooltip.Portal>
-    </RadixTooltip.Root>
+        </RadixTooltip.Trigger>
+        <RadixTooltip.Portal>
+          <RadixTooltip.Content
+            side={position}
+            sideOffset={8}
+            collisionPadding={8}
+            className={clsx(
+              className,
+              "tooltip-content",
+              "z-50 select-none rounded-lg px-2.5 py-1.5 text-xs font-medium leading-none",
+              "bg-[#141214]/85 text-[#e6e6e6] backdrop-blur-xl",
+              "dark:bg-[#e6e6e6]/90 dark:text-[#141214]",
+              "shadow-[0_8px_24px_rgba(0,0,0,0.25)]",
+            )}
+          >
+            {content}
+          </RadixTooltip.Content>
+        </RadixTooltip.Portal>
+      </RadixTooltip.Root>
     </RadixTooltip.Provider>
   );
 }

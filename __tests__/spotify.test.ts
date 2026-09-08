@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getNowPlaying, getTopTracks } from "lib/spotify";
+import { getNowPlaying, getRecentlyPlayed, getTopTracks } from "lib/spotify";
 
 describe("spotify", () => {
   const originalEnv = process.env;
@@ -47,7 +47,7 @@ describe("spotify", () => {
 
     // Second call: now playing endpoint
     expect(fetchSpy).toHaveBeenCalledWith(
-      "https://api.spotify.com/v1/me/player/currently-playing",
+      "https://api.spotify.com/v1/me/player/currently-playing?additional_types=track,episode",
       expect.objectContaining({
         headers: { Authorization: "Bearer mock-token" },
       })
@@ -63,10 +63,29 @@ describe("spotify", () => {
       new Response(JSON.stringify({ items: [] }), { status: 200 })
     );
 
-    await getTopTracks();
+    await getTopTracks("long_term", 5);
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      "https://api.spotify.com/v1/me/top/tracks",
+      "https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=5",
+      expect.objectContaining({
+        headers: { Authorization: "Bearer mock-token" },
+      })
+    );
+  });
+
+  it("getRecentlyPlayed fetches the correct endpoint with a limit", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ access_token: "mock-token" }), {
+        status: 200,
+      })
+    ).mockResolvedValueOnce(
+      new Response(JSON.stringify({ items: [] }), { status: 200 })
+    );
+
+    await getRecentlyPlayed(3);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "https://api.spotify.com/v1/me/player/recently-played?limit=3",
       expect.objectContaining({
         headers: { Authorization: "Bearer mock-token" },
       })

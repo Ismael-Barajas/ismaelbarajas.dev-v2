@@ -57,12 +57,14 @@ const SizeTicker = ({
       ref={ref}
       className={`c-mono c-tnum inline-flex items-center gap-3 ${className}`}
     >
-      <span style={{ color: "var(--c-text-muted)" }}>
-        {formatMB(beforeMB)}
-      </span>
+      <span style={{ color: "var(--c-text-muted)" }}>{formatMB(beforeMB)}</span>
       <span style={{ color: "var(--c-accent)" }}>→</span>
       <span
-        style={{ color: "var(--c-accent)", fontWeight: 600, fontSize: "1.05em" }}
+        style={{
+          color: "var(--c-accent)",
+          fontWeight: 600,
+          fontSize: "1.05em",
+        }}
       >
         {formatMB(value)}
       </span>

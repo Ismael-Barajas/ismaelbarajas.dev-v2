@@ -1,26 +1,27 @@
 import { TypedText, MagneticButton } from "components";
-import {
-  FaInstagram,
-  FaGithub,
-  FaLinkedin,
-} from "react-icons/fa";
+import { IconButton } from "components/library/Button";
+import { FaInstagram, FaGithub, FaLinkedin } from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
 
 const contactInfo = [
   {
-    icon: <FaLinkedin className="h-10 w-10" />,
+    name: "LinkedIn",
+    icon: <FaLinkedin className="h-7 w-7" />,
     url: "https://www.linkedin.com/in/ismael-barajas/",
   },
   {
-    icon: <FaGithub className="h-10 w-10" />,
+    name: "GitHub",
+    icon: <FaGithub className="h-7 w-7" />,
     url: "https://github.com/Ismael-Barajas",
   },
   {
-    icon: <IoIosMail className="h-10 w-10" />,
+    name: "Email",
+    icon: <IoIosMail className="h-7 w-7" />,
     url: "mailto:ismaelbarajas.dev@gmail.com",
   },
   {
-    icon: <FaInstagram className="h-10 w-10" />,
+    name: "Instagram",
+    icon: <FaInstagram className="h-7 w-7" />,
     url: "https://instagram.com/lnxanee",
   },
 ];
@@ -39,32 +40,33 @@ const Contact = () => {
         }}
       />
       <div className="container min-h-screen-without-nav relative z-10">
-      <h2 className="font-black text-center py-5 text-text text-4xl">
-        <TypedText
-          className="animated-underline"
-          strings={["Contact Me."]}
-          loop={false}
-          whiteSpace={"normal"}
-        />
-      </h2>
-      <div className="flex justify-center items-center content-center min-h-screen-contact">
-        <div className="flex gap-4 lg:gap-6 justify-center flex-wrap">
-          {contactInfo.map((contact, index) => {
-            return (
-              <MagneticButton key={index}>
-                <a
-                  href={contact.url}
-                  className="flex items-center justify-center rounded-full h-16 w-16 hover:bg-secondary text-text content-center transition-all hover:ring-2 ring-offset-indigo-100 dark:ring-gray-200"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {contact.icon}
-                </a>
-              </MagneticButton>
-            );
-          })}
+        <h2 className="font-display font-black text-center py-5 text-text text-4xl">
+          <TypedText
+            className="animated-underline"
+            strings={["Contact Me."]}
+            loop={false}
+            whiteSpace={"normal"}
+          />
+        </h2>
+        <div className="flex justify-center items-center content-center min-h-screen-contact">
+          <div className="flex gap-4 lg:gap-6 justify-center flex-wrap">
+            {contactInfo.map((contact, index) => {
+              return (
+                <MagneticButton key={index}>
+                  <IconButton
+                    href={contact.url}
+                    size="lg"
+                    aria-label={contact.name}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {contact.icon}
+                  </IconButton>
+                </MagneticButton>
+              );
+            })}
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ const Projects = () => {
 
   return (
     <div className="container min-h-screen-without-nav pb-12">
-      <h2 className="font-black text-center py-5 text-text text-4xl">
+      <h2 className="font-display font-black text-center py-5 text-text text-4xl">
         <TypedText
           className="animated-underline"
           strings={["Projects."]}
@@ -31,13 +31,7 @@ const Projects = () => {
       </h2>
       <div className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 justify-items-center">
         {data?.items?.map((project, index) => (
-          <AnimatedContent
-            key={index}
-            distance={40}
-            duration={0.5}
-            delay={index * 0.05}
-            threshold={0.05}
-          >
+          <AnimatedContent key={index}>
             <ProjectsCard
               body={project.body}
               github_url={project.githubUrl}

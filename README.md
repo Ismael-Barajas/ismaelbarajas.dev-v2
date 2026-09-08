@@ -60,6 +60,14 @@ IRON_SESSION_SECRET=
 BLOB_READ_WRITE_TOKEN=
 ```
 
+Spotify refresh tokens expire six months after authorization. To mint a new one, register `http://127.0.0.1:8888/callback` as a redirect URI on the Spotify app, then run:
+
+```bash
+npm run spotify:token
+```
+
+Sign in when the browser opens, then copy the printed `SPOTIFY_REFRESH_TOKEN` into `.env.local` and the Vercel environment.
+
 After setting `DATABASE_URL`, generate the Prisma client and seed the database:
 
 ```bash

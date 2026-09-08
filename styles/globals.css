@@ -41,7 +41,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 :root {
   --dark-gray: #121212;
-  --secondary-light: #B0B0B0;
+  --secondary-light: #b0b0b0;
   --secondary-dark: #1e1e1e;
 }
 
@@ -53,8 +53,8 @@ body::-webkit-scrollbar-thumb:hover {
 
 html {
   --primary: #444444;
-  --secondary: #B0B0B0;
-  --background: #E0E0E0;
+  --secondary: #b0b0b0;
+  --background: #e0e0e0;
   --text: #121212;
 }
 
@@ -62,14 +62,19 @@ html.dark {
   --primary: #888888;
   --secondary: #444444;
   --background: #121212;
-  --text: #E0E0E0;
+  --text: #e0e0e0;
 }
 
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Synonym', -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
-  font-weight: 500;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    Segoe UI,
+    sans-serif;
+  font-weight: 400;
   overflow: overlay;
   transition-property: background-color;
   transition-timing-function: ease-in-out;
@@ -85,7 +90,6 @@ html {
   transition-duration: 700ms;
 }
 
-
 * {
   box-sizing: border-box;
   cursor: none !important;
@@ -96,8 +100,10 @@ section {
   scroll-snap-margin-top: 4rem;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Chillax', sans-serif;
+/* Display face for the hero and the big section titles only. Everything
+   else, including card and role titles, uses the body font. */
+.font-display {
+  font-family: "Chillax", sans-serif;
   font-weight: 600;
 }
 
@@ -245,42 +251,71 @@ h1, h2, h3, h4, h5, h6 {
   color: #dea584;
 }
 
+/* Tooltips grow out of the edge they're anchored to and slide a few pixels
+   from the trigger, so they feel attached rather than dropped in. */
 @keyframes tooltip-in {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translate(var(--tt-x, 0), var(--tt-y, 0)) scale(0.94);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translate(0, 0) scale(1);
   }
 }
 
 @keyframes tooltip-out {
   from {
     opacity: 1;
-    transform: scale(1);
+    transform: translate(0, 0) scale(1);
   }
   to {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translate(var(--tt-x, 0), var(--tt-y, 0)) scale(0.96);
   }
 }
 
-.tooltip-content[data-state="delayed-open"] {
-  animation: tooltip-in 150ms cubic-bezier(0.16, 1, 0.3, 1);
+.tooltip-content {
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+}
+.tooltip-content[data-side="top"] {
+  --tt-y: 4px;
+}
+.tooltip-content[data-side="bottom"] {
+  --tt-y: -4px;
+}
+.tooltip-content[data-side="left"] {
+  --tt-x: 4px;
+}
+.tooltip-content[data-side="right"] {
+  --tt-x: -4px;
+}
+
+.tooltip-content[data-state="delayed-open"],
+.tooltip-content[data-state="instant-open"] {
+  animation: tooltip-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .tooltip-content[data-state="closed"] {
-  animation: tooltip-out 100ms ease-in;
+  animation: tooltip-out 120ms ease-in forwards;
 }
 
 @layer utilities {
   .animated-underline {
-    background-image: linear-gradient(#33333300, #33333300),
-      linear-gradient(to right, #B0B0B0, var(--primary));
-    background-size: 100% 2px, 0 2px;
-    background-position: 100% 100%, 0 100%;
+    /* Takes the playing album's accent when there is one, else the gray. */
+    background-image:
+      linear-gradient(#33333300, #33333300),
+      linear-gradient(
+        to right,
+        color-mix(in srgb, var(--accent-ui, var(--primary)) 55%, transparent),
+        var(--accent-ui, var(--primary))
+      );
+    background-size:
+      100% 2px,
+      0 2px;
+    background-position:
+      100% 100%,
+      0 100%;
     background-repeat: no-repeat;
     transition: 0.5s ease;
     transition-property: background-size;
@@ -289,7 +324,9 @@ h1, h2, h3, h4, h5, h6 {
   .animated-underline:focus-visible,
   .project-card:hover .animated-underline,
   .project-card:focus-visible .animated-underline {
-    background-size: 0 2px, 100% 2px;
+    background-size:
+      0 2px,
+      100% 2px;
   }
 
   /* #region  /**=========== Animate Shadow =========== */
@@ -300,3 +337,23 @@ h1, h2, h3, h4, h5, h6 {
   /* #endregion  /**======== Animate Shadow =========== */
 }
 
+/* Typewriter cursor for the nav brand. A thin glyph like the typed.js cursor,
+   blinking until the brand settles, then faded out. */
+.brand-cursor {
+  display: inline-block;
+  margin-left: 0.05ch;
+  font-weight: 400;
+  opacity: 1;
+  animation: brand-blink 1s step-end infinite;
+  transition: opacity 600ms ease;
+}
+
+@keyframes brand-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}

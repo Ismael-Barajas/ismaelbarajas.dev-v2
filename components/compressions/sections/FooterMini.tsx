@@ -5,7 +5,7 @@ const FooterMini = () => {
   return (
     <footer
       style={{
-        borderTop: "1px solid var(--c-accent)",
+        borderTop: "1px solid var(--c-border)",
         padding: "2.5rem 0 3rem",
         marginTop: "2rem",
       }}
