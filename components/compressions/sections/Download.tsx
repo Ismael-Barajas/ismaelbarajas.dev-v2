@@ -13,9 +13,24 @@ const PLATFORMS: {
   icon: React.ComponentType<{ size?: number; "aria-hidden"?: boolean }>;
   fallbackNote: string;
 }[] = [
-  { key: "windows", label: "Windows", icon: FaWindows, fallbackNote: "NSIS installer" },
-  { key: "macos", label: "macOS", icon: FaApple, fallbackNote: "Apple Silicon" },
-  { key: "linux", label: "Linux", icon: FaLinux, fallbackNote: "AppImage / .deb" },
+  {
+    key: "windows",
+    label: "Windows",
+    icon: FaWindows,
+    fallbackNote: "NSIS installer, MSI also available",
+  },
+  {
+    key: "macos",
+    label: "macOS",
+    icon: FaApple,
+    fallbackNote: "Apple Silicon and Intel",
+  },
+  {
+    key: "linux",
+    label: "Linux",
+    icon: FaLinux,
+    fallbackNote: "AppImage, deb, and rpm",
+  },
 ];
 
 const Card = ({
@@ -24,10 +39,12 @@ const Card = ({
   asset,
   releasesUrl,
   fallbackNote,
+  extras = [],
 }: {
   label: string;
   Icon: React.ComponentType<{ size?: number; "aria-hidden"?: boolean }>;
   asset: ReleaseAsset | null;
+  extras?: ReleaseAsset[];
   releasesUrl: string;
   fallbackNote: string;
 }) => {
@@ -87,13 +104,42 @@ const Card = ({
             >
               {formatBytes(asset.size)}
             </div>
+            {extras.length > 0 && (
+              <div
+                className="c-mono"
+                style={{
+                  marginTop: "0.75rem",
+                  fontSize: "0.72rem",
+                  color: "var(--c-text-muted)",
+                  lineHeight: 1.7,
+                }}
+              >
+                Also:{" "}
+                {extras.map((e, i) => (
+                  <span key={e.name}>
+                    {i > 0 && " · "}
+                    <a
+                      href={e.url}
+                      rel="noopener"
+                      style={{
+                        color: "var(--c-accent)",
+                        textDecoration: "underline",
+                        textUnderlineOffset: "3px",
+                      }}
+                    >
+                      {e.name.replace(/^Compressions[_-]?/i, "")}
+                    </a>
+                  </span>
+                ))}
+              </div>
+            )}
           </>
         ) : (
           <div
             className="c-mono"
             style={{ fontSize: "0.78rem", color: "var(--c-text-muted)" }}
           >
-            {fallbackNote} — see all releases on GitHub.
+            {fallbackNote}. See all releases on GitHub.
           </div>
         )}
       </div>
@@ -113,7 +159,8 @@ const Card = ({
 
 const Download = ({ release }: Props) => {
   const releasesUrl =
-    release?.htmlUrl ?? "https://github.com/Ismael-Barajas/compressions/releases";
+    release?.htmlUrl ??
+    "https://github.com/Ismael-Barajas/compressions/releases";
 
   return (
     <section
@@ -148,7 +195,7 @@ const Download = ({ release }: Props) => {
             maxWidth: "22ch",
           }}
         >
-          Pick your platform.
+          Downloads.
         </h2>
         <p
           style={{
@@ -158,8 +205,8 @@ const Download = ({ release }: Props) => {
             lineHeight: 1.55,
           }}
         >
-          Free and open source. Distributed exclusively through GitHub Releases.
-          The auto-updater takes care of the rest.
+          Free and MIT licensed. Installers are published on GitHub Releases,
+          and the app updates itself after that.
         </p>
 
         <div
@@ -175,6 +222,7 @@ const Download = ({ release }: Props) => {
               label={label}
               Icon={Icon}
               asset={release?.assets[key] ?? null}
+              extras={release?.extras?.[key] ?? []}
               releasesUrl={releasesUrl}
               fallbackNote={fallbackNote}
             />

@@ -1,6 +1,7 @@
 import { AnimatedContent } from "components";
 import Hero from "./sections/Hero";
 import Pillars from "./sections/Pillars";
+import WhatsNew from "./sections/WhatsNew";
 import Formats from "./sections/Formats";
 import Capabilities from "./sections/Capabilities";
 import Workflow from "./sections/Workflow";
@@ -19,23 +20,27 @@ const CompressionsPage = ({ release }: Props) => {
 
       <Hero release={release} />
 
-      <AnimatedContent distance={40} duration={0.7} threshold={0.15}>
+      <AnimatedContent>
         <Pillars />
       </AnimatedContent>
 
-      <AnimatedContent distance={40} duration={0.7} threshold={0.15}>
+      <AnimatedContent>
+        <WhatsNew release={release} />
+      </AnimatedContent>
+
+      <AnimatedContent>
         <Formats />
       </AnimatedContent>
 
-      <AnimatedContent distance={40} duration={0.7} threshold={0.15}>
+      <AnimatedContent>
         <Capabilities />
       </AnimatedContent>
 
-      <AnimatedContent distance={40} duration={0.7} threshold={0.15}>
+      <AnimatedContent>
         <Workflow />
       </AnimatedContent>
 
-      <AnimatedContent distance={40} duration={0.7} threshold={0.15}>
+      <AnimatedContent>
         <Download release={release} />
       </AnimatedContent>
 

@@ -14,7 +14,7 @@ const Compressions: NextPage<Props> = ({ release }) => {
   return (
     <>
       <Metatags
-        title="Compressions — Local batch compression for video, images, audio, PDFs"
+        title="Compressions: local batch compression for video, images, audio, and PDFs"
         description="Cross-platform desktop app. Compress mixed media in batches, fully offline, with hardware-accelerated codecs. Free and open source."
         image="/compressions/logo.svg"
       />
@@ -27,7 +27,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
   const release = await getLatestRelease();
   return {
     props: { release },
-    revalidate: 3600,
+    revalidate: 900,
   };
 };
 
