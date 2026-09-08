@@ -2,6 +2,11 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { animate } from "motion/mini";
 import useNowPlaying from "hooks/useNowPlaying";
 import type { NowPlayingSong } from "lib/nowPlayingFetcher";
+import {
+  estimateProgress,
+  shouldResync,
+  type ProgressAnchor,
+} from "lib/songProgress";
 import { mixWithWhite } from "lib/color";
 import { formatDuration, timeAgo } from "lib/time";
 import PopularityFlame from "./PopularityFlame";
@@ -19,10 +24,13 @@ type CardStyle = "backdrop" | "float" | "classic";
 const CARD_STYLE = "backdrop" as CardStyle;
 
 /**
- * Interpolates song position between API polls. Each poll gives a fresh
- * progressMs; while the song is playing we add the wall-clock time elapsed
- * since that poll arrived so the bar moves smoothly instead of jumping on
- * every poll. Pausing or seeking on Spotify is picked up on the next poll.
+ * Interpolates song position between API polls. The bar runs off an anchor
+ * (the last sample we trusted) plus wall-clock time elapsed since, so it
+ * moves smoothly instead of jumping on every poll. A new sample only replaces
+ * the anchor when it disagrees by more than RESYNC_THRESHOLD_MS or the track
+ * or play state changed; smaller disagreements are cache and Spotify noise.
+ * Pausing or seeking on Spotify is therefore picked up on the next poll, but
+ * half-second wobbles are not.
  *
  * When the interpolated position reaches the end of the track we ask SWR to
  * revalidate right away, so the next song shows up within a couple of seconds
@@ -36,6 +44,7 @@ const useSongProgress = (
   const durationMs = data?.durationMs ?? 0;
   const isPlaying = data?.isPlaying ?? false;
   const receivedAt = data?.receivedAt ?? 0;
+  const songUrl = data?.songUrl ?? "";
 
   const [now, setNow] = useState(0);
   useEffect(() => {
@@ -44,9 +53,35 @@ const useSongProgress = (
     return () => window.clearInterval(id);
   }, [isPlaying, durationMs]);
 
-  const elapsed =
-    isPlaying && receivedAt > 0 ? Math.max(0, now - receivedAt) : 0;
-  const progress = Math.min(progressMs + elapsed, durationMs);
+  // Decide once per sample whether it replaces the anchor. This is React's
+  // "adjust state during render" pattern: comparing against the last sample
+  // we judged keeps it to a single extra render, and using the last tick's
+  // `now` (at most 250ms stale, well inside the threshold) keeps render pure.
+  const [anchor, setAnchor] = useState<ProgressAnchor | null>(null);
+  const [judgedAt, setJudgedAt] = useState(0);
+  if (receivedAt !== judgedAt) {
+    setJudgedAt(receivedAt);
+    if (!receivedAt) {
+      setAnchor(null);
+    } else {
+      const sample: ProgressAnchor = {
+        progressMs,
+        at: receivedAt,
+        songUrl,
+        isPlaying,
+      };
+      if (shouldResync(anchor, sample, now)) setAnchor(sample);
+    }
+  }
+
+  // An anchor for a different track or play state is never usable, so the
+  // render that first sees such a sample falls back to the sample itself.
+  const base =
+    anchor && anchor.songUrl === songUrl && anchor.isPlaying === isPlaying
+      ? anchor
+      : { progressMs, at: receivedAt, songUrl, isPlaying };
+  const progress =
+    base.at > 0 ? Math.min(estimateProgress(base, now), durationMs) : 0;
 
   // One revalidate per sample: receivedAt changes with every poll, so a
   // sample that still says "playing" at the end of the track (Spotify is

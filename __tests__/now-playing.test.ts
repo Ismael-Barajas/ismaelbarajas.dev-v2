@@ -84,8 +84,18 @@ describe("nowPlayingRefreshInterval", () => {
 
 // --- API route ---
 
+// Palette extraction is skipped, but tests can make it "take" wall-clock time
+// to simulate slow origin work between the Spotify sample and the response.
+const clock = vi.hoisted(() => ({ paletteMs: 0 }));
 vi.mock("node-vibrant/node", () => ({
-  Vibrant: { from: () => ({ getPalette: () => Promise.reject(new Error("skip")) }) },
+  Vibrant: {
+    from: () => ({
+      getPalette: () => {
+        if (clock.paletteMs) vi.setSystemTime(Date.now() + clock.paletteMs);
+        return Promise.reject(new Error("skip"));
+      },
+    }),
+  },
 }));
 
 const spotify = vi.hoisted(() => ({
@@ -126,7 +136,37 @@ describe("GET /api/now-playing", () => {
     handler = (await import("../pages/api/now-playing")).default;
   });
 
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    clock.paletteMs = 0;
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("rolls origin processing time into progress so the cached sample is fresh", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000_000);
+    clock.paletteMs = 800;
+    const withArt = { ...track, album: { ...track.album, images: [{ url: "https://i.scdn.co/x" }] } };
+    spotify.getNowPlaying.mockResolvedValue(
+      jsonResponse({ item: withArt, is_playing: true, progress_ms: 10_000 }),
+    );
+    const res = mockRes();
+    await handler({}, res);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ progressMs: 10_800 }));
+  });
+
+  it("does not advance progress while paused", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000_000);
+    clock.paletteMs = 800;
+    const withArt = { ...track, album: { ...track.album, images: [{ url: "https://i.scdn.co/x" }] } };
+    spotify.getNowPlaying.mockResolvedValue(
+      jsonResponse({ item: withArt, is_playing: false, progress_ms: 10_000 }),
+    );
+    const res = mockRes();
+    await handler({}, res);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ progressMs: 10_000 }));
+  });
 
   it("uses the short cache while a track is loaded", async () => {
     spotify.getNowPlaying.mockResolvedValue(
@@ -194,5 +234,56 @@ describe("GET /api/now-playing", () => {
     expect(res.headers["Cache-Control"]).toContain("s-maxage=5");
     expect(res.json).toHaveBeenCalledWith({ isPlaying: false });
     expect(spotify.getRecentlyPlayed).toHaveBeenCalledTimes(1);
+  });
+});
+
+// --- progress smoothing ---
+
+import {
+  RESYNC_THRESHOLD_MS,
+  estimateProgress,
+  shouldResync,
+  type ProgressAnchor,
+} from "lib/songProgress";
+
+describe("songProgress", () => {
+  const anchor: ProgressAnchor = {
+    progressMs: 60_000,
+    at: 1_000_000,
+    songUrl: "https://open.spotify.com/track/a",
+    isPlaying: true,
+  };
+
+  it("estimates by adding elapsed wall-clock time while playing", () => {
+    expect(estimateProgress(anchor, 1_004_000)).toBe(64_000);
+    expect(estimateProgress({ ...anchor, isPlaying: false }, 1_004_000)).toBe(60_000);
+    // Never runs backwards if the clock is somehow behind the anchor.
+    expect(estimateProgress(anchor, 999_000)).toBe(60_000);
+  });
+
+  it("always resyncs with no anchor", () => {
+    expect(shouldResync(null, anchor, 1_000_000)).toBe(true);
+  });
+
+  it("ignores samples inside the noise threshold", () => {
+    // Sample taken 5s later that says the song is 400ms "ahead" of our clock.
+    const sample = { ...anchor, progressMs: 65_400, at: 1_005_000 };
+    expect(shouldResync(anchor, sample, 1_005_000)).toBe(false);
+    const behind = { ...anchor, progressMs: 64_600, at: 1_005_000 };
+    expect(shouldResync(anchor, behind, 1_005_000)).toBe(false);
+  });
+
+  it("resyncs on a seek larger than the threshold", () => {
+    const sample = { ...anchor, progressMs: 65_000 + RESYNC_THRESHOLD_MS + 1, at: 1_005_000 };
+    expect(shouldResync(anchor, sample, 1_005_000)).toBe(true);
+    const back = { ...anchor, progressMs: 20_000, at: 1_005_000 };
+    expect(shouldResync(anchor, back, 1_005_000)).toBe(true);
+  });
+
+  it("resyncs on a track change or play/pause even when positions agree", () => {
+    expect(
+      shouldResync(anchor, { ...anchor, songUrl: "https://open.spotify.com/track/b" }, 1_000_000),
+    ).toBe(true);
+    expect(shouldResync(anchor, { ...anchor, isPlaying: false }, 1_000_000)).toBe(true);
   });
 });

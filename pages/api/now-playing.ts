@@ -115,6 +115,10 @@ export default async function nowPlaying(
 ) {
   try {
     const response = await getNowPlaying();
+    // Spotify sampled progress_ms at this instant. Everything after (token
+    // refresh, palette extraction, a cold start) delays the response, and the
+    // edge cache only starts counting Age once it stores the response.
+    const sampledAt = Date.now();
 
     if (response.status === 429) {
       return handleRateLimited(response, res, "currently-playing");
@@ -128,10 +132,17 @@ export default async function nowPlaying(
     if (song.item) {
       const isEpisode = song.currently_playing_type === "episode";
       const mapped = await mapItem(song.item, isEpisode);
+      const isPlaying = Boolean(song.is_playing);
+      const sampledProgress = (song.progress_ms as number) ?? 0;
+      // Advance the sample to "now" so the stored response is fresh when the
+      // edge starts its Age clock, however long this function took.
+      const progressMs = isPlaying
+        ? Math.min(sampledProgress + (Date.now() - sampledAt), mapped.durationMs)
+        : sampledProgress;
       const payload = {
         ...mapped,
-        isPlaying: Boolean(song.is_playing),
-        progressMs: (song.progress_ms as number) ?? 0,
+        isPlaying,
+        progressMs,
       };
       lastKnown = payload;
       res.setHeader("Cache-Control", ACTIVE_CACHE);
