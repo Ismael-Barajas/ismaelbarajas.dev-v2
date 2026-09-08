@@ -40,7 +40,8 @@ const Experience = () => {
             whiteSpace={"normal"}
           />
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        {/* Timeline: the spine runs behind the logo nodes, newest first. */}
+        <ol className="relative mx-auto flex max-w-3xl flex-col gap-8 before:absolute before:bottom-8 before:left-7 before:top-8 before:w-0.5 before:rounded-full before:bg-black/10 md:before:left-9 dark:before:bg-white/15">
           {data?.items?.map((job, index) => (
             <AnimatedContent
               key={index}
@@ -52,13 +53,16 @@ const Experience = () => {
               <ExperienceCard
                 img={job.img}
                 body={job.body}
-                position={{ position: job.position, time_commitment: job.timeCommitment }}
+                position={{
+                  position: job.position,
+                  time_commitment: job.timeCommitment,
+                }}
                 tags={job.tags as Array<TechListType>}
                 url={job.url}
               />
             </AnimatedContent>
           ))}
-        </div>
+        </ol>
       </div>
     </div>
   );

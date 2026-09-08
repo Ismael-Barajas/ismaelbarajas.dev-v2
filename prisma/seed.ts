@@ -13,6 +13,17 @@ async function main() {
   await prisma.experience.createMany({
     data: [
       {
+        img: "/images/saronic.svg",
+        url: "https://www.saronic.com/",
+        position: "Full-Stack Software Engineer",
+        timeCommitment: "Aug 2026 - Current",
+        body: [
+          "Full-stack work across the product, building React front ends on top of Palantir Foundry.",
+        ],
+        tags: ["react", "foundry"],
+        order: 0,
+      },
+      {
         img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/GM-logo-2021.png",
         url: "https://www.gm.com/",
         position: "Software Engineer",
@@ -32,7 +43,7 @@ async function main() {
           "azure",
           "git",
         ],
-        order: 0,
+        order: 1,
       },
       {
         img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/PurposerLogo.png",
@@ -55,7 +66,7 @@ async function main() {
           "mui",
           "leaflet",
         ],
-        order: 1,
+        order: 2,
       },
     ],
   });
