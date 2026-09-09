@@ -8,9 +8,11 @@ import {
 
 interface Props {
   release: Release | null;
+  /** Build time of this ISR render; relative times are computed against it. */
+  generatedAt: number;
 }
 
-const Compressions: NextPage<Props> = ({ release }) => {
+const Compressions: NextPage<Props> = ({ release, generatedAt }) => {
   return (
     <>
       <Metatags
@@ -18,7 +20,7 @@ const Compressions: NextPage<Props> = ({ release }) => {
         description="Cross-platform desktop app. Compress mixed media in batches, fully offline, with hardware-accelerated codecs. Free and open source."
         image="/compressions/logo.svg"
       />
-      <CompressionsPage release={release} />
+      <CompressionsPage release={release} generatedAt={generatedAt} />
     </>
   );
 };
@@ -26,7 +28,8 @@ const Compressions: NextPage<Props> = ({ release }) => {
 export const getStaticProps: GetStaticProps<Props> = async () => {
   const release = await getLatestRelease();
   return {
-    props: { release },
+    // Frozen "now" so server HTML and client hydration agree on "3 hr ago".
+    props: { release, generatedAt: Date.now() },
     revalidate: 900,
   };
 };

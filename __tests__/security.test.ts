@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   rateLimit,
   validateOrigin,
+  getAllowedHosts,
   csrfCheck,
   validateProjectInput,
   validateExperienceInput,
@@ -34,26 +35,26 @@ describe("rateLimit", () => {
     // Reset rate limit store between tests by using unique IPs
   });
 
-  it("allows requests under the limit", () => {
+  it("allows requests under the limit", async () => {
     const req = mockReq({
       socket: { remoteAddress: `10.0.0.${Math.random()}` },
     });
-    expect(rateLimit(req, { maxAttempts: 3, windowMs: 60000 })).toBe(false);
-    expect(rateLimit(req, { maxAttempts: 3, windowMs: 60000 })).toBe(false);
-    expect(rateLimit(req, { maxAttempts: 3, windowMs: 60000 })).toBe(false);
+    expect(await rateLimit(req, { maxAttempts: 3, windowMs: 60000 })).toBe(false);
+    expect(await rateLimit(req, { maxAttempts: 3, windowMs: 60000 })).toBe(false);
+    expect(await rateLimit(req, { maxAttempts: 3, windowMs: 60000 })).toBe(false);
   });
 
-  it("blocks requests over the limit", () => {
+  it("blocks requests over the limit", async () => {
     const ip = `10.1.0.${Math.random()}`;
     const req = mockReq({ socket: { remoteAddress: ip } });
     const opts = { maxAttempts: 2, windowMs: 60000 };
 
-    expect(rateLimit(req, opts)).toBe(false); // 1
-    expect(rateLimit(req, opts)).toBe(false); // 2
-    expect(rateLimit(req, opts)).toBe(true); // 3 -> blocked
+    expect(await rateLimit(req, opts)).toBe(false); // 1
+    expect(await rateLimit(req, opts)).toBe(false); // 2
+    expect(await rateLimit(req, opts)).toBe(true); // 3 -> blocked
   });
 
-  it("uses x-forwarded-for header when available", () => {
+  it("uses x-forwarded-for header when available", async () => {
     const ip = `10.2.0.${Math.random()}`;
     const req = mockReq({
       headers: { "x-forwarded-for": ip },
@@ -61,11 +62,11 @@ describe("rateLimit", () => {
     });
     const opts = { maxAttempts: 1, windowMs: 60000 };
 
-    expect(rateLimit(req, opts)).toBe(false); // 1
-    expect(rateLimit(req, opts)).toBe(true); // blocked
+    expect(await rateLimit(req, opts)).toBe(false); // 1
+    expect(await rateLimit(req, opts)).toBe(true); // blocked
   });
 
-  it("takes first IP from x-forwarded-for chain", () => {
+  it("takes first IP from x-forwarded-for chain", async () => {
     const ip = `10.3.0.${Math.random()}`;
     const req = mockReq({
       headers: { "x-forwarded-for": `${ip}, 192.168.1.1, 10.0.0.1` },
@@ -73,18 +74,28 @@ describe("rateLimit", () => {
     });
     const opts = { maxAttempts: 1, windowMs: 60000 };
 
-    expect(rateLimit(req, opts)).toBe(false);
-    expect(rateLimit(req, opts)).toBe(true);
+    expect(await rateLimit(req, opts)).toBe(false);
+    expect(await rateLimit(req, opts)).toBe(true);
   });
 
-  it("defaults to 5 max attempts", () => {
+  it("defaults to 5 max attempts", async () => {
     const ip = `10.4.0.${Math.random()}`;
     const req = mockReq({ socket: { remoteAddress: ip } });
 
     for (let i = 0; i < 5; i++) {
-      expect(rateLimit(req)).toBe(false);
+      expect(await rateLimit(req)).toBe(false);
     }
-    expect(rateLimit(req)).toBe(true);
+    expect(await rateLimit(req)).toBe(true);
+  });
+
+  it("keeps separate buckets per prefix", async () => {
+    const ip = `10.5.0.${Math.random()}`;
+    const req = mockReq({ socket: { remoteAddress: ip } });
+    const opts = { maxAttempts: 1, windowMs: 60000 };
+
+    expect(await rateLimit(req, { ...opts, prefix: "a" })).toBe(false);
+    expect(await rateLimit(req, { ...opts, prefix: "b" })).toBe(false);
+    expect(await rateLimit(req, { ...opts, prefix: "a" })).toBe(true);
   });
 });
 
@@ -164,6 +175,42 @@ describe("validateOrigin", () => {
       },
     });
     expect(validateOrigin(req)).toBe(false);
+  });
+
+  describe("environment-dependent allowlist", () => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("does not allow localhost in production", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      const req = mockReq({
+        method: "POST",
+        headers: { host: "mysite.com", origin: "http://localhost:3000" },
+      });
+      expect(validateOrigin(req)).toBe(false);
+      expect(getAllowedHosts("mysite.com")).toEqual(["mysite.com"]);
+    });
+
+    it("matches NEXT_PUBLIC_SITE_URL given as a full URL", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://ismaelbarajas.dev");
+      // Host header differs (e.g. a preview alias) but Origin is the real site.
+      const req = mockReq({
+        method: "POST",
+        headers: { host: "preview.vercel.app", origin: "https://ismaelbarajas.dev" },
+      });
+      expect(validateOrigin(req)).toBe(true);
+    });
+
+    it("matches NEXT_PUBLIC_SITE_URL given as a bare host", () => {
+      vi.stubEnv("NEXT_PUBLIC_SITE_URL", "ismaelbarajas.dev");
+      const req = mockReq({
+        method: "POST",
+        headers: { host: "other.example", origin: "https://ismaelbarajas.dev" },
+      });
+      expect(validateOrigin(req)).toBe(true);
+    });
   });
 });
 

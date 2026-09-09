@@ -4,6 +4,8 @@ import type { GetServerSideProps } from "next";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "lib/session";
 import { prisma } from "lib/prisma";
+import { parseId } from "lib/ids";
+import { readApiError } from "lib/apiError";
 import AdminLayout from "components/admin/AdminLayout";
 import ExperienceForm from "components/admin/ExperienceForm";
 
@@ -28,7 +30,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     return { redirect: { destination: "/admin/login", permanent: false } };
   }
 
-  const id = parseInt(params?.id as string, 10);
+  const id = parseId(params?.id);
+  if (id === null) return { notFound: true };
   const experience = await prisma.experience.findUnique({
     where: { id },
     select: { id: true, img: true, url: true, position: true, timeCommitment: true, body: true, tags: true, order: true },
@@ -43,23 +46,39 @@ export default function EditExperience({ experience }: Props) {
   const [error, setError] = useState("");
 
   async function handleSubmit(data: object) {
-    const res = await fetch(`/api/admin/experiences/${experience.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/experiences/${experience.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    if (res.ok) {
-      router.push("/admin");
-    } else {
-      setError("Failed to update experience");
+      if (res.ok) {
+        router.push("/admin");
+        return;
+      }
+      setError(await readApiError(res, "Failed to update experience"));
+    } catch {
+      setError("Network error. Try again.");
     }
   }
 
   async function handleDelete() {
     if (!confirm("Delete this experience?")) return;
-    await fetch(`/api/admin/experiences/${experience.id}`, { method: "DELETE" });
-    router.push("/admin");
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/experiences/${experience.id}`, {
+        method: "DELETE",
+      });
+      if (res.ok || res.status === 404) {
+        router.push("/admin");
+        return;
+      }
+      setError(await readApiError(res, "Failed to delete experience"));
+    } catch {
+      setError("Network error. Try again.");
+    }
   }
 
   return (
@@ -73,7 +92,11 @@ export default function EditExperience({ experience }: Props) {
           Delete
         </button>
       </div>
-      {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+      {error && (
+        <p className="text-red-400 text-sm mb-4" role="alert">
+          {error}
+        </p>
+      )}
       <ExperienceForm
         initialData={experience}
         onSubmit={handleSubmit}

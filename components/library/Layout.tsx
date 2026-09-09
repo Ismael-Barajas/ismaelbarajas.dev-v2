@@ -7,7 +7,9 @@ const Layout: NextComponentType<any, any, { children: ReactNode }> = ({ children
     <>
       <TargetCursor />
       <NavBar />
-      <main className="pt-16">{children}</main>
+      <main id="main-content" tabIndex={-1} className="pt-16 outline-none">
+        {children}
+      </main>
     </>
   );
 };

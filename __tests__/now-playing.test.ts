@@ -151,7 +151,7 @@ describe("GET /api/now-playing", () => {
       jsonResponse({ item: withArt, is_playing: true, progress_ms: 10_000 }),
     );
     const res = mockRes();
-    await handler({}, res);
+    await handler({ method: "GET" }, res);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ progressMs: 10_800 }));
   });
 
@@ -164,7 +164,7 @@ describe("GET /api/now-playing", () => {
       jsonResponse({ item: withArt, is_playing: false, progress_ms: 10_000 }),
     );
     const res = mockRes();
-    await handler({}, res);
+    await handler({ method: "GET" }, res);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ progressMs: 10_000 }));
   });
 
@@ -173,7 +173,7 @@ describe("GET /api/now-playing", () => {
       jsonResponse({ item: track, is_playing: true, progress_ms: 5 }),
     );
     const res = mockRes();
-    await handler({}, res);
+    await handler({ method: "GET" }, res);
     expect(res.headers["Cache-Control"]).toContain("s-maxage=5");
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({ isPlaying: true, progressMs: 5, title: "Song" }),
@@ -185,7 +185,7 @@ describe("GET /api/now-playing", () => {
     spotify.getNowPlaying.mockResolvedValue(new Response(null, { status: 204 }));
     spotify.getRecentlyPlayed.mockResolvedValue(jsonResponse({ items: [] }));
     const res = mockRes();
-    await handler({}, res);
+    await handler({ method: "GET" }, res);
     expect(res.headers["Cache-Control"]).toContain("s-maxage=30");
     expect(res.json).toHaveBeenCalledWith({ isPlaying: false });
   });
@@ -194,7 +194,7 @@ describe("GET /api/now-playing", () => {
     spotify.getNowPlaying.mockResolvedValueOnce(
       jsonResponse({ item: track, is_playing: true, progress_ms: 5 }),
     );
-    await handler({}, mockRes());
+    await handler({ method: "GET" }, mockRes());
 
     spotify.getNowPlaying.mockResolvedValueOnce(
       new Response(
@@ -203,7 +203,7 @@ describe("GET /api/now-playing", () => {
       ),
     );
     const res = mockRes();
-    await handler({}, res);
+    await handler({ method: "GET" }, res);
 
     expect(res.headers["Cache-Control"]).toBe(
       "public, s-maxage=20, stale-while-revalidate=20",
@@ -219,7 +219,7 @@ describe("GET /api/now-playing", () => {
       new Response("", { status: 429, headers: { "retry-after": "3600" } }),
     );
     const res = mockRes();
-    await handler({}, res);
+    await handler({ method: "GET" }, res);
     expect(res.headers["Cache-Control"]).toContain("s-maxage=60");
     expect(res.json).toHaveBeenCalledWith({ isPlaying: false });
   });
@@ -230,7 +230,7 @@ describe("GET /api/now-playing", () => {
       new Response("", { status: 429, headers: { "retry-after": "1" } }),
     );
     const res = mockRes();
-    await handler({}, res);
+    await handler({ method: "GET" }, res);
     expect(res.headers["Cache-Control"]).toContain("s-maxage=5");
     expect(res.json).toHaveBeenCalledWith({ isPlaying: false });
     expect(spotify.getRecentlyPlayed).toHaveBeenCalledTimes(1);

@@ -328,18 +328,22 @@ const NowPlaying = ({ variant = "card" }: { variant?: "card" | "compact" }) => {
   const { progress, duration } = useSongProgress(data, mutate);
 
   useEffect(() => {
+    const root = document.documentElement;
+    const clear = () => {
+      root.style.removeProperty("--now-playing-accent");
+      root.style.removeProperty("--accent-ui");
+    };
     const accent = colorPalette?.vibrant || colorPalette?.muted;
     if (accent) {
-      document.documentElement.style.setProperty(
-        "--now-playing-accent",
-        accent,
-      );
+      root.style.setProperty("--now-playing-accent", accent);
       // Unregistered twin: absent when idle so CSS var() fallbacks work.
-      document.documentElement.style.setProperty("--accent-ui", accent);
+      root.style.setProperty("--accent-ui", accent);
     } else {
-      document.documentElement.style.removeProperty("--now-playing-accent");
-      document.documentElement.style.removeProperty("--accent-ui");
+      clear();
     }
+    // Drop the tint when the widget unmounts so it doesn't follow the visitor
+    // onto pages that have no Now Playing card.
+    return clear;
   }, [colorPalette]);
 
   if (isLoading && compact) {

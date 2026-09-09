@@ -4,6 +4,8 @@ import type { GetServerSideProps } from "next";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "lib/session";
 import { prisma } from "lib/prisma";
+import { parseId } from "lib/ids";
+import { readApiError } from "lib/apiError";
 import AdminLayout from "components/admin/AdminLayout";
 import ProjectForm from "components/admin/ProjectForm";
 
@@ -28,7 +30,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, params 
     return { redirect: { destination: "/admin/login", permanent: false } };
   }
 
-  const id = parseInt(params?.id as string, 10);
+  const id = parseId(params?.id);
+  if (id === null) return { notFound: true };
   const project = await prisma.project.findUnique({
     where: { id },
     select: { id: true, img: true, name: true, url: true, githubUrl: true, body: true, tags: true, order: true },
@@ -43,23 +46,39 @@ export default function EditProject({ project }: Props) {
   const [error, setError] = useState("");
 
   async function handleSubmit(data: object) {
-    const res = await fetch(`/api/admin/projects/${project.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/projects/${project.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    if (res.ok) {
-      router.push("/admin");
-    } else {
-      setError("Failed to update project");
+      if (res.ok) {
+        router.push("/admin");
+        return;
+      }
+      setError(await readApiError(res, "Failed to update project"));
+    } catch {
+      setError("Network error. Try again.");
     }
   }
 
   async function handleDelete() {
     if (!confirm("Delete this project?")) return;
-    await fetch(`/api/admin/projects/${project.id}`, { method: "DELETE" });
-    router.push("/admin");
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/projects/${project.id}`, {
+        method: "DELETE",
+      });
+      if (res.ok || res.status === 404) {
+        router.push("/admin");
+        return;
+      }
+      setError(await readApiError(res, "Failed to delete project"));
+    } catch {
+      setError("Network error. Try again.");
+    }
   }
 
   return (
@@ -73,7 +92,11 @@ export default function EditProject({ project }: Props) {
           Delete
         </button>
       </div>
-      {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+      {error && (
+        <p className="text-red-400 text-sm mb-4" role="alert">
+          {error}
+        </p>
+      )}
       <ProjectForm
         initialData={project}
         onSubmit={handleSubmit}

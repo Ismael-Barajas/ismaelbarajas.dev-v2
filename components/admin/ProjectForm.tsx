@@ -30,22 +30,25 @@ export default function ProjectForm({ initialData, onSubmit, submitLabel }: Prop
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await onSubmit({
-      img,
-      name,
-      url,
-      githubUrl,
-      body: body.split("\n").map((s) => s.trim()).filter(Boolean),
-      tags: tags.split(",").map((s) => s.trim()).filter(Boolean),
-      order: parseInt(order, 10) || 0,
-    });
-    setLoading(false);
+    try {
+      await onSubmit({
+        img,
+        name,
+        url,
+        githubUrl,
+        body: body.split("\n").map((s) => s.trim()).filter(Boolean),
+        tags: tags.split(",").map((s) => s.trim()).filter(Boolean),
+        order: parseInt(order, 10) || 0,
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
       <Field label="Name" value={name} onChange={setName} required />
-      <ImageUpload label="Image" value={img} onChange={setImg} />
+      <ImageUpload label="Image" value={img} onChange={setImg} required />
       <Field label="Live URL" value={url} onChange={setUrl} required />
       <Field label="GitHub URL" value={githubUrl} onChange={setGithubUrl} required />
       <ArrayField

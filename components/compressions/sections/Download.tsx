@@ -1,10 +1,13 @@
 import { FaWindows, FaApple, FaLinux } from "react-icons/fa";
 import { FiExternalLink } from "react-icons/fi";
 import type { Release, ReleaseAsset } from "../lib/getLatestRelease";
-import { formatBytes, timeAgo } from "../lib/getLatestRelease";
+import { formatBytes } from "../lib/getLatestRelease";
+import { timeAgo } from "lib/time";
 
 interface Props {
   release: Release | null;
+  /** Render time from getStaticProps; keeps relative times hydration-safe. */
+  generatedAt: number;
 }
 
 const PLATFORMS: {
@@ -157,7 +160,7 @@ const Card = ({
   );
 };
 
-const Download = ({ release }: Props) => {
+const Download = ({ release, generatedAt }: Props) => {
   const releasesUrl =
     release?.htmlUrl ??
     "https://github.com/Ismael-Barajas/compressions/releases";
@@ -181,7 +184,7 @@ const Download = ({ release }: Props) => {
                 <>
                   <span style={{ color: "var(--c-text-muted)" }}>·</span>
                   <span style={{ color: "var(--c-text-muted)" }}>
-                    {timeAgo(release.publishedAt)}
+                    {timeAgo(release.publishedAt, generatedAt)}
                   </span>
                 </>
               )}

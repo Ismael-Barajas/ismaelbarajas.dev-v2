@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "lib/session";
+import { readApiError } from "lib/apiError";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const session = await getIronSession<SessionData>(req as any, res as any, sessionOptions);
@@ -10,6 +11,20 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     return { redirect: { destination: "/admin", permanent: false } };
   }
   return { props: {} };
+};
+
+/** Human message per status; anything else falls back to the API's error text. */
+const messageFor = (status: number, apiMessage: string): string => {
+  switch (status) {
+    case 401:
+      return "Invalid password";
+    case 429:
+      return "Too many attempts. Wait 15 minutes and try again.";
+    case 403:
+      return "Request blocked. Reload the page and try again.";
+    default:
+      return apiMessage || "Sign-in failed. Try again.";
+  }
 };
 
 export default function AdminLogin() {
@@ -23,16 +38,22 @@ export default function AdminLogin() {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
 
-    if (res.ok) {
-      router.push("/admin");
-    } else {
-      setError("Invalid password");
+      if (res.ok) {
+        router.push("/admin");
+        return;
+      }
+      const apiMessage = await readApiError(res, "");
+      setError(messageFor(res.status, apiMessage));
+    } catch {
+      setError("Network error. Check your connection and try again.");
+    } finally {
       setLoading(false);
     }
   }
@@ -50,7 +71,11 @@ export default function AdminLogin() {
             required
             className="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
           />
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-400 text-sm" role="alert">
+              {error}
+            </p>
+          )}
           <button
             type="submit"
             disabled={loading}

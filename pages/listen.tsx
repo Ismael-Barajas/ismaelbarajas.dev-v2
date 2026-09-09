@@ -9,7 +9,12 @@ import {
   Playlists,
   TopTracks,
 } from "components";
-import { useListenTab } from "components/library/ListenTabs";
+import {
+  LISTEN_TABS,
+  panelId,
+  tabId,
+  useListenTab,
+} from "components/library/ListenTabs";
 import useNowPlaying from "hooks/useNowPlaying";
 import type { NextPage } from "next";
 
@@ -50,11 +55,25 @@ const Listen: NextPage = () => {
         <AnimatedContent delay={0.1}>
           <div className="mx-auto mt-6 max-w-3xl rounded-xl bg-[#E0E0E0]/70 px-2 py-6 shadow-card backdrop-blur-md dark:bg-[#121212]/70 sm:px-4">
             <ListenTabs active={tab} onChange={setTab} />
-            <div id={`listen-panel-${tab}`} role="tabpanel">
-              {tab === "top" && <TopTracks />}
-              {tab === "playlists" && <Playlists />}
-              {tab === "liked" && <LikedSongs />}
-            </div>
+            {/* Every panel exists so each tab's aria-controls resolves, but
+                only the active one mounts its content: each panel is its own
+                Spotify call, and we don't want three per visit. */}
+            {LISTEN_TABS.map((t) => {
+              const isActive = t.key === tab;
+              return (
+                <div
+                  key={t.key}
+                  id={panelId(t.key)}
+                  role="tabpanel"
+                  aria-labelledby={tabId(t.key)}
+                  hidden={!isActive}
+                >
+                  {isActive && t.key === "top" && <TopTracks />}
+                  {isActive && t.key === "playlists" && <Playlists />}
+                  {isActive && t.key === "liked" && <LikedSongs />}
+                </div>
+              );
+            })}
           </div>
         </AnimatedContent>
       </div>

@@ -30,16 +30,19 @@ export default function ExperienceForm({ initialData, onSubmit, submitLabel }: P
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await onSubmit({
-      img,
-      url,
-      position,
-      timeCommitment,
-      body: body.split("\n").map((s) => s.trim()).filter(Boolean),
-      tags: tags.split(",").map((s) => s.trim()).filter(Boolean),
-      order: parseInt(order, 10) || 0,
-    });
-    setLoading(false);
+    try {
+      await onSubmit({
+        img,
+        url,
+        position,
+        timeCommitment,
+        body: body.split("\n").map((s) => s.trim()).filter(Boolean),
+        tags: tags.split(",").map((s) => s.trim()).filter(Boolean),
+        order: parseInt(order, 10) || 0,
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

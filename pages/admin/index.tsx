@@ -5,6 +5,7 @@ import type { GetServerSideProps } from "next";
 import { getIronSession } from "iron-session";
 import { sessionOptions, SessionData } from "lib/session";
 import { prisma } from "lib/prisma";
+import { readApiError } from "lib/apiError";
 import AdminLayout from "components/admin/AdminLayout";
 
 interface Project {
@@ -49,21 +50,35 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 export default function AdminDashboard({ projects, experiences }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<"projects" | "experiences">("projects");
+  const [error, setError] = useState("");
 
-  async function deleteProject(id: number) {
-    if (!confirm("Delete this project?")) return;
-    await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
-    router.replace(router.asPath);
+  async function deleteItem(kind: "projects" | "experiences", id: number) {
+    const label = kind === "projects" ? "project" : "experience";
+    if (!confirm(`Delete this ${label}?`)) return;
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/${kind}/${id}`, { method: "DELETE" });
+      // 404 means it is already gone; refreshing the list is still right.
+      if (res.ok || res.status === 404) {
+        router.replace(router.asPath);
+        return;
+      }
+      setError(await readApiError(res, `Failed to delete ${label}`));
+    } catch {
+      setError("Network error. Try again.");
+    }
   }
 
-  async function deleteExperience(id: number) {
-    if (!confirm("Delete this experience?")) return;
-    await fetch(`/api/admin/experiences/${id}`, { method: "DELETE" });
-    router.replace(router.asPath);
-  }
+  const deleteProject = (id: number) => deleteItem("projects", id);
+  const deleteExperience = (id: number) => deleteItem("experiences", id);
 
   return (
     <AdminLayout>
+      {error && (
+        <p className="text-red-400 text-sm mb-4" role="alert">
+          {error}
+        </p>
+      )}
       <div className="flex gap-4 mb-6">
         <button
           onClick={() => setTab("projects")}

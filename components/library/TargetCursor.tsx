@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo } from "react";
+import { useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import gsap from "gsap";
 
 export interface TargetCursorProps {
@@ -16,6 +16,23 @@ const LERP = 0.3;
 // the active state stable around the edges and against moving targets.
 const HIT_MARGIN = 6;
 
+const subscribeNoop = () => () => {};
+const getServerIsMobile = () => false;
+let cachedIsMobile: boolean | null = null;
+const detectMobile = (): boolean => {
+  if (cachedIsMobile !== null) return cachedIsMobile;
+  const hasTouchScreen =
+    "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  const isSmallScreen = window.innerWidth <= 768;
+  const userAgent =
+    navigator.userAgent || navigator.vendor || (window as any).opera || "";
+  const mobileRegex =
+    /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+  const isMobileUserAgent = mobileRegex.test(userAgent.toLowerCase());
+  cachedIsMobile = (hasTouchScreen && isSmallScreen) || isMobileUserAgent;
+  return cachedIsMobile;
+};
+
 const TargetCursor: React.FC<TargetCursorProps> = ({
   targetSelector = 'button, a, [role="button"]',
   hideDefaultCursor = true,
@@ -27,18 +44,13 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
   const cornerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isActiveRef = useRef(false);
 
-  const isMobile = useMemo(() => {
-    if (typeof window === "undefined") return false;
-    const hasTouchScreen =
-      "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    const isSmallScreen = window.innerWidth <= 768;
-    const userAgent =
-      navigator.userAgent || navigator.vendor || (window as any).opera;
-    const mobileRegex =
-      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-    const isMobileUserAgent = mobileRegex.test(userAgent.toLowerCase());
-    return (hasTouchScreen && isSmallScreen) || isMobileUserAgent;
-  }, []);
+  // Server snapshot is always "not mobile" so SSR and hydration agree; the
+  // client snapshot then decides for real without a state-in-effect hop.
+  const isMobile = useSyncExternalStore(
+    subscribeNoop,
+    detectMobile,
+    getServerIsMobile,
+  );
 
   const moveCursor = useCallback((x: number, y: number) => {
     if (dotRef.current) {

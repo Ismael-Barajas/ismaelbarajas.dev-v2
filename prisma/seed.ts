@@ -13,7 +13,8 @@ async function main() {
   await prisma.experience.createMany({
     data: [
       {
-        img: "/images/saronic.svg",
+        // Served from public/images; validators require an absolute URL.
+        img: "https://ismaelbarajas.dev/images/saronic.svg",
         url: "https://www.saronic.com/",
         position: "Full-Stack Software Engineer",
         timeCommitment: "Aug 2026 - Current",
@@ -76,7 +77,7 @@ async function main() {
       {
         img: "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/ismaelbarajasdev2.png",
         name: "ismaelbarajas.dev-v2",
-        url: "/",
+        url: "https://ismaelbarajas.dev/",
         githubUrl: "https://github.com/Ismael-Barajas/ismaelbarajas.dev-v2",
         body: [
           "The site you're on right now. Built with Next.js, TypeScript, and Tailwind, deployed to Vercel.",

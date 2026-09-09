@@ -399,6 +399,8 @@ const NavBar = () => {
     <div
       id="mobile-menu"
       aria-hidden={!mobileNavOpen}
+      // Keeps the hidden links out of the tab order, not just unclickable.
+      inert={!mobileNavOpen}
       className={`fixed inset-x-3 z-40 rounded-2xl bg-[#E0E0E0]/85 p-2 shadow-[0_10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl transition-[opacity,translate] duration-300 ease-out dark:bg-[#141214]/85 md:hidden ${topClass} ${
         mobileNavOpen
           ? "translate-y-0 opacity-100"
@@ -445,7 +447,7 @@ const NavBar = () => {
 
   const skipLink = (
     <a
-      href="#about"
+      href="#main-content"
       className="absolute px-1 py-1 transition-transform duration-200 transform -translate-y-12 focus:translate-y-16 bg-secondary"
     >
       Skip to content

@@ -6,6 +6,11 @@ export default async function playlists(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
     const [meRes, listRes] = await Promise.all([getMe(), getPlaylists(50)]);
     if (!meRes.ok || !listRes.ok) {
@@ -14,7 +19,9 @@ export default async function playlists(
           "playlists needs the playlist-read-private scope; re-run npm run spotify:token",
         );
       }
-      return res.status(200).json({ playlists: [] });
+      return res
+        .status(502)
+        .json({ error: "Spotify unavailable", playlists: [] });
     }
 
     const me = await meRes.json();
@@ -49,6 +56,8 @@ export default async function playlists(
     return res.status(200).json({ playlists: result });
   } catch (error) {
     console.error("playlists error:", error);
-    return res.status(200).json({ playlists: [] });
+    return res
+      .status(502)
+      .json({ error: "Spotify unavailable", playlists: [] });
   }
 }

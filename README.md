@@ -22,7 +22,6 @@ Personal portfolio website built with Next.js, TypeScript, and Tailwind CSS. Fea
 - Top tracks page showing listening history
 - Dark/light theme toggle with localStorage persistence
 - Responsive portfolio sections: Hero, About, Experience, Projects, Contact
-- CV page with calculated age
 - Smooth scroll with active section tracking and scroll progress bar
 - Custom cursor follower and magnetic button hover effects
 - Password-protected admin panel for CRUD management of experiences and projects with image uploads via Vercel Blob
@@ -92,7 +91,7 @@ npm run seed       # Seed database with initial experience and project data
 ```
 ├── pages/
 │   ├── index.tsx          # Home page
-│   ├── cv.tsx             # CV page
+│   ├── compressions.tsx   # Compressions app landing page
 │   ├── listen.tsx         # Spotify listening page
 │   ├── admin/             # Password-protected admin panel
 │   └── api/               # API routes (Spotify, experience, projects, admin)
@@ -111,16 +110,24 @@ npm run seed       # Seed database with initial experience and project data
 
 ## Admin Panel
 
-The admin panel at `/admin` allows creating, editing, and deleting experience and project entries stored in the database. Images are uploaded directly to Vercel Blob storage. Access requires the `ADMIN_PASSWORD` set in your environment. Sessions are managed with Iron-session.
+The admin panel at `/admin` allows creating, editing, and deleting experience and project entries stored in the database. Images are uploaded directly to Vercel Blob storage. Access requires `ADMIN_PASSWORD_HASH`, a bcrypt hash of the admin password. Generate one with:
+
+```bash
+npm run admin:hash
+```
+
+Plaintext `ADMIN_PASSWORD` still works as a fallback (compared in constant time) but logs a deprecation warning in production. Sessions are managed with Iron-session and expire after one day.
 
 ## Security
 
-- **CSRF protection:** Origin/referer validation on all state-changing admin endpoints
-- **Rate limiting:** Login endpoint is limited to 5 attempts per IP per 15-minute window
-- **Input validation:** Server-side validation on all admin POST/PUT routes (type checks, URL format, string length limits)
-- **Session cookies:** `httpOnly`, `secure` (production), `sameSite: lax`
-- **Security headers:** HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
-- **Upload restrictions:** Only JPEG, PNG, GIF, and WebP images allowed (max 5 MB)
+- **CSRF protection:** Origin/referer validation on all state-changing admin endpoints. `localhost` is only accepted outside production; set `NEXT_PUBLIC_SITE_URL` to the deployed origin.
+- **Rate limiting:** Login is limited to 5 attempts per IP per 15 minutes, backed by Upstash Redis when `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are set (add the Upstash integration from the Vercel Marketplace). Without them it falls back to a per-instance memory store, which does not hold across serverless isolates.
+- **Password storage:** bcrypt hash in `ADMIN_PASSWORD_HASH`; see Admin Panel above.
+- **Input validation:** Server-side validation on all admin POST/PUT routes (type checks, URL format, string length limits). Route ids must be all digits.
+- **Session cookies:** `httpOnly`, `secure` (production), `sameSite: lax`, 1-day seal TTL
+- **Security headers:** HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and a Content-Security-Policy in report-only mode (check the browser console for violations before switching it to enforcing in `next.config.js`)
+- **Upload restrictions:** POST only; blob keys must be under `images/`; only JPEG, PNG, GIF, and WebP images allowed (max 5 MB)
+- **Album-art fetches:** palette extraction only fetches from Spotify CDN hosts
 
 ## Testing
 

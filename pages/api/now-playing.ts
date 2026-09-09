@@ -27,8 +27,27 @@ const MAX_BACKOFF_S = 60;
  */
 let lastKnown: Record<string, unknown> | null = null;
 
+/**
+ * Hosts album art may be fetched from for palette extraction. Anything else
+ * is skipped so an unexpected URL in Spotify's payload can't turn this
+ * function into a fetch proxy. Mirrors images.remotePatterns in next.config.
+ */
+const PALETTE_HOSTS = [/^i\.scdn\.co$/, /^mosaic\.scdn\.co$/, /\.spotifycdn\.com$/];
+
+export const isAllowedImageUrl = (imageUrl: string): boolean => {
+  try {
+    const url = new URL(imageUrl);
+    return (
+      url.protocol === "https:" &&
+      PALETTE_HOSTS.some((re) => re.test(url.hostname))
+    );
+  } catch {
+    return false;
+  }
+};
+
 const extractPalette = async (imageUrl: string): Promise<Palette> => {
-  if (!imageUrl) return {};
+  if (!imageUrl || !isAllowedImageUrl(imageUrl)) return {};
   try {
     const p = await Vibrant.from(imageUrl).getPalette();
     return {
@@ -113,6 +132,11 @@ export default async function nowPlaying(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
     const response = await getNowPlaying();
     // Spotify sampled progress_ms at this instant. Everything after (token
@@ -185,6 +209,8 @@ export default async function nowPlaying(
     return res.status(200).json(payload);
   } catch (error) {
     console.error("now-playing error:", error);
-    return res.status(500).json({ isPlaying: false });
+    return res
+      .status(502)
+      .json({ error: "Spotify unavailable", isPlaying: false });
   }
 }

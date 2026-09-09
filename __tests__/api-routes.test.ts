@@ -116,6 +116,7 @@ describe("POST /api/admin/login", () => {
 
   beforeEach(() => {
     process.env = { ...originalEnv, ADMIN_PASSWORD: "test-secret-123" };
+    delete process.env.ADMIN_PASSWORD_HASH;
     mockSession = {};
   });
 
@@ -185,6 +186,87 @@ describe("POST /api/admin/login", () => {
     await handler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(403);
+  });
+
+  it("returns 400 for a non-object body instead of throwing", async () => {
+    const { default: handler } = await import("../pages/api/admin/login");
+    const req = mockReq({
+      method: "POST",
+      headers: { host: "localhost:3000", origin: "http://localhost:3000" },
+      body: null,
+    });
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it("rejects a non-string password", async () => {
+    const { default: handler } = await import("../pages/api/admin/login");
+    const req = mockReq({
+      method: "POST",
+      headers: { host: "localhost:3000", origin: "http://localhost:3000" },
+      body: { password: { $ne: "" } },
+    });
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+  });
+
+  it("prefers ADMIN_PASSWORD_HASH when set", async () => {
+    const { default: bcrypt } = await import("bcryptjs");
+    process.env.ADMIN_PASSWORD_HASH = bcrypt.hashSync("hashed-secret", 4);
+    const { default: handler } = await import("../pages/api/admin/login");
+
+    const ok = mockRes();
+    await handler(
+      mockReq({
+        method: "POST",
+        headers: { host: "localhost:3000", origin: "http://localhost:3000" },
+        body: { password: "hashed-secret" },
+      }),
+      ok
+    );
+    expect(ok.status).toHaveBeenCalledWith(200);
+
+    // The plaintext ADMIN_PASSWORD no longer works once a hash is configured.
+    const stale = mockRes();
+    await handler(
+      mockReq({
+        method: "POST",
+        headers: { host: "localhost:3000", origin: "http://localhost:3000" },
+        body: { password: "test-secret-123" },
+      }),
+      stale
+    );
+    expect(stale.status).toHaveBeenCalledWith(401);
+  });
+
+  it("returns 429 after five failed attempts from one IP", async () => {
+    const { default: handler } = await import("../pages/api/admin/login");
+    const ip = `203.0.113.${Math.floor(Math.random() * 255)}`;
+    const attempt = () =>
+      mockReq({
+        method: "POST",
+        headers: {
+          host: "localhost:3000",
+          origin: "http://localhost:3000",
+          "x-forwarded-for": ip,
+        },
+        body: { password: "wrong" },
+      });
+
+    for (let i = 0; i < 5; i++) {
+      const res = mockRes();
+      await handler(attempt(), res);
+      expect(res.status).toHaveBeenCalledWith(401);
+    }
+    const res = mockRes();
+    await handler(attempt(), res);
+    expect(res.status).toHaveBeenCalledWith(429);
   });
 });
 
@@ -308,6 +390,75 @@ describe("Admin projects [id] route", () => {
     await handler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it("rejects ids with trailing garbage (parseInt would accept '1abc')", async () => {
+    const { default: handler } = await import(
+      "../pages/api/admin/projects/[id]"
+    );
+    const { prisma } = await import("lib/prisma");
+    const req = mockReq({ method: "GET", query: { id: "1abc" } });
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(prisma.project.findUnique).not.toHaveBeenCalledWith({
+      where: { id: 1 },
+    });
+  });
+
+  it("PUT returns 404 when the row is missing", async () => {
+    const { default: handler } = await import(
+      "../pages/api/admin/projects/[id]"
+    );
+    const { prisma } = await import("lib/prisma");
+    (prisma.project.update as any).mockRejectedValueOnce(
+      Object.assign(new Error("Record not found"), { code: "P2025" })
+    );
+    const req = mockReq({
+      method: "PUT",
+      query: { id: "999" },
+      body: {
+        img: "https://example.com/img.png",
+        name: "Test",
+        url: "https://example.com",
+        githubUrl: "https://github.com/user/repo",
+      },
+    });
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it("DELETE returns 404 when the row is missing", async () => {
+    const { default: handler } = await import(
+      "../pages/api/admin/projects/[id]"
+    );
+    const { prisma } = await import("lib/prisma");
+    (prisma.project.delete as any).mockRejectedValueOnce(
+      Object.assign(new Error("Record not found"), { code: "P2025" })
+    );
+    const req = mockReq({ method: "DELETE", query: { id: "999" } });
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it("DELETE returns 204 when the row exists", async () => {
+    const { default: handler } = await import(
+      "../pages/api/admin/projects/[id]"
+    );
+    const req = mockReq({ method: "DELETE", query: { id: "1" } });
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(204);
   });
 
   it("rejects id of 0", async () => {

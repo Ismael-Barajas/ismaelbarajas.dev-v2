@@ -11,14 +11,15 @@ import type { Release } from "./lib/getLatestRelease";
 
 interface Props {
   release: Release | null;
+  generatedAt: number;
 }
 
-const CompressionsPage = ({ release }: Props) => {
+const CompressionsPage = ({ release, generatedAt }: Props) => {
   return (
     <div data-page="compressions" className="compressions-root">
       <span className="c-noise" aria-hidden="true" />
 
-      <Hero release={release} />
+      <Hero release={release} generatedAt={generatedAt} />
 
       <AnimatedContent>
         <Pillars />
@@ -41,7 +42,7 @@ const CompressionsPage = ({ release }: Props) => {
       </AnimatedContent>
 
       <AnimatedContent>
-        <Download release={release} />
+        <Download release={release} generatedAt={generatedAt} />
       </AnimatedContent>
 
       <FooterMini />

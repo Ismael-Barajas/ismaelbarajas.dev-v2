@@ -1,54 +1,32 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-// --- Rate Limiter (in-memory, per-IP) ---
-
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
-
-const rateLimitStore = new Map<string, RateLimitEntry>();
-
-// Clean up expired entries periodically
-setInterval(() => {
-  const now = Date.now();
-  rateLimitStore.forEach((entry, key) => {
-    if (now > entry.resetAt) {
-      rateLimitStore.delete(key);
-    }
-  });
-}, 60_000);
-
-/**
- * Simple in-memory rate limiter.
- * Returns true if the request should be blocked, false if allowed.
- */
-export function rateLimit(
-  req: NextApiRequest,
-  { maxAttempts = 5, windowMs = 15 * 60 * 1000 } = {}
-): boolean {
-  const ip =
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
-    req.socket.remoteAddress ||
-    "unknown";
-
-  const now = Date.now();
-  const entry = rateLimitStore.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitStore.set(ip, { count: 1, resetAt: now + windowMs });
-    return false;
-  }
-
-  entry.count++;
-  if (entry.count > maxAttempts) {
-    return true;
-  }
-
-  return false;
-}
+// Rate limiting lives in lib/rateLimit.ts; re-exported for convenience.
+export { rateLimit, getClientIp } from "./rateLimit";
 
 // --- CSRF Origin Check ---
+
+/** Host portion of NEXT_PUBLIC_SITE_URL, whether it is set as a URL or a bare host. */
+const siteHost = (): string | undefined => {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!raw) return undefined;
+  try {
+    return new URL(raw).host;
+  } catch {
+    return raw;
+  }
+};
+
+/**
+ * Hosts a mutation request may originate from: the request's own Host, the
+ * configured site host, and (outside production only) localhost.
+ */
+export function getAllowedHosts(requestHost?: string): string[] {
+  const hosts = [requestHost, siteHost()];
+  if (process.env.NODE_ENV !== "production") {
+    hosts.push("localhost:3000", "localhost");
+  }
+  return hosts.filter((h): h is string => Boolean(h));
+}
 
 /**
  * Validates the request origin/referer against allowed origins.
@@ -69,12 +47,7 @@ export function validateOrigin(req: NextApiRequest): boolean {
     return false;
   }
 
-  const allowedHosts = [
-    host,
-    "localhost:3000",
-    "localhost",
-    process.env.NEXT_PUBLIC_SITE_URL,
-  ].filter(Boolean);
+  const allowedHosts = getAllowedHosts(host);
 
   if (origin) {
     try {

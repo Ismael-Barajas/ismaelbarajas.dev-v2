@@ -16,15 +16,19 @@ const Home: NextPage = () => {
   const contactRef = useRef(null);
 
   useEffect(() => {
-    var barTimeout: NodeJS.Timeout;
-    document.body.onscroll = () => {
-      if (barTimeout) {
-        clearTimeout(barTimeout);
-      }
+    let barTimeout: ReturnType<typeof setTimeout> | undefined;
+    const onScroll = () => {
+      if (barTimeout) clearTimeout(barTimeout);
       barTimeout = setTimeout(() => {
         document.body.classList.remove("scrolling");
       }, 700);
       document.body.classList.add("scrolling");
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (barTimeout) clearTimeout(barTimeout);
+      document.body.classList.remove("scrolling");
     };
   }, []);
 

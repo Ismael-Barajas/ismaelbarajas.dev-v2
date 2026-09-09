@@ -14,6 +14,7 @@
     "seed": "tsx prisma/seed.ts",
     "upload:compressions": "tsx scripts/upload-compressions-screenshots.ts",
     "spotify:token": "node scripts/spotify-refresh-token.mjs",
+    "admin:hash": "node scripts/admin-hash.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -24,8 +25,11 @@
     "@react-three/fiber": "^9.5.0",
     "@react-three/postprocessing": "^3.0.4",
     "@tailwindcss/postcss": "^4.2.1",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.4",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.3.1",
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "dotenv": "^17.3.1",
     "gsap": "^3.14.2",

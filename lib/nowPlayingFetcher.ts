@@ -56,6 +56,9 @@ export const nowPlayingRefreshInterval = (data?: NowPlayingSong) => {
  */
 const nowPlayingFetcher = async (url: string): Promise<NowPlayingSong> => {
   const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`now-playing request failed with status ${res.status}`);
+  }
   const song = (await res.json()) as Omit<NowPlayingSong, "receivedAt">;
 
   const ageSeconds = Number(res.headers.get("age") ?? 0);

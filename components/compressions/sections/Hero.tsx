@@ -4,13 +4,15 @@ import Link from "next/link";
 import { FiDownload, FiGithub, FiShieldOff, FiZap } from "react-icons/fi";
 import AppMark from "../atoms/AppMark";
 import type { Release } from "../lib/getLatestRelease";
-import { timeAgo } from "../lib/getLatestRelease";
+import { timeAgo } from "lib/time";
 
 const BLOB_PUBLIC_HOST =
   "https://vsgkt473qeluf9ed.public.blob.vercel-storage.com";
 
 interface Props {
   release: Release | null;
+  /** Render time from getStaticProps; keeps "released 3 hr ago" hydration-safe. */
+  generatedAt: number;
 }
 
 type Platform = "windows" | "macos" | "linux" | null;
@@ -33,7 +35,7 @@ const platformLabel: Record<Exclude<Platform, null>, string> = {
 const subscribePlatform = () => () => {};
 const getServerPlatform = (): Platform => null;
 
-const Hero = ({ release }: Props) => {
+const Hero = ({ release, generatedAt }: Props) => {
   const platform = useSyncExternalStore(
     subscribePlatform,
     detectPlatform,
@@ -142,7 +144,7 @@ const Hero = ({ release }: Props) => {
               }}
             >
               {release?.publishedAt && (
-                <span>released {timeAgo(release.publishedAt)}</span>
+                <span>released {timeAgo(release.publishedAt, generatedAt)}</span>
               )}
               <span>Windows · macOS · Linux</span>
               <span

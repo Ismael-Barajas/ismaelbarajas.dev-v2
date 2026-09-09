@@ -118,6 +118,7 @@ const Plasma: React.FC<PlasmaProps> = ({
     let ro: ResizeObserver | null = null;
     let canvas: HTMLCanvasElement | null = null;
     let gl: WebGL2RenderingContext | null = null;
+    let mouseHandler: ((e: MouseEvent) => void) | null = null;
 
     // Defer setup by one frame so any previous WebGL context (e.g. Dither/Three.js
     // with preserveDrawingBuffer) is fully released and layout is computed.
@@ -189,6 +190,7 @@ const Plasma: React.FC<PlasmaProps> = ({
       setSize();
 
       if (mouseInteractive) {
+        mouseHandler = handleMouseMove;
         container.addEventListener('mousemove', handleMouseMove);
       }
 
@@ -217,6 +219,7 @@ const Plasma: React.FC<PlasmaProps> = ({
       cancelAnimationFrame(setupRaf);
       cancelAnimationFrame(renderRaf);
       ro?.disconnect();
+      if (mouseHandler) container.removeEventListener('mousemove', mouseHandler);
       programRef.current = null;
       // Explicitly lose context to free GPU resources for the next WebGL consumer
       if (gl) {

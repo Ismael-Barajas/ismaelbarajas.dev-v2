@@ -8,6 +8,11 @@ export default async function topTracks(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   const requested = Array.isArray(req.query.range)
     ? req.query.range[0]
     : req.query.range;
@@ -21,11 +26,15 @@ export default async function topTracks(
     data = await response.json();
 
     if (!response.ok || !data.items) {
-      return res.status(200).json({ range, tracks: [] });
+      return res
+        .status(502)
+        .json({ error: "Spotify unavailable", range, tracks: [] });
     }
   } catch (error) {
     console.error("top-tracks error:", error);
-    return res.status(200).json({ range, tracks: [] });
+    return res
+      .status(502)
+      .json({ error: "Spotify unavailable", range, tracks: [] });
   }
 
   const tracks = data.items.map(

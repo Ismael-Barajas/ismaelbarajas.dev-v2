@@ -112,24 +112,6 @@ export function formatBytes(bytes: number): string {
   return `${n.toFixed(n >= 100 || i === 0 ? 0 : 1)} ${units[i]}`;
 }
 
-export function timeAgo(iso: string): string {
-  if (!iso) return "";
-  const then = new Date(iso).getTime();
-  const now = Date.now();
-  const sec = Math.max(0, Math.floor((now - then) / 1000));
-  const min = Math.floor(sec / 60);
-  const hr = Math.floor(min / 60);
-  const day = Math.floor(hr / 24);
-  const mo = Math.floor(day / 30);
-  const yr = Math.floor(day / 365);
-  if (yr > 0) return `${yr}y ago`;
-  if (mo > 0) return `${mo}mo ago`;
-  if (day > 0) return `${day}d ago`;
-  if (hr > 0) return `${hr}h ago`;
-  if (min > 0) return `${min}m ago`;
-  return `just now`;
-}
-
 /** Strips inline markdown (bold, italics, code, links) to plain text. */
 const plain = (md: string): string =>
   md
