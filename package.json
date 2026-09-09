@@ -15,6 +15,7 @@
     "upload:compressions": "tsx scripts/upload-compressions-screenshots.ts",
     "spotify:token": "node scripts/spotify-refresh-token.mjs",
     "admin:hash": "node scripts/admin-hash.mjs",
+    "favicon": "node scripts/make-favicon.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

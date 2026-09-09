@@ -79,8 +79,10 @@ const About = () => {
             ))}
           </ul>
 
+          {/* div, not p: AnimatedBars renders block elements, which are
+              invalid inside a paragraph and break hydration. */}
           {listening && (
-            <p className="flex flex-wrap items-center gap-x-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex flex-wrap items-center gap-x-2 text-sm text-gray-600 dark:text-gray-400">
               <span className="inline-flex [&>div]:w-auto">
                 <AnimatedBars
                   color={listening.palette?.vibrant}
@@ -99,7 +101,7 @@ const About = () => {
                 </a>{" "}
                 by {listening.artist}
               </span>
-            </p>
+            </div>
           )}
 
           <div className="flex flex-wrap items-center gap-3">
