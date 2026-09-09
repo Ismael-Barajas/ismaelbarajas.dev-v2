@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV !== "production";
 
 // sha256 of the inline theme bootstrap script in pages/_document.tsx. Update
 // it if that script changes (node -e with crypto.createHash("sha256")).
-const THEME_SCRIPT_HASH = "'sha256-v8HT0SoyBQmCL2JUX3H48LEm8+yshdQZN+kKkkMfDOo='";
+const THEME_SCRIPT_HASH = "'sha256-baNOSqnRIReJmt4+zJCYlN8xrF88G3C2wYenYtBG6Jc='";
 
 /**
  * Content-Security-Policy, shipped as Report-Only first. Violations show in

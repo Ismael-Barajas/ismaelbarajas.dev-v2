@@ -10,6 +10,7 @@ import {
 import { ProgressBar } from "..";
 import BrandSwap from "components/compressions/BrandSwap";
 import ThemeToggle, { type ToggleStyle } from "./ThemeToggle";
+import EffectsToggle from "./EffectsToggle";
 import CollapsingBrand from "./CollapsingBrand";
 
 /**
@@ -501,6 +502,7 @@ const NavBar = () => {
               {renderClassicItems()}
             </ul>
             {classicMenuButton}
+            <EffectsToggle variant="classic" />
             <ThemeToggle variant="classic" />
           </div>
           <ProgressBar />
@@ -535,6 +537,7 @@ const NavBar = () => {
               {renderPillItems()}
             </ul>
             {modernMenuButton}
+            <EffectsToggle variant={TOGGLE_STYLE} />
             <ThemeToggle variant={TOGGLE_STYLE} />
             <span
               aria-hidden="true"
@@ -587,6 +590,7 @@ const NavBar = () => {
             {renderMinimalItems()}
           </ul>
           <div className="flex items-center gap-2 md:justify-self-end">
+            <EffectsToggle variant={TOGGLE_STYLE} />
             <ThemeToggle variant={TOGGLE_STYLE} />
             {modernMenuButton}
           </div>

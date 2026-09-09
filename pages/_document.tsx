@@ -6,7 +6,9 @@ export default function Document() {
       <Head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()`,
+            // Theme class and performance tier before first paint. Keep in
+            // sync with THEME_SCRIPT_HASH in next.config.js (CSP).
+            __html: `(function(){try{var d=document.documentElement,t=localStorage.getItem("theme");if(t==="dark")d.classList.add("dark");var p=localStorage.getItem("perf");if(p!=="full"&&p!=="reduced"&&p!=="low")p=sessionStorage.getItem("perf-auto");if(p==="full"||p==="reduced"||p==="low")d.setAttribute("data-perf",p)}catch(e){}})()`,
           }}
         />
         <link

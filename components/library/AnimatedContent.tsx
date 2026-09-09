@@ -44,8 +44,12 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
     const el = ref.current;
     if (!el) return;
 
-    // Respect reduced-motion: show the content, skip the animation.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // Respect reduced-motion and the low performance tier: show the content,
+    // skip the animation.
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      document.documentElement.getAttribute("data-perf") === "low"
+    ) {
       gsap.set(el, { visibility: "visible", opacity: 1 });
       return;
     }

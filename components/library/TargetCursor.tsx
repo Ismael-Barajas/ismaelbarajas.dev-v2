@@ -1,5 +1,12 @@
-import { useEffect, useRef, useCallback, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import gsap from "gsap";
+import usePerformanceTier from "hooks/usePerformanceTier";
 
 export interface TargetCursorProps {
   targetSelector?: string;
@@ -24,14 +31,23 @@ const detectMobile = (): boolean => {
   const hasTouchScreen =
     "ontouchstart" in window || navigator.maxTouchPoints > 0;
   const isSmallScreen = window.innerWidth <= 768;
+  // Primary input can't hover and is coarse: phones and tablets, including
+  // an iPad in "desktop website" mode whose UA says Macintosh.
+  const touchPrimary = window.matchMedia(
+    "(hover: none) and (pointer: coarse)",
+  ).matches;
   const userAgent =
     navigator.userAgent || navigator.vendor || (window as any).opera || "";
   const mobileRegex =
     /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
   const isMobileUserAgent = mobileRegex.test(userAgent.toLowerCase());
-  cachedIsMobile = (hasTouchScreen && isSmallScreen) || isMobileUserAgent;
+  cachedIsMobile =
+    touchPrimary || (hasTouchScreen && isSmallScreen) || isMobileUserAgent;
   return cachedIsMobile;
 };
+
+/** Class on <html> that hides the native cursor while the custom one is shown. */
+const CURSOR_CLASS = "custom-cursor";
 
 const TargetCursor: React.FC<TargetCursorProps> = ({
   targetSelector = 'button, a, [role="button"]',
@@ -46,11 +62,31 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
 
   // Server snapshot is always "not mobile" so SSR and hydration agree; the
   // client snapshot then decides for real without a state-in-effect hop.
-  const isMobile = useSyncExternalStore(
+  const isTouch = useSyncExternalStore(
     subscribeNoop,
     detectMobile,
     getServerIsMobile,
   );
+  // Low tier: native cursor (globals.css restores it) and no per-move tweens.
+  const { tier } = usePerformanceTier();
+  const isMobile = isTouch || tier === "low";
+
+  // Shown only once a real mouse (or pen) has moved. Keeps the server HTML
+  // from flashing the ring in the top-left corner before hydration, and
+  // hides it again on hybrid devices when the visitor switches to touch.
+  const [active, setActive] = useState(false);
+  const activeRef = useRef(false);
+  const setActiveState = useCallback((next: boolean) => {
+    if (activeRef.current === next) return;
+    activeRef.current = next;
+    setActive(next);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile || !active || !hideDefaultCursor) return;
+    document.documentElement.classList.add(CURSOR_CLASS);
+    return () => document.documentElement.classList.remove(CURSOR_CLASS);
+  }, [active, isMobile, hideDefaultCursor]);
 
   const moveCursor = useCallback((x: number, y: number) => {
     if (dotRef.current) {
@@ -70,10 +106,13 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
       (c): c is HTMLDivElement => c !== null
     );
 
-    const originalCursor = document.documentElement.style.cursor;
-    if (hideDefaultCursor) {
-      document.documentElement.style.cursor = "none";
-    }
+    // Reveal on mouse/pen input, hide on touch. pointerType is what tells a
+    // hybrid laptop's trackpad apart from its touchscreen.
+    const pointerHandler = (e: PointerEvent) => {
+      setActiveState(e.pointerType !== "touch");
+    };
+    window.addEventListener("pointermove", pointerHandler, { passive: true });
+    window.addEventListener("pointerdown", pointerHandler, { passive: true });
 
     const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
@@ -196,13 +235,14 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
       window.removeEventListener("mouseover", enterHandler as EventListener);
       window.removeEventListener("mousedown", mouseDownHandler);
       window.removeEventListener("mouseup", mouseUpHandler);
-      document.documentElement.style.cursor = originalCursor;
+      window.removeEventListener("pointermove", pointerHandler);
+      window.removeEventListener("pointerdown", pointerHandler);
       isActiveRef.current = false;
     };
   }, [
     targetSelector,
     moveCursor,
-    hideDefaultCursor,
+    setActiveState,
     isMobile,
     hoverDuration,
     enableTargeting,
@@ -221,17 +261,23 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
     "border-r-0 border-t-0 rounded-bl-[4px]",
   ];
 
+  // Hidden until a mouse moves. This is inline so it is in the server HTML
+  // too: nothing to see at 0,0 on a phone, even if hydration is slow.
+  const visibility = active ? "visible" : "hidden";
+
   return (
     <>
       <div
         ref={ringRef}
+        aria-hidden="true"
         className="fixed top-0 left-0 w-7 h-7 rounded-full border-2 border-text dark:border-text pointer-events-none z-1000"
-        style={{ willChange: "transform, opacity" }}
+        style={{ willChange: "transform, opacity", visibility }}
       />
       <div
         ref={dotRef}
+        aria-hidden="true"
         className="fixed top-0 left-0 w-1 h-1 bg-text dark:bg-text rounded-full pointer-events-none z-1000"
-        style={{ willChange: "transform" }}
+        style={{ willChange: "transform", visibility }}
       />
       {cornerStyles.map((style, i) => (
         <div
@@ -239,8 +285,9 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
           ref={(el) => {
             cornerRefs.current[i] = el;
           }}
+          aria-hidden="true"
           className={`${cornerBase} ${style}`}
-          style={{ willChange: "transform, opacity" }}
+          style={{ willChange: "transform, opacity", visibility }}
         />
       ))}
     </>

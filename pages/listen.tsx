@@ -16,10 +16,12 @@ import {
   useListenTab,
 } from "components/library/ListenTabs";
 import useNowPlaying from "hooks/useNowPlaying";
+import usePerformanceTier from "hooks/usePerformanceTier";
 import type { NextPage } from "next";
 
 const Listen: NextPage = () => {
   const { resolvedTheme } = useTheme();
+  const { tier } = usePerformanceTier();
   const [tab, setTab] = useListenTab();
   const { data } = useNowPlaying();
 
@@ -42,6 +44,7 @@ const Listen: NextPage = () => {
           scale={1}
           opacity={0.9}
           mouseInteractive={true}
+          quality={tier}
         />
       </div>
       <div className="container items-center content-center pt-4 pb-10 relative z-10">

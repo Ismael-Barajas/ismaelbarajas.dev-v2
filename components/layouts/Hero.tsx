@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import useTheme from "hooks/useTheme";
+import usePerformanceTier from "hooks/usePerformanceTier";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BackToTop } from "..";
 import DecryptedText from "../library/DecryptedText";
@@ -31,6 +32,7 @@ function parseColor(color: string): [number, number, number] {
 const Hero = () => {
   const heroRef = useRef(null);
   const { resolvedTheme } = useTheme();
+  const { tier } = usePerformanceTier();
   const [accentColor, setAccentColor] = useState<string | null>(null);
 
   useEffect(() => {
@@ -76,9 +78,10 @@ const Hero = () => {
         waveAmplitude={0.41}
         waveFrequency={2.5}
         waveSpeed={0.04}
+        quality={tier}
       />
     ),
-    [waveColor, backgroundColor],
+    [waveColor, backgroundColor, tier],
   );
 
   return (

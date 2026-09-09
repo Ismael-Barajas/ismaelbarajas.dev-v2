@@ -92,6 +92,13 @@ html {
 
 * {
   box-sizing: border-box;
+}
+
+/* Native cursor is hidden only while TargetCursor is showing the custom one
+   (it adds this class once a real mouse moves). Touch devices, the low
+   performance tier, and the moment before hydration keep the default. */
+html.custom-cursor,
+html.custom-cursor * {
   cursor: none !important;
 }
 
@@ -356,4 +363,31 @@ section {
   50% {
     opacity: 0;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Performance tiers. html[data-perf] is set before paint by the bootstrap in
+   pages/_document.tsx and updated by hooks/usePerformanceTier. "low" is for
+   browsers without GPU acceleration: no backdrop blur (CPU-composited), no
+   accent-color tween (repaints large gradients every frame). TargetCursor
+   also stays off on this tier, so the native cursor shows.
+   The shaders themselves read the tier in React and render a single frame.
+   --------------------------------------------------------------------------- */
+.accent-glow {
+  transition: --now-playing-accent 1200ms ease-in-out;
+}
+
+html[data-perf="low"] .accent-glow {
+  transition: none;
+}
+
+html[data-perf="low"] [class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Blur gone, so give the nav a mostly solid ground for legibility. */
+html[data-perf="low"] nav[data-nav-style] {
+  background-image: none;
+  background-color: color-mix(in srgb, var(--background) 94%, transparent);
 }

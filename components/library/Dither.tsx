@@ -5,6 +5,8 @@ import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
 import { EffectComposer, wrapEffect } from '@react-three/postprocessing';
 import { Effect } from 'postprocessing';
 import * as THREE from 'three';
+import { dprForTier, fpsForTier, type PerfTier } from 'lib/perf';
+import { probeFrameRate } from 'lib/perfStore';
 
 const waveVertexShader = `
 precision highp float;
@@ -311,6 +313,32 @@ function DitheredWaves({
   );
 }
 
+/**
+ * Drives R3F's demand-mode loop at a capped frame rate. With
+ * frameloop="demand" nothing renders unless something calls invalidate(),
+ * so this is how the reduced tier halves the shader cost. fps 0 renders
+ * only the frames React itself requests (mount, prop changes).
+ */
+function DemandTicker({ fps }: { fps: number }) {
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    if (fps <= 0) return;
+    const interval = 1000 / fps;
+    let last = 0;
+    let raf = 0;
+    const tick = (now: number) => {
+      if (now - last >= interval) {
+        last = now;
+        invalidate();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [fps, invalidate]);
+  return null;
+}
+
 interface DitherProps {
   waveSpeed?: number;
   waveFrequency?: number;
@@ -322,6 +350,8 @@ interface DitherProps {
   disableAnimation?: boolean;
   enableMouseInteraction?: boolean;
   mouseRadius?: number;
+  /** Performance tier; see lib/perf.ts. Defaults to full. */
+  quality?: PerfTier;
 }
 
 export default function Dither({
@@ -334,27 +364,55 @@ export default function Dither({
   pixelSize = 2,
   disableAnimation = false,
   enableMouseInteraction = true,
-  mouseRadius = 1
+  mouseRadius = 1,
+  quality = "full"
 }: DitherProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  // Pause entirely while scrolled out of view or the tab is hidden. The hero
+  // is off screen for most of a visit to the home page.
+  const [onScreen, setOnScreen] = useState(true);
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), {
+      rootMargin: '10% 0px'
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    probeFrameRate();
+  }, []);
+
+  const still = quality === 'low' || disableAnimation;
+  const fps = still ? 0 : fpsForTier(quality);
+  const frameloop = !onScreen ? 'never' : quality === 'full' && !still ? 'always' : 'demand';
+  const mouse = enableMouseInteraction && quality === 'full';
+
   return (
-    <Canvas
-      className="w-full h-full absolute inset-0"
-      camera={{ position: [0, 0, 6] }}
-      dpr={1}
-      gl={{ antialias: true, preserveDrawingBuffer: true }}
-    >
-      <DitheredWaves
-        waveSpeed={waveSpeed}
-        waveFrequency={waveFrequency}
-        waveAmplitude={waveAmplitude}
-        waveColor={waveColor}
-        backgroundColor={backgroundColor}
-        colorNum={colorNum}
-        pixelSize={pixelSize}
-        disableAnimation={disableAnimation}
-        enableMouseInteraction={enableMouseInteraction}
-        mouseRadius={mouseRadius}
-      />
-    </Canvas>
+    <div ref={wrapperRef} className="w-full h-full absolute inset-0">
+      <Canvas
+        className="w-full h-full absolute inset-0"
+        camera={{ position: [0, 0, 6] }}
+        dpr={quality === 'full' ? 1 : dprForTier(quality, 1)}
+        frameloop={frameloop}
+        gl={{ antialias: quality === 'full', preserveDrawingBuffer: true }}
+      >
+        {frameloop === 'demand' && <DemandTicker fps={fps} />}
+        <DitheredWaves
+          waveSpeed={waveSpeed}
+          waveFrequency={waveFrequency}
+          waveAmplitude={waveAmplitude}
+          waveColor={waveColor}
+          backgroundColor={backgroundColor}
+          colorNum={colorNum}
+          pixelSize={pixelSize}
+          disableAnimation={still}
+          enableMouseInteraction={mouse}
+          mouseRadius={mouseRadius}
+        />
+      </Canvas>
+    </div>
   );
 }

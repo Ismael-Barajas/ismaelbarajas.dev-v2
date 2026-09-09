@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
+import { dprForTier, fpsForTier, type PerfTier } from 'lib/perf';
+import { probeFrameRate } from 'lib/perfStore';
 
 interface PlasmaProps {
   color?: string;
@@ -8,6 +10,8 @@ interface PlasmaProps {
   scale?: number;
   opacity?: number;
   mouseInteractive?: boolean;
+  /** Performance tier; see lib/perf.ts. Defaults to full. */
+  quality?: PerfTier;
 }
 
 const hexToRgb = (hex: string): [number, number, number] => {
@@ -94,7 +98,8 @@ const Plasma: React.FC<PlasmaProps> = ({
   direction = 'forward',
   scale = 1,
   opacity = 1,
-  mouseInteractive = true
+  mouseInteractive = true,
+  quality = 'full'
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mousePos = useRef({ x: 0, y: 0 });
@@ -119,6 +124,35 @@ const Plasma: React.FC<PlasmaProps> = ({
     let canvas: HTMLCanvasElement | null = null;
     let gl: WebGL2RenderingContext | null = null;
     let mouseHandler: ((e: MouseEvent) => void) | null = null;
+    // Tier controls: fps 0 means render one still frame and stop.
+    const fps = fpsForTier(quality);
+    const frameInterval = fps > 0 ? 1000 / fps : 0;
+    const interactive = mouseInteractive && quality === 'full';
+    // Pause while hidden or scrolled away; resume where the clock left off.
+    let paused = false;
+    let visible = true;
+    let intersecting = true;
+    let loopFn: ((t: number) => void) | null = null;
+    const updatePaused = () => {
+      const shouldPause = !visible || !intersecting;
+      if (shouldPause === paused) return;
+      paused = shouldPause;
+      if (paused) {
+        cancelAnimationFrame(renderRaf);
+      } else if (loopFn && fps > 0) {
+        renderRaf = requestAnimationFrame(loopFn);
+      }
+    };
+    const onVisibility = () => {
+      visible = document.visibilityState === 'visible';
+      updatePaused();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    const io = new IntersectionObserver(([entry]) => {
+      intersecting = entry.isIntersecting;
+      updatePaused();
+    });
+    io.observe(container);
 
     // Defer setup by one frame so any previous WebGL context (e.g. Dither/Three.js
     // with preserveDrawingBuffer) is fully released and layout is computed.
@@ -133,7 +167,7 @@ const Plasma: React.FC<PlasmaProps> = ({
         webgl: 2,
         alpha: true,
         antialias: false,
-        dpr: Math.min(window.devicePixelRatio || 1, 2)
+        dpr: dprForTier(quality, window.devicePixelRatio || 1, 2)
       });
       gl = renderer.gl as unknown as WebGL2RenderingContext;
       canvas = (renderer.gl as any).canvas as HTMLCanvasElement;
@@ -157,7 +191,7 @@ const Plasma: React.FC<PlasmaProps> = ({
           uScale: { value: scale },
           uOpacity: { value: opacity },
           uMouse: { value: new Float32Array([0, 0]) },
-          uMouseInteractive: { value: mouseInteractive ? 1.0 : 0.0 }
+          uMouseInteractive: { value: interactive ? 1.0 : 0.0 }
         }
       });
 
@@ -166,7 +200,7 @@ const Plasma: React.FC<PlasmaProps> = ({
       const mesh = new Mesh(renderer.gl, { geometry, program });
 
       const handleMouseMove = (e: MouseEvent) => {
-        if (!mouseInteractive) return;
+        if (!interactive) return;
         const rect = container.getBoundingClientRect();
         mousePos.current.x = e.clientX - rect.left;
         mousePos.current.y = e.clientY - rect.top;
@@ -189,13 +223,20 @@ const Plasma: React.FC<PlasmaProps> = ({
       ro.observe(container);
       setSize();
 
-      if (mouseInteractive) {
+      if (interactive) {
         mouseHandler = handleMouseMove;
         container.addEventListener('mousemove', handleMouseMove);
       }
 
       const t0 = performance.now();
+      let lastRender = 0;
       const loop = (t: number) => {
+        // Reduced tier: skip frames to hold the target rate.
+        if (frameInterval > 0 && t - lastRender < frameInterval - 1) {
+          renderRaf = requestAnimationFrame(loop);
+          return;
+        }
+        lastRender = t;
         let timeValue = (t - t0) * 0.001;
         if (direction === 'pingpong') {
           const pingpongDuration = 10;
@@ -210,14 +251,20 @@ const Plasma: React.FC<PlasmaProps> = ({
           (program.uniforms.iTime as any).value = timeValue;
         }
         renderer.render({ scene: mesh });
+        // Low tier: one still frame is the whole show.
+        if (fps === 0) return;
         renderRaf = requestAnimationFrame(loop);
       };
-      renderRaf = requestAnimationFrame(loop);
+      loopFn = loop;
+      if (!paused || fps === 0) renderRaf = requestAnimationFrame(loop);
+      probeFrameRate();
     });
 
     return () => {
       cancelAnimationFrame(setupRaf);
       cancelAnimationFrame(renderRaf);
+      document.removeEventListener('visibilitychange', onVisibility);
+      io.disconnect();
       ro?.disconnect();
       if (mouseHandler) container.removeEventListener('mousemove', mouseHandler);
       programRef.current = null;
@@ -231,7 +278,7 @@ const Plasma: React.FC<PlasmaProps> = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speed, direction, scale, opacity, mouseInteractive]);
+  }, [speed, direction, scale, opacity, mouseInteractive, quality]);
 
   return <div ref={containerRef} className="w-full h-full relative overflow-hidden" />;
 };

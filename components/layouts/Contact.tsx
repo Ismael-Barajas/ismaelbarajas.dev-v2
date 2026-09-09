@@ -30,13 +30,12 @@ const Contact = () => {
   return (
     <div className="relative min-h-screen-without-nav">
       <div
-        className="absolute inset-0 pointer-events-none z-0"
+        className="accent-glow absolute inset-0 pointer-events-none z-0"
         aria-hidden="true"
         style={{
           background:
             "radial-gradient(ellipse 80% 60% at 50% 50%, var(--now-playing-accent) 0%, transparent 70%)",
           opacity: 0.2,
-          transition: "--now-playing-accent 1200ms ease-in-out",
         }}
       />
       <div className="container min-h-screen-without-nav relative z-10">

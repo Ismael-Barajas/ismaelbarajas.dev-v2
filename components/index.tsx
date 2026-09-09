@@ -21,6 +21,7 @@ export { default as TargetCursor } from "./library/TargetCursor";
 export { default as Dither } from "./library/Dither";
 export { default as Plasma } from "./library/Plasma";
 export { default as AnimatedContent } from "./library/AnimatedContent";
+export { default as EffectsToggle } from "./library/EffectsToggle";
 
 export { default as Hero } from "./layouts/Hero";
 export { default as About } from "./layouts/About";
