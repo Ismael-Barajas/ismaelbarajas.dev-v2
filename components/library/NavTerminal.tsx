@@ -340,7 +340,7 @@ const NavTerminal = () => {
   if (view === "hidden") return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-30 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-lg bg-[#0e0e10]/60 font-mono text-[11px] leading-[1.45] text-[#e6e2dc] shadow-[0_8px_24px_rgba(0,0,0,0.22)] ring-1 ring-white/10 backdrop-blur-md">
+    <div className="fixed bottom-4 left-4 z-30 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-lg bg-[#0e0e10]/75 font-mono text-[11px] leading-[1.45] text-[#e6e2dc] shadow-[0_8px_24px_rgba(0,0,0,0.22)] ring-1 ring-white/10 backdrop-blur-md">
       <div className="flex items-center">
         <button
           type="button"
