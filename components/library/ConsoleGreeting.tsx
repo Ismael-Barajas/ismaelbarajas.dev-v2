@@ -13,7 +13,7 @@ const ART = [
 const TAGLINE = "ismaelbarajas.dev · say hi → ismaelbarajas.dev@gmail.com";
 
 const ART_STYLE = `color:${TERMINAL_ORANGE};font-family:monospace;font-size:12px;line-height:1.15`;
-const TAGLINE_STYLE = "color:#ffab5e;font-family:monospace;font-size:12px";
+const TAGLINE_STYLE = "color:#e8b566;font-family:monospace;font-size:12px";
 
 /**
  * Prints the calling card into the browser console, once per page load, for

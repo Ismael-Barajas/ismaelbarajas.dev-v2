@@ -29,8 +29,11 @@ export interface LogEntry {
   text: string;
 }
 
-/** The console orange shared with components/library/ConsoleGreeting.tsx. */
-export const TERMINAL_ORANGE = "#ff7a18";
+/**
+ * The compressions accent (styles/compressions.css dark --c-accent), shared
+ * with components/library/ConsoleGreeting.tsx.
+ */
+export const TERMINAL_ORANGE = "#d4a053";
 
 /** Stable server snapshot, and the initial client value, so hydration agrees. */
 export const EMPTY: readonly LogEntry[] = [];
