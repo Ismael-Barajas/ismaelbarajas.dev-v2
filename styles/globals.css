@@ -391,3 +391,58 @@ html[data-perf="low"] nav[data-nav-style] {
   background-image: none;
   background-color: color-mix(in srgb, var(--background) 94%, transparent);
 }
+
+/* ---------------------------------------------------------------------------
+   Boot intro (lib/intro.ts). The backdrop is a pseudo-element so it is up
+   before hydration: the bootstrap in pages/_document.tsx sets
+   data-intro="pending", lib/introStore.ts moves it through boot -> dock and
+   then removes it. If React never takes over, the safety animation reveals
+   the site after 10s.
+   --------------------------------------------------------------------------- */
+html[data-intro] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: #121212;
+}
+
+html[data-intro="pending"] body::before {
+  animation: intro-safety 0s linear 10s forwards;
+}
+
+html[data-intro="dock"] body::before {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease-out;
+}
+
+@keyframes intro-safety {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* The terminal card popping in at the centre of the screen. */
+@keyframes intro-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+.intro-pop {
+  animation: intro-pop 250ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* The skip hint waits a beat so it doesn't compete with the pop. */
+@keyframes intro-hint {
+  from {
+    opacity: 0;
+  }
+}
+
+.intro-hint {
+  animation: intro-hint 400ms ease-out 600ms both;
+}

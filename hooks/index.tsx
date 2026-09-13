@@ -6,3 +6,4 @@ export { default as useNowPlayingAccent } from "./useNowPlayingAccent";
 export { default as useNowPlaying } from "./useNowPlaying";
 export { default as usePerformanceTier } from "./usePerformanceTier";
 export { default as useNavLog, useNavLogView } from "./useNavLog";
+export { default as useIntroStage, useIntroProgress } from "./useIntroStage";

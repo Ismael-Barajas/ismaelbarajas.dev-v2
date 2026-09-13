@@ -1,19 +1,27 @@
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { useNavLog, useNavLogView, useNowPlaying, useNowPlayingAccent } from "hooks";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef } from "react";
+import {
+  useIntroProgress,
+  useIntroStage,
+  useNavLog,
+  useNavLogView,
+  useNowPlaying,
+  useNowPlayingAccent,
+} from "hooks";
+import { DOCK_EASE, DOCK_MS } from "lib/intro";
 import {
   TERMINAL_ORANGE,
   describeClick,
   describePlayback,
-  formatTime,
-  getEntries,
   log,
+  markStreamed,
   setView,
+  startStreaming,
   type LogEntry,
-  type LogKind,
   type PlaybackSample,
 } from "lib/navLog";
 import { PERF_ATTRIBUTE, PERF_LABELS, isPerfTier } from "lib/perf";
+import Line, { StatusLine } from "./TerminalLine";
 
 /**
  * A fixed terminal panel that narrates the visit: route changes, hash jumps,
@@ -22,10 +30,11 @@ import { PERF_ATTRIBUTE, PERF_LABELS, isPerfTier } from "lib/perf";
  * Everything is observed rather than reported: router events, a
  * capture-phase document click listener and a MutationObserver on <html>, so
  * no other component has to know this exists.
+ *
+ * On the first page of a session the same panel doubles as the boot screen
+ * (lib/introStore.ts): it sits centered and enlarged while the boot log
+ * types out, then flies to its corner as the site fades in behind it.
  */
-
-/** Boot lines print once per page load, not once per StrictMode mount. */
-let hasBooted = false;
 
 /**
  * A plain `<a href="#x">` fires our click listener *and* the browser's
@@ -35,141 +44,14 @@ let hasBooted = false;
 let lastJump: { hash: string; at: number } | null = null;
 const JUMP_DEDUPE_MS = 1000;
 
-const KIND_COLOR: Partial<Record<LogKind, string>> = {
-  // Muted but still legible through the glass over the light theme.
-  boot: "#b8b2aa",
-  done: "#3dd68c",
-  error: "#f06060",
-};
-
-/** Per-character reveal, capped so long lines don't drag. */
-const TYPE_MS_PER_CHAR = 14;
-const TYPE_MAX_MS = 600;
-/** Beat between one line finishing and the next starting. */
-const LINE_GAP_MS = 90;
-
-const reducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-/**
- * One line types at a time. Lines that land together (a click and the route
- * change it causes, the boot sequence) each wait for the previous line to
- * finish, so the log reads top to bottom instead of several lines racing.
- */
-let typingQueue: Promise<void> = Promise.resolve();
-
-/**
- * Reveals `text` a character at a time, like output streaming into a
- * terminal. Only lines that arrive after the panel is on screen animate;
- * anything already in the log (or a reduced-motion visitor) renders whole.
- * Returns `started: false` while the line is still waiting its turn.
- */
-const useTyped = (text: string, animate: boolean, onTick: () => void) => {
-  const [shown, setShown] = useState(animate ? 0 : text.length);
-  const [started, setStarted] = useState(!animate);
-
-  useEffect(() => {
-    if (!animate) return;
-    let cancelled = false;
-    let finish = () => {};
-
-    typingQueue = typingQueue.then(
-      () =>
-        new Promise<void>((resolve) => {
-          if (cancelled) {
-            resolve();
-            return;
-          }
-          setStarted(true);
-          const perChar = Math.min(TYPE_MS_PER_CHAR, TYPE_MAX_MS / Math.max(text.length, 1));
-          let i = 0;
-          let gap = 0;
-          const id = window.setInterval(() => {
-            i += 1;
-            setShown(i);
-            onTick();
-            if (i >= text.length) {
-              window.clearInterval(id);
-              gap = window.setTimeout(resolve, LINE_GAP_MS);
-            }
-          }, perChar);
-          // Unmounting mid-line (the panel collapsed) hands the turn on.
-          finish = () => {
-            window.clearInterval(id);
-            window.clearTimeout(gap);
-            resolve();
-          };
-        }),
-    );
-
-    return () => {
-      cancelled = true;
-      finish();
-    };
-  }, [animate, text, onTick]);
-
-  return { visible: text.slice(0, shown), typing: shown < text.length, started };
-};
-
-/**
- * Lines with an id below this render whole: they were already in the log
- * when the panel first appeared. Set on mount; Infinity disables streaming.
- */
-let animateFromId = Number.POSITIVE_INFINITY;
-/**
- * Lines that have already streamed in once. Without this, expanding the
- * panel after a while would replay every line logged while it was closed.
- */
-const streamed = new Set<number>();
-
-interface LineProps {
-  entry: LogEntry;
-  promptColor: string;
-  compact?: boolean;
-  onTick: () => void;
-}
-
-const Line = ({ entry, promptColor, compact = false, onTick }: LineProps) => {
-  // Decided once at mount so a later render can't restart the animation.
-  const [animate] = useState(() => {
-    const ok = !compact && entry.id >= animateFromId && !streamed.has(entry.id);
-    if (ok) streamed.add(entry.id);
-    return ok;
-  });
-  const { visible, typing, started } = useTyped(entry.text, animate, onTick);
-  // Waiting its turn in the typing queue: keep the row out of the layout so
-  // a lone timestamp isn't sitting there ahead of the line above it.
-  if (!started) return null;
-  return (
-    <div className="flex gap-1.5">
-      {entry.kind !== "boot" && (
-        <span
-          className="shrink-0 transition-colors duration-1000"
-          style={{ color: promptColor, fontFeatureSettings: '"tnum" 1' }}
-        >
-          [{formatTime(entry.time)}]
-        </span>
-      )}
-      <span
-        className={`min-w-0 ${compact ? "truncate" : "break-words"} ${
-          entry.kind === "music" ? "transition-colors duration-1000" : ""
-        }`}
-        style={
-          entry.kind === "music"
-            ? { color: promptColor }
-            : { color: KIND_COLOR[entry.kind] }
-        }
-      >
-        {visible}
-        {typing && (
-          <span aria-hidden="true" className="opacity-80" style={{ color: promptColor }}>
-            ▍
-          </span>
-        )}
-      </span>
-    </div>
-  );
+const LOOK =
+  "overflow-hidden rounded-lg bg-[#0e0e10]/75 font-mono text-[11px] leading-[1.45] text-[#e6e2dc] shadow-[0_8px_24px_rgba(0,0,0,0.22)] ring-1 ring-white/10 backdrop-blur-md";
+const DOCKED = "fixed bottom-4 left-4 w-[min(26rem,calc(100vw-2rem))]";
+const STAGE_CLASS = {
+  idle: `${DOCKED} z-30`,
+  // Above the fading backdrop (z-60) until it lands.
+  dock: `${DOCKED} z-[70]`,
+  boot: "intro-pop fixed left-1/2 top-1/2 z-[70] w-[min(34rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 md:scale-[1.15]",
 };
 
 const logJump = (hash: string, fromClick: boolean) => {
@@ -184,37 +66,28 @@ const logJump = (hash: string, fromClick: boolean) => {
 const NavTerminal = () => {
   const router = useRouter();
   const entries = useNavLog();
-  const view = useNavLogView();
+  const storedView = useNavLogView();
+  const stage = useIntroStage();
+  const progress = useIntroProgress();
+  const intro = stage !== "idle";
+  // The boot screen is always the full log, whatever the visitor's setting.
+  const view = intro ? "expanded" : storedView;
   const collapsed = view === "collapsed";
   const accent = useNowPlayingAccent();
   const { data: nowPlaying } = useNowPlaying();
   const bodyId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const lastSample = useRef<PlaybackSample | null>(null);
+  /** Where the centered card was, for the flight to its corner. */
+  const bootRect = useRef<{ rect: DOMRect; scale: number; bodyHeight: number } | null>(null);
 
-  // Boot lines, router events, hash jumps and link clicks.
+  // Router events, hash jumps and link clicks. The boot lines themselves are
+  // logged by lib/introStore.ts, which also owns the intro.
   useEffect(() => {
-    const root = document.documentElement;
-
     // Anything logged from here on streams in; what's already there is
     // rendered whole. Reduced-motion visitors get every line whole.
-    if (animateFromId === Number.POSITIVE_INFINITY && !reducedMotion()) {
-      animateFromId = (getEntries().at(-1)?.id ?? 0) + 1;
-    }
-
-    if (!hasBooted) {
-      hasBooted = true;
-      const theme = root.classList.contains("dark") ? "dark" : "light";
-      const perf = root.getAttribute(PERF_ATTRIBUTE) ?? "full";
-      const bootLines = [
-        "Loading ismaelbarajas.dev v2.0",
-        `Setting preferences... theme=${theme} effects=${perf}`,
-        `Current date: ${new Date().toLocaleDateString()}`,
-        `READY AT ${window.location.pathname}`,
-      ];
-      // The typing queue in useTyped sequences these one after another.
-      bootLines.forEach((text) => log("boot", text));
-    }
+    startStreaming();
 
     const onRouteStart = (url: string) => log("nav", `NAVIGATING TO ${url}`);
     const onRouteDone = () => log("done", "NAVIGATION COMPLETE");
@@ -316,8 +189,87 @@ const NavTerminal = () => {
   // the log as it is instead of replaying everything that happened meanwhile.
   useEffect(() => {
     if (view === "expanded") return;
-    for (const entry of entries) streamed.add(entry.id);
+    for (const entry of entries) markStreamed(entry.id);
   }, [entries, view]);
+
+  // While booting, remember where the centered card is after every commit
+  // (a line starting changes its height) and on resize. The dock effect
+  // below flies it from there.
+  useLayoutEffect(() => {
+    if (stage !== "boot") return;
+    const measure = () => {
+      const el = rootRef.current;
+      const body = bodyRef.current;
+      if (!el || !body) return;
+      const scale = parseFloat(getComputedStyle(el).scale) || 1;
+      bootRect.current = {
+        rect: el.getBoundingClientRect(),
+        scale,
+        bodyHeight: body.getBoundingClientRect().height / scale,
+      };
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  });
+
+  // Dock: FLIP from the remembered centered rect to the docked layout React
+  // has just committed. Width and height animate as real sizes (a
+  // non-uniform scale would stretch the text); the card's overflow-hidden
+  // clips the log while it shrinks. The log body shrinks in step and stays
+  // scrolled to its last line the whole way, so READY never drops out of
+  // view mid-flight. Cleanup on idle clears the inline styles.
+  useLayoutEffect(() => {
+    if (stage !== "dock") return;
+    const el = rootRef.current;
+    const body = bodyRef.current;
+    const first = bootRect.current;
+    if (!el || !body) return;
+    let raf = 0;
+
+    if (storedView === "hidden") {
+      // Nowhere to land: fade out instead, and the idle render returns null.
+      el.style.transition = `opacity ${DOCK_MS}ms ease`;
+      el.style.opacity = "0";
+    } else if (first) {
+      const s = first.scale;
+      const last = el.getBoundingClientRect();
+      const lastBody = body.getBoundingClientRect().height;
+      el.style.transition = "none";
+      body.style.transition = "none";
+      el.style.transformOrigin = "top left";
+      el.style.width = `${first.rect.width / s}px`;
+      el.style.height = `${first.rect.height / s}px`;
+      body.style.maxHeight = `${first.bodyHeight}px`;
+      // Measured after sizing: the docked card is bottom-anchored, so a
+      // taller start box sits higher than the final one.
+      const start = el.getBoundingClientRect();
+      el.style.transform = `translate(${first.rect.left - start.left}px, ${first.rect.top - start.top}px) scale(${s})`;
+      void el.offsetWidth;
+      el.style.transition = ["transform", "width", "height"]
+        .map((p) => `${p} ${DOCK_MS}ms ${DOCK_EASE}`)
+        .join(", ");
+      body.style.transition = `max-height ${DOCK_MS}ms ${DOCK_EASE}`;
+      el.style.width = `${last.width}px`;
+      el.style.height = `${last.height}px`;
+      el.style.transform = "translate(0px, 0px) scale(1)";
+      body.style.maxHeight = `${lastBody}px`;
+
+      // The body shrinks from the bottom, so keep it pinned to the end.
+      const follow = () => {
+        scrollToEnd();
+        raf = window.requestAnimationFrame(follow);
+      };
+      follow();
+    }
+
+    return () => {
+      window.cancelAnimationFrame(raf);
+      el.style.cssText = "";
+      body.style.cssText = "";
+      scrollToEnd();
+    };
+  }, [stage, storedView, scrollToEnd]);
 
   const promptColor = accent ?? TERMINAL_ORANGE;
   const latest = entries[entries.length - 1];
@@ -340,7 +292,12 @@ const NavTerminal = () => {
   if (view === "hidden") return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-30 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-lg bg-[#0e0e10]/75 font-mono text-[11px] leading-[1.45] text-[#e6e2dc] shadow-[0_8px_24px_rgba(0,0,0,0.22)] ring-1 ring-white/10 backdrop-blur-md">
+    <div
+      ref={rootRef}
+      // A skip click during the intro must not land on the header buttons.
+      inert={intro}
+      className={`${STAGE_CLASS[stage]} ${LOOK}`}
+    >
       <div className="flex items-center">
         <button
           type="button"
@@ -377,12 +334,15 @@ const NavTerminal = () => {
         aria-live="off"
         aria-label="Navigation log"
         className={
-          collapsed ? "px-2.5 pb-1.5" : "max-h-44 overflow-y-auto px-2.5 pb-2"
+          collapsed
+            ? "px-2.5 pb-1.5"
+            : `overflow-y-auto px-2.5 pb-2 ${stage === "boot" ? "max-h-[60vh]" : "max-h-44"}`
         }
       >
         {collapsed
           ? latest && renderLine(latest, true)
           : entries.map((entry) => renderLine(entry))}
+        {intro && !progress.logged && <StatusLine state={progress} accent={promptColor} />}
       </div>
     </div>
   );

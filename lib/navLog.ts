@@ -13,6 +13,8 @@ import { localStore, safeGet, safeSet } from "./storage";
 
 export type LogKind =
   | "boot"
+  | "sys"
+  | "progress"
   | "nav"
   | "done"
   | "jump"
@@ -59,11 +61,12 @@ export function subscribe(listener: () => void) {
   };
 }
 
-export function log(kind: LogKind, text: string) {
+export function log(kind: LogKind, text: string): LogEntry {
   const entry: LogEntry = { id: nextId++, time: Date.now(), kind, text };
   const next = [...entries, entry];
   entries = next.length > MAX_ENTRIES ? next.slice(next.length - MAX_ENTRIES) : next;
   emit();
+  return entry;
 }
 
 export const getEntries = (): readonly LogEntry[] => entries;
@@ -72,6 +75,46 @@ export const getEntries = (): readonly LogEntry[] => entries;
 export function resetEntries() {
   entries = EMPTY;
   nextId = 1;
+}
+
+// --- Streaming ---
+
+/**
+ * Lines with an id below this render whole: they were already in the log
+ * when the panel first appeared. Infinity (the initial value, and what a
+ * reduced-motion visitor keeps) disables streaming entirely.
+ */
+let animateFromId = Number.POSITIVE_INFINITY;
+
+/**
+ * Lines that have already streamed in once. Without this, expanding the
+ * panel after a while would replay every line logged while it was closed.
+ */
+const streamed = new Set<number>();
+
+export const reducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * From here on, new lines stream in; what is already logged renders whole.
+ * Idempotent, so the panel and the boot intro can both call it in any order.
+ */
+export function startStreaming() {
+  if (animateFromId !== Number.POSITIVE_INFINITY || reducedMotion()) return;
+  animateFromId = (entries.at(-1)?.id ?? 0) + 1;
+}
+
+/** Whether `id` should type out now; claiming it means it never types again. */
+export function claimStream(id: number): boolean {
+  if (id < animateFromId || streamed.has(id)) return false;
+  streamed.add(id);
+  return true;
+}
+
+/** Treat a line as already shown, so it renders whole. */
+export function markStreamed(id: number) {
+  streamed.add(id);
 }
 
 // --- Collapse preference ---

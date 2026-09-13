@@ -151,6 +151,12 @@ describe("the store", () => {
     expect(calls).toBe(2);
   });
 
+  it("returns the appended entry", () => {
+    const entry = log("sys", "warm   swr cache ........  ok");
+    expect(entry).toBe(getEntries().at(-1));
+    expect(entry.kind).toBe("sys");
+  });
+
   it("gives every entry a distinct id and a timestamp", () => {
     const before = Date.now();
     log("boot", "one");

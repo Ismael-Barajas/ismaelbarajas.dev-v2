@@ -25,6 +25,7 @@ export { default as EffectsToggle } from "./library/EffectsToggle";
 export { default as TerminalToggle } from "./library/TerminalToggle";
 export { default as ConsoleGreeting } from "./library/ConsoleGreeting";
 export { default as NavTerminal } from "./library/NavTerminal";
+export { default as BootIntro } from "./library/BootIntro";
 
 export { default as Hero } from "./layouts/Hero";
 export { default as About } from "./layouts/About";
