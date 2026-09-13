@@ -73,7 +73,7 @@ const Hero = () => {
         disableAnimation={false}
         enableMouseInteraction
         mouseRadius={0.1}
-        colorNum={40}
+        colorNum={15}
         pixelSize={2}
         waveAmplitude={0.41}
         waveFrequency={2.5}
