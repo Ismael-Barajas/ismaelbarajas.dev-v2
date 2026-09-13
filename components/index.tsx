@@ -22,6 +22,9 @@ export { default as Dither } from "./library/Dither";
 export { default as Plasma } from "./library/Plasma";
 export { default as AnimatedContent } from "./library/AnimatedContent";
 export { default as EffectsToggle } from "./library/EffectsToggle";
+export { default as TerminalToggle } from "./library/TerminalToggle";
+export { default as ConsoleGreeting } from "./library/ConsoleGreeting";
+export { default as NavTerminal } from "./library/NavTerminal";
 
 export { default as Hero } from "./layouts/Hero";
 export { default as About } from "./layouts/About";

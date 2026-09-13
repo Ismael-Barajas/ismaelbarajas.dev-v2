@@ -5,3 +5,4 @@ export { default as useScrollProgress } from "./useScrollProgress";
 export { default as useNowPlayingAccent } from "./useNowPlayingAccent";
 export { default as useNowPlaying } from "./useNowPlaying";
 export { default as usePerformanceTier } from "./usePerformanceTier";
+export { default as useNavLog, useNavLogView } from "./useNavLog";

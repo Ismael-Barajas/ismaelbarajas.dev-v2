@@ -10,6 +10,9 @@ module.exports = {
       padding: "1.5rem",
     },
     extend: {
+      fontFamily: {
+        mono: ['"IBM Plex Mono"', "Consolas", "monospace"],
+      },
       rotate: {
         135: "135deg",
         "-135": "-135deg",
