@@ -4,6 +4,7 @@ import {
   SPINNER_FRAMES,
   STATUS_WIDTH,
   buildBootScript,
+  colorToHex,
   progressParts,
   progressValue,
   renderProgress,
@@ -175,5 +176,14 @@ describe("renderProgress", () => {
       `✔ ${pad("done")} [####] 100%`,
     );
     expect(progressParts({ done: 0, total: 0, label: "init" }).complete).toBe(true);
+  });
+});
+
+describe("colorToHex", () => {
+  it("converts computed rgb() colors and leaves anything else alone", () => {
+    expect(colorToHex("rgb(212, 160, 83)")).toBe("#d4a053");
+    expect(colorToHex("rgba(0, 0, 0, 1)")).toBe("#000000");
+    expect(colorToHex(" #d4a053 ")).toBe("#d4a053");
+    expect(colorToHex("oklch(70% 0.1 60)")).toBe("oklch(70% 0.1 60)");
   });
 });

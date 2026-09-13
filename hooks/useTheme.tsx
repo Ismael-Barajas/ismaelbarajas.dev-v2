@@ -7,8 +7,9 @@ function getSnapshot(): Theme {
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }
 
+/** The site is dark unless the visitor chose light (pages/_document.tsx). */
 function getServerSnapshot(): Theme {
-  return "light";
+  return "dark";
 }
 
 let listeners: Array<() => void> = [];

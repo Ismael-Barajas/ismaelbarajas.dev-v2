@@ -9,6 +9,7 @@ import {
   useNowPlayingAccent,
 } from "hooks";
 import { DOCK_EASE, DOCK_MS } from "lib/intro";
+import { getStage } from "lib/introStore";
 import {
   TERMINAL_ORANGE,
   describeClick,
@@ -79,6 +80,8 @@ const NavTerminal = () => {
   const rootRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const lastSample = useRef<PlaybackSample | null>(null);
+  /** A now-playing line that arrived mid-boot, printed once the card lands. */
+  const heldMusic = useRef<string | null>(null);
   /** Where the centered card was, for the flight to its corner. */
   const bootRect = useRef<{ rect: DOMRect; scale: number; bodyHeight: number } | null>(null);
 
@@ -167,6 +170,8 @@ const NavTerminal = () => {
 
   // The shared SWR subscription hands us a fresh object every poll, so the
   // "did anything actually change" decision lives in describePlayback.
+  // During the boot intro the line waits its turn rather than cutting into
+  // the boot script; only the latest one is kept.
   useEffect(() => {
     if (!nowPlaying) return;
     const line = describePlayback(lastSample.current, nowPlaying);
@@ -174,8 +179,16 @@ const NavTerminal = () => {
       songUrl: nowPlaying.songUrl,
       isPlaying: nowPlaying.isPlaying,
     };
-    if (line) log("music", line);
+    if (!line) return;
+    if (getStage() !== "idle") heldMusic.current = line;
+    else log("music", line);
   }, [nowPlaying]);
+
+  useEffect(() => {
+    if (intro || !heldMusic.current) return;
+    log("music", heldMusic.current);
+    heldMusic.current = null;
+  }, [intro]);
 
   // Follow the newest line, including while it is still typing out.
   const scrollToEnd = useCallback(() => {

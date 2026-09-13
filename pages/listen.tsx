@@ -18,9 +18,9 @@ import {
 import useNowPlaying from "hooks/useNowPlaying";
 import usePerformanceTier from "hooks/usePerformanceTier";
 import type { NextPage } from "next";
+import { TERMINAL_ORANGE } from "lib/navLog";
 
 const Listen: NextPage = () => {
-  const { resolvedTheme } = useTheme();
   const { tier } = usePerformanceTier();
   const [tab, setTab] = useListenTab();
   const { data } = useNowPlaying();
@@ -29,8 +29,7 @@ const Listen: NextPage = () => {
   const accentColor = data?.isPlaying
     ? data.palette?.vibrant || data.palette?.muted || null
     : null;
-  const plasmaColor =
-    accentColor ?? (resolvedTheme === "dark" ? "#888888" : "#444444");
+  const plasmaColor = accentColor ?? TERMINAL_ORANGE;
 
   return (
     <div className="relative -mt-16 min-h-screen pt-16">

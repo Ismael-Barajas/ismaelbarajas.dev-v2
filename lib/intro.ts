@@ -57,6 +57,16 @@ const STATUS_LABELS = [
 type StatusLabel = (typeof STATUS_LABELS)[number];
 export const STATUS_WIDTH = Math.max(...STATUS_LABELS.map((l) => l.length));
 
+/**
+ * `rgb(212, 160, 83)` to `#d4a053`, for printing a computed color in the
+ * boot log. Anything else comes back unchanged.
+ */
+export function colorToHex(value: string): string {
+  const m = value.trim().match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+\s*)?\)$/i);
+  if (!m) return value.trim();
+  return `#${m.slice(1, 4).map((n) => Number(n).toString(16).padStart(2, "0")).join("")}`;
+}
+
 /** Longest the runner waits on one line before moving on regardless. */
 export const SETTLE_CAP_MS = 2000;
 

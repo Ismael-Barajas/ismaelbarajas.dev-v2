@@ -45,10 +45,21 @@ body::-webkit-scrollbar-thumb:hover {
   --secondary-dark: #1e1e1e;
 }
 
+/*
+ * The site accent. Resting value is the terminal orange (compressions.css
+ * dark --c-accent, lib/navLog.ts TERMINAL_ORANGE); while a song plays the
+ * Now Playing widget overrides both with the album color and clears them
+ * when it stops. --now-playing-accent is registered so it can tween;
+ * --accent-ui is its plain twin for var() fallbacks in stylesheets.
+ */
 @property --now-playing-accent {
   syntax: "<color>";
   inherits: true;
-  initial-value: transparent;
+  initial-value: #d4a053;
+}
+
+html {
+  --accent-ui: #d4a053;
 }
 
 html {

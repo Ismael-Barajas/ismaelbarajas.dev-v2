@@ -16,6 +16,7 @@ import {
   PROGRESS_HOLD_MS,
   SETTLE_CAP_MS,
   buildBootScript,
+  colorToHex,
   renderProgress,
   shouldPlayIntro,
   type BootContext,
@@ -88,14 +89,14 @@ const untilVisible = () =>
     document.addEventListener("visibilitychange", onChange);
   });
 
-/** The album accent the Now Playing widget writes to <html>, or the default. */
+/** The site accent on <html>: the playing album's color, else the default. */
 function readAccent(): string {
   const val = getComputedStyle(document.documentElement)
     .getPropertyValue("--now-playing-accent")
     .trim();
   const transparent =
     !val || val === "transparent" || /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)/.test(val);
-  return transparent ? TERMINAL_ORANGE : val;
+  return transparent ? TERMINAL_ORANGE : colorToHex(val);
 }
 
 function bootContext(): BootContext {
