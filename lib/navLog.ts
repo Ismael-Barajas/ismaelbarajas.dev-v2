@@ -21,7 +21,12 @@ export type LogKind =
   | "ext"
   | "pref"
   | "music"
-  | "error";
+  | "error"
+  // The typable prompt (components/library/TerminalInput.tsx): the echoed
+  // command, its output, and its stderr. `error` above is a site event.
+  | "cmd"
+  | "out"
+  | "err";
 
 export interface LogEntry {
   id: number;
@@ -29,6 +34,8 @@ export interface LogEntry {
   time: number;
   kind: LogKind;
   text: string;
+  /** For `cmd` lines: the prompt the command was typed at, e.g. `~/listen $`. */
+  prompt?: string;
 }
 
 /**
@@ -99,10 +106,20 @@ export function subscribe(listener: () => void) {
   };
 }
 
-export function log(kind: LogKind, text: string): LogEntry {
+/**
+ * Appends a line. `instant` lines print whole instead of typing out: a
+ * command the visitor just typed, and what it printed.
+ */
+export function log(
+  kind: LogKind,
+  text: string,
+  opts: { instant?: boolean; prompt?: string } = {},
+): LogEntry {
   const entry: LogEntry = { id: nextId++, time: Date.now(), kind, text };
+  if (opts.prompt !== undefined) entry.prompt = opts.prompt;
   const next = [...entries, entry];
   entries = next.length > MAX_ENTRIES ? next.slice(next.length - MAX_ENTRIES) : next;
+  if (opts.instant) streamed.add(entry.id);
   if (getView() === "collapsed") peeking = true;
   emit();
   return entry;
@@ -110,11 +127,23 @@ export function log(kind: LogKind, text: string): LogEntry {
 
 export const getEntries = (): readonly LogEntry[] => entries;
 
-/** Test-only reset; the app never clears the log. */
+/**
+ * Empties the log: the `clear` command. Ids keep counting so React keys and
+ * claimStream stay monotonic; the streamed set is dropped because every id
+ * in it is now below any future one.
+ */
+export function clearEntries() {
+  entries = EMPTY;
+  streamed.clear();
+  emit();
+}
+
+/** Test-only reset, ids included. The app clears through clearEntries. */
 export function resetEntries() {
   entries = EMPTY;
   nextId = 1;
   peeking = false;
+  streamed.clear();
 }
 
 // --- Streaming ---
@@ -198,6 +227,13 @@ export function setView(next: TerminalView) {
  * The panel decides when the peek ends (typing done plus PEEK_HOLD_MS).
  */
 export const isPeeking = (): boolean => peeking;
+
+/** Opens a collapsed strip for a moment without a line: the focus key. */
+export function peek() {
+  if (peeking || getView() !== "collapsed") return;
+  peeking = true;
+  emit();
+}
 
 export function endPeek() {
   if (!peeking) return;

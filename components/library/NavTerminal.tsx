@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import {
   useIntroProgress,
@@ -6,7 +5,7 @@ import {
   useNavLog,
   useNavLogPeek,
   useNavLogView,
-  useNowPlaying,
+  useNavObservers,
   useNowPlayingAccent,
 } from "hooks";
 import { DOCK_EASE, DOCK_MS } from "lib/intro";
@@ -15,29 +14,27 @@ import {
   PEEK_HOLD_MS,
   TERMINAL_INSET_PROPERTY,
   TERMINAL_ORANGE,
-  describeClick,
-  describePlayback,
   endPeek,
   fitsBesideContent,
-  log,
+  getView,
   markStreamed,
+  peek,
   reducedMotion,
   setView,
-  startStreaming,
   type LogEntry,
-  type PlaybackSample,
 } from "lib/navLog";
-import { PERF_ATTRIBUTE, PERF_LABELS, isPerfTier } from "lib/perf";
 import { typingIdle } from "lib/typingQueue";
+import TerminalInput from "./TerminalInput";
 import Line, { StatusLine } from "./TerminalLine";
 
 /**
  * A fixed terminal panel that narrates the visit: route changes, hash jumps,
  * outbound links, theme and effects changes, and what Spotify is playing.
  *
- * Everything is observed rather than reported: router events, a
- * capture-phase document click listener and a MutationObserver on <html>, so
- * no other component has to know this exists.
+ * Everything is observed rather than reported (hooks/useNavObservers.tsx),
+ * so no other component has to know this exists. Under the log sits a
+ * prompt (TerminalInput.tsx): `help` lists what it understands, and the
+ * backtick key focuses it from anywhere on the page.
  *
  * On the first page of a session the same panel doubles as the boot screen
  * (lib/introStore.ts): it sits centered and enlarged while the boot log
@@ -50,14 +47,6 @@ import Line, { StatusLine } from "./TerminalLine";
  * seconds the panel fades back until it is pointed at, focused, or has
  * something new to say.
  */
-
-/**
- * A plain `<a href="#x">` fires our click listener *and* the browser's
- * hashchange. Remembering the last click-logged hash for a moment keeps
- * those from printing two identical lines.
- */
-let lastJump: { hash: string; at: number } | null = null;
-const JUMP_DEDUPE_MS = 1000;
 
 const LOOK =
   "overflow-hidden rounded-lg bg-[#0e0e10]/75 font-mono text-[11px] leading-[1.45] text-[#e6e2dc] shadow-[0_8px_24px_rgba(0,0,0,0.22)] ring-1 ring-white/10 backdrop-blur-md";
@@ -73,11 +62,15 @@ const STAGE_CLASS = {
   idle: `${DOCKED} z-30`,
   // Above the fading backdrop (z-60) until it lands.
   dock: `${DOCKED} z-[70]`,
-  boot: "intro-pop fixed left-1/2 top-1/2 z-[70] w-[min(34rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 md:scale-[1.15]",
+  // 30rem holds the status bar's ~56 monospace cells with little to spare.
+  boot: "intro-pop fixed left-1/2 top-1/2 z-[70] w-[min(30rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 md:scale-[1.15]",
 };
 
 /** Idle this long with nothing new, and the panel fades back. */
 const DIM_MS = 3000;
+
+/** The header's "booting" caption: the boot lines' muted gray (TerminalLine.tsx). */
+const BOOT_LABEL_COLOR = "#b8b2aa";
 
 /** The fold between the full log and the one-line strip. */
 const FOLD_MS = 420;
@@ -92,17 +85,14 @@ const STRIP_PX = 11 * 1.45 + 8;
  */
 type Phase = "open" | "folding" | "strip" | "unfolding";
 
-const logJump = (hash: string, fromClick: boolean) => {
-  const now = Date.now();
-  if (!fromClick && lastJump && lastJump.hash === hash && now - lastJump.at < JUMP_DEDUPE_MS) {
-    return;
-  }
-  lastJump = { hash, at: now };
-  log("jump", `JUMPING TO ${hash}`);
-};
+/** The key that focuses the prompt from anywhere on the page. */
+const FOCUS_KEY = "`";
+
+const isEditable = (t: EventTarget | null) =>
+  t instanceof HTMLElement &&
+  (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
 
 const NavTerminal = () => {
-  const router = useRouter();
   const entries = useNavLog();
   const storedView = useNavLogView();
   const peeking = useNavLogPeek();
@@ -121,8 +111,23 @@ const NavTerminal = () => {
     const jump = reducedMotion();
     setPhase(collapsed ? (jump ? "strip" : "folding") : jump ? "open" : "unfolding");
   }
-  /** Pointer or focus inside the panel: a peek waits for it to leave. */
-  const [held, setHeld] = useState(false);
+  // Pointer or focus inside the panel: a peek waits for it to leave, and
+  // the panel doesn't dim. Two flags rather than one because React can
+  // remove the focused input (hide, fold) without the browser firing blur.
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const held = hovered || focused;
+  // Hiding the panel removes the focused element without a blur event (and
+  // the pointer with it), so both flags reset here, in render like `phase`.
+  const hidden = view === "hidden";
+  const [wasHidden, setWasHidden] = useState(hidden);
+  if (wasHidden !== hidden) {
+    setWasHidden(hidden);
+    if (hidden) {
+      setHovered(false);
+      setFocused(false);
+    }
+  }
   // Fading back: the panel is dimmed once DIM_MS has passed with no new
   // line and no visitor on it. `activity` names the moment the wait began,
   // so a new line makes the panel opaque in the same render, and the
@@ -135,125 +140,41 @@ const NavTerminal = () => {
     const timer = window.setTimeout(() => setIdleSince(activity), DIM_MS);
     return () => window.clearTimeout(timer);
   }, [held, intro, peeking, idleSince, activity]);
-  const wake = () => {
-    setHeld(true);
-    setIdleSince(null);
-  };
+  const wake = () => setIdleSince(null);
   const accent = useNowPlayingAccent();
-  const { data: nowPlaying } = useNowPlaying();
   const bodyId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const lastSample = useRef<PlaybackSample | null>(null);
-  /** A now-playing line that arrived mid-boot, printed once the card lands. */
-  const heldMusic = useRef<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  /** Bumped by the focus key; the prompt takes focus once it is on screen. */
+  const [focusRequest, setFocusRequest] = useState(0);
   /** Where the centered card was, for the flight to its corner. */
   const bootRect = useRef<{ rect: DOMRect; scale: number; bodyHeight: number } | null>(null);
 
-  // Router events, hash jumps and link clicks. The boot lines themselves are
-  // logged by lib/introStore.ts, which also owns the intro.
+  useNavObservers(intro);
+
+  // The focus key: outside any other text field, and never during the
+  // intro (whose own listener treats any key as a skip), it puts the caret
+  // in the prompt. A hidden panel comes back; a folded one peeks open and
+  // folds again once the prompt loses focus, so the visitor's collapse
+  // choice stands. The prompt only exists once the unfold lands, hence the
+  // request counter below.
   useEffect(() => {
-    // Anything logged from here on streams in; what's already there is
-    // rendered whole. Reduced-motion visitors get every line whole.
-    startStreaming();
-
-    const onRouteStart = (url: string) => log("nav", `NAVIGATING TO ${url}`);
-    const onRouteDone = () => log("done", "NAVIGATION COMPLETE");
-    const onRouteError = (err: { cancelled?: boolean }) => {
-      if (!err?.cancelled) log("error", "NAVIGATION FAILED");
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== FOCUS_KEY || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (getStage() !== "idle" || isEditable(e.target)) return;
+      e.preventDefault();
+      if (getView() === "hidden") setView("expanded");
+      else peek();
+      setFocusRequest((n) => n + 1);
     };
-    const onHashStart = (url: string) => {
-      const i = url.indexOf("#");
-      if (i !== -1) logJump(url.slice(i), true);
-    };
-    // Covers the /listen tabs (they replaceState and dispatch this event) and
-    // browser back/forward across hashes. The home-page section links use
-    // pushState, which fires nothing, so they only reach the click listener.
-    const onHashChange = () => logJump(window.location.hash || "#top", false);
-
-    const onClick = (e: MouseEvent) => {
-      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      const target = e.target;
-      if (!(target instanceof Element)) return;
-      const anchor = target.closest("a[href]");
-      if (!anchor) return;
-      const described = describeClick(
-        anchor.getAttribute("href") ?? "",
-        window.location.href,
-      );
-      if (!described) return;
-      if (described.kind === "jump") logJump(described.text.replace("JUMPING TO ", ""), true);
-      else log(described.kind, described.text);
-    };
-
-    router.events.on("routeChangeStart", onRouteStart);
-    router.events.on("routeChangeComplete", onRouteDone);
-    router.events.on("routeChangeError", onRouteError);
-    router.events.on("hashChangeStart", onHashStart);
-    window.addEventListener("hashchange", onHashChange);
-    document.addEventListener("click", onClick, true);
-
-    return () => {
-      router.events.off("routeChangeStart", onRouteStart);
-      router.events.off("routeChangeComplete", onRouteDone);
-      router.events.off("routeChangeError", onRouteError);
-      router.events.off("hashChangeStart", onHashStart);
-      window.removeEventListener("hashchange", onHashChange);
-      document.removeEventListener("click", onClick, true);
-    };
-  }, [router.events]);
-
-  // Theme and effects changes, read straight off <html> so the toggles stay
-  // unaware of the log. Records whose old value matches the new one are the
-  // bootstrap re-applying what was already there, not a visitor choice.
-  useEffect(() => {
-    const root = document.documentElement;
-    const observer = new MutationObserver((records) => {
-      for (const record of records) {
-        if (record.attributeName === "class") {
-          const wasDark = /(?:^|\s)dark(?:\s|$)/.test(record.oldValue ?? "");
-          const isDark = root.classList.contains("dark");
-          if (wasDark !== isDark) {
-            log("pref", `THEME SET TO ${isDark ? "DARK" : "LIGHT"}`);
-          }
-        } else if (record.attributeName === PERF_ATTRIBUTE) {
-          const next = root.getAttribute(PERF_ATTRIBUTE);
-          // oldValue null is initPerf setting the attribute for the first
-          // time on a fresh visit; that isn't a change the visitor made.
-          if (!next || record.oldValue === null || record.oldValue === next) continue;
-          log("pref", `EFFECTS SET TO ${isPerfTier(next) ? PERF_LABELS[next] : next}`);
-        }
-      }
-    });
-    observer.observe(root, {
-      attributes: true,
-      attributeFilter: ["class", PERF_ATTRIBUTE],
-      attributeOldValue: true,
-    });
-    return () => observer.disconnect();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, []);
 
-  // The shared SWR subscription hands us a fresh object every poll, so the
-  // "did anything actually change" decision lives in describePlayback.
-  // During the boot intro the line waits its turn rather than cutting into
-  // the boot script; only the latest one is kept.
   useEffect(() => {
-    if (!nowPlaying) return;
-    const line = describePlayback(lastSample.current, nowPlaying);
-    lastSample.current = {
-      songUrl: nowPlaying.songUrl,
-      isPlaying: nowPlaying.isPlaying,
-    };
-    if (!line) return;
-    if (getStage() !== "idle") heldMusic.current = line;
-    else log("music", line);
-  }, [nowPlaying]);
-
-  useEffect(() => {
-    if (intro || !heldMusic.current) return;
-    log("music", heldMusic.current);
-    heldMusic.current = null;
-  }, [intro]);
+    if (focusRequest && phase === "open") inputRef.current?.focus();
+  }, [focusRequest, phase]);
 
   // A peek ends once its newest line has finished typing and sat for a
   // beat, unless the visitor is hovering or has focus inside the panel. It
@@ -448,6 +369,9 @@ const NavTerminal = () => {
 
   const headerButton =
     "cursor-pointer text-[#e6e2dc]/80 hover:text-[#e6e2dc] focus-visible:ring-2 ring-offset-2 ring-offset-background ring-text";
+  /** Hidden until the panel is hovered or holds focus; always shown to a keyboard on the control. */
+  const revealed =
+    "opacity-0 transition-opacity duration-200 group-hover/panel:opacity-100 group-focus-within/panel:opacity-100";
 
   // The listeners above keep logging while hidden; only the panel is gone.
   // The TerminalToggle in the NavBar brings it back.
@@ -458,14 +382,22 @@ const NavTerminal = () => {
       ref={rootRef}
       // A skip click during the intro must not land on the header buttons.
       inert={intro}
-      className={`${STAGE_CLASS[stage]} ${LOOK} transition-opacity ${
+      // `group/panel`: the header controls show only while the pointer is
+      // over the panel or something inside it has focus.
+      className={`group/panel ${STAGE_CLASS[stage]} ${LOOK} transition-opacity ${
         dimmed ? "opacity-40 duration-700" : "duration-200"
       } motion-reduce:transition-none`}
-      onPointerEnter={wake}
-      onPointerLeave={() => setHeld(false)}
-      onFocus={wake}
+      onPointerEnter={() => {
+        setHovered(true);
+        wake();
+      }}
+      onPointerLeave={() => setHovered(false)}
+      onFocus={() => {
+        setFocused(true);
+        wake();
+      }}
       onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) setHeld(false);
+        if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false);
       }}
     >
       <div className="flex items-center">
@@ -478,28 +410,43 @@ const NavTerminal = () => {
           }}
           aria-expanded={!collapsed}
           aria-controls={bodyId}
-          className={`flex min-w-0 flex-1 items-center justify-between py-1.5 pl-2.5 pr-1.5 text-left ${headerButton}`}
+          aria-label={collapsed ? "Expand terminal" : "Collapse terminal"}
+          className={`flex min-w-0 flex-1 items-center justify-between py-1.5 pl-2.5 text-left ${
+            intro ? "pr-2.5" : "pr-1.5"
+          } ${headerButton}`}
         >
-          <span className="flex items-center gap-1.5">
-            <span
-              aria-hidden="true"
-              className="transition-colors duration-1000"
-              style={{ color: promptColor }}
-            >
-              &gt;_
-            </span>
-            terminal
+          <span
+            aria-hidden="true"
+            className="transition-colors duration-1000"
+            style={{ color: promptColor }}
+          >
+            &gt;_
           </span>
-          <span aria-hidden="true">{collapsed ? "[+]" : "[-]"}</span>
+          {/* The controls are inert mid-intro; the row says what the card is
+              doing instead. Keyed apart so React swaps the node rather than
+              restyling the caption's, which would fade "[-]" out from
+              opacity 1 as the card lands. */}
+          {intro ? (
+            <span key="caption" aria-hidden="true" style={{ color: BOOT_LABEL_COLOR }}>
+              booting
+            </span>
+          ) : (
+            <span key="toggle" aria-hidden="true" className={revealed}>
+              {collapsed ? "[+]" : "[-]"}
+            </span>
+          )}
         </button>
-        <button
-          type="button"
-          onClick={() => setView("hidden")}
-          aria-label="Hide terminal"
-          className={`py-1.5 pl-1.5 pr-2.5 ${headerButton}`}
-        >
-          <span aria-hidden="true">[x]</span>
-        </button>
+        {/* Not during the intro: the caption is flush right and nothing is clickable. */}
+        {!intro && (
+          <button
+            type="button"
+            onClick={() => setView("hidden")}
+            aria-label="Hide terminal"
+            className={`py-1.5 pl-1.5 pr-2.5 ${headerButton} ${revealed}`}
+          >
+            <span aria-hidden="true">[x]</span>
+          </button>
+        )}
       </div>
       <div
         id={bodyId}
@@ -512,11 +459,26 @@ const NavTerminal = () => {
             ? "px-2.5 pb-2"
             : `overflow-y-auto px-2.5 pb-2 ${stage === "boot" ? "max-h-[60vh]" : "max-h-44"}`
         }
+        // A click on the log puts the caret in the prompt, unless the
+        // visitor is selecting text to copy.
+        onClick={() => {
+          if (phase !== "open" || intro || window.getSelection()?.toString()) return;
+          inputRef.current?.focus();
+        }}
       >
         {phase === "strip"
           ? latest && renderLine(latest, true)
           : entries.map((entry) => renderLine(entry))}
         {intro && !progress.logged && <StatusLine state={progress} accent={promptColor} />}
+        {/* Kept through a fold so the fold measures the body with it in. */}
+        {phase !== "strip" && !intro && (
+          <TerminalInput
+            promptColor={promptColor}
+            inputRef={inputRef}
+            onTick={scrollToEnd}
+            onActivity={wake}
+          />
+        )}
       </div>
     </div>
   );

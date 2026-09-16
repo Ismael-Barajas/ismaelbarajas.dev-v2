@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   MAX_ENTRIES,
   PANEL_FOOTPRINT,
+  claimStream,
+  clearEntries,
   describeClick,
   describePlayback,
   endPeek,
@@ -10,6 +12,7 @@ import {
   getEntries,
   isPeeking,
   log,
+  peek,
   resetEntries,
   setView,
   subscribe,
@@ -189,6 +192,46 @@ describe("the store", () => {
   });
 });
 
+describe("clearEntries", () => {
+  beforeEach(() => resetEntries());
+
+  it("empties the log and notifies once", () => {
+    log("nav", "NAVIGATING TO /listen");
+    log("done", "NAVIGATION COMPLETE");
+    let calls = 0;
+    const unsubscribe = subscribe(() => {
+      calls += 1;
+    });
+    clearEntries();
+    unsubscribe();
+    expect(getEntries()).toEqual([]);
+    expect(calls).toBe(1);
+  });
+
+  it("keeps ids climbing so keys never repeat", () => {
+    const before = log("nav", "one").id;
+    clearEntries();
+    expect(log("nav", "two").id).toBeGreaterThan(before);
+  });
+
+  it("leaves the view and a peek alone", () => {
+    setView("collapsed");
+    log("nav", "NAVIGATING TO /listen");
+    clearEntries();
+    expect(isPeeking()).toBe(true);
+    setView("expanded");
+  });
+});
+
+describe("instant lines", () => {
+  beforeEach(() => resetEntries());
+
+  it("are marked as already streamed", () => {
+    const instant = log("out", "instant", { instant: true });
+    expect(claimStream(instant.id)).toBe(false);
+  });
+});
+
 describe("formatTime", () => {
   it("formats as h:mm:ss AM/PM", () => {
     expect(formatTime(Date.UTC(2026, 8, 12, 23, 44, 44))).toMatch(
@@ -258,6 +301,14 @@ describe("peeking", () => {
     unsubscribe();
     expect(isPeeking()).toBe(false);
     expect(calls).toBe(1);
+  });
+
+  it("can be started without a line, only while collapsed", () => {
+    peek();
+    expect(isPeeking()).toBe(true);
+    setView("expanded");
+    peek();
+    expect(isPeeking()).toBe(false);
   });
 
   it("is cleared by any view change", () => {

@@ -11,3 +11,5 @@ export {
   useNavLogView,
 } from "./useNavLog";
 export { default as useIntroStage, useIntroProgress } from "./useIntroStage";
+export { default as useNavObservers } from "./useNavObservers";
+export { default as useActiveSection } from "./useActiveSection";

@@ -22,12 +22,15 @@ const KIND_COLOR: Partial<Record<LogKind, string>> = {
   progress: "#b8b2aa",
   done: "#3dd68c",
   error: "#f06060",
+  err: "#f06060",
 };
 /** The unfilled part of the progress bar. */
 const BAR_EMPTY = "#3a3834";
 
 /** Kinds that print without a timestamp. */
-const BARE_KINDS = new Set<LogKind>(["boot", "progress"]);
+const BARE_KINDS = new Set<LogKind>(["boot", "progress", "cmd", "out", "err"]);
+/** Command output keeps its spacing so aligned columns stay aligned. */
+const PRE_KINDS = new Set<LogKind>(["out", "err"]);
 
 /**
  * Counts from 0 to `total` at `msPerStep`, one queued job per line. Only
@@ -87,9 +90,14 @@ interface LineProps {
   onTick: () => void;
 }
 
+/** The terminal's block cursor, shared with the prompt (TerminalInput.tsx). */
+export const CURSOR_GLYPH = "▍";
+/** The prompt of a `cmd` line logged without one (lib/commands.ts formatPrompt). */
+const DEFAULT_PROMPT = "~ $";
+
 const Cursor = ({ color }: { color: string }) => (
   <span aria-hidden="true" className="opacity-80" style={{ color }}>
-    ▍
+    {CURSOR_GLYPH}
   </span>
 );
 
@@ -163,9 +171,15 @@ const Line = ({ entry, promptColor, compact = false, onTick }: LineProps) => {
   if (!started) return null;
 
   const typing = step < total;
+  const wrap = compact ? "truncate" : PRE_KINDS.has(entry.kind) ? "whitespace-pre-wrap break-words" : "break-words";
 
   return (
     <div className="flex gap-1.5">
+      {entry.kind === "cmd" && (
+        <span aria-hidden="true" className="shrink-0 transition-colors duration-1000" style={{ color: promptColor }}>
+          {entry.prompt ?? DEFAULT_PROMPT}
+        </span>
+      )}
       {!BARE_KINDS.has(entry.kind) && (
         <span
           className="shrink-0 transition-colors duration-1000"
@@ -175,7 +189,7 @@ const Line = ({ entry, promptColor, compact = false, onTick }: LineProps) => {
         </span>
       )}
       <span
-        className={`min-w-0 ${compact ? "truncate" : "break-words"} ${
+        className={`min-w-0 ${wrap} ${
           entry.kind === "music" ? "transition-colors duration-1000" : ""
         }`}
         style={

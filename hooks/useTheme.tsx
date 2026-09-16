@@ -44,7 +44,8 @@ function applyTheme(theme: Theme) {
   emitChange();
 }
 
-function setTheme(theme: Theme) {
+/** Stores and applies a choice. Exported for the terminal's `theme` command. */
+export function setTheme(theme: Theme) {
   localStorage.setItem(STORAGE_KEY, theme);
   applyTheme(theme);
 }

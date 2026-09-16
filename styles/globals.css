@@ -457,3 +457,23 @@ html[data-intro="dock"] body::before {
 .intro-hint {
   animation: intro-hint 400ms ease-out 600ms both;
 }
+
+/* The prompt's block cursor (components/library/TerminalInput.tsx): blinks
+   while the input has focus; a keystroke remounts it, so it holds steady
+   while typing. */
+@keyframes terminal-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.terminal-caret {
+  /* A native caret's cadence: about half a second on, half a second off. */
+  animation: terminal-caret 1.06s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-caret {
+    animation: none;
+  }
+}
