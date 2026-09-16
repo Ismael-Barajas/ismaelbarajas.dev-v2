@@ -1,10 +1,7 @@
 import { useRef, useSyncExternalStore, type KeyboardEvent } from "react";
+import { LISTEN_TABS } from "lib/site";
 
-export const LISTEN_TABS = [
-  { key: "top", label: "Top tracks" },
-  { key: "playlists", label: "Playlists" },
-  { key: "liked", label: "Liked songs" },
-] as const;
+export { LISTEN_TABS };
 
 export type ListenTab = (typeof LISTEN_TABS)[number]["key"];
 

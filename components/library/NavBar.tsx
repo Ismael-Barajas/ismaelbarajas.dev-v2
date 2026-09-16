@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
+  useActiveSection,
   useWindowSize,
   useIsMounted,
   useScrollProgress,
@@ -11,7 +12,11 @@ import { ProgressBar } from "..";
 import BrandSwap from "components/compressions/BrandSwap";
 import ThemeToggle, { type ToggleStyle } from "./ThemeToggle";
 import EffectsToggle from "./EffectsToggle";
+import TerminalToggle from "./TerminalToggle";
 import CollapsingBrand from "./CollapsingBrand";
+import { PAGES, SECTIONS } from "lib/site";
+
+const HOME_SECTION_IDS = SECTIONS.map((s) => s.hash);
 
 /**
  * Navigation style. Flip this to compare.
@@ -34,18 +39,6 @@ const TOGGLE_STYLE = "ghost" as ToggleStyle;
 /** Base width the minimal underline is scaled from (keeps it compositor-only). */
 const INDICATOR_BASE = 100;
 const INDICATOR_EASE = "cubic-bezier(0.2, 0.8, 0.2, 1)";
-
-const SECTIONS = [
-  { hash: "about", label: "About" },
-  { hash: "experience", label: "Experience" },
-  { hash: "projects", label: "Projects" },
-  { hash: "contact", label: "Contact" },
-];
-
-const PAGES = [
-  { pathname: "/listen", label: "Listen" },
-  { pathname: "/compressions", label: "Compressions" },
-];
 
 interface NavItem {
   key: string;
@@ -78,7 +71,6 @@ const NavBar = () => {
   const mobileIconRef = useRef(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [onTop, setOnTop] = useState(true);
-  const [activeSection, setActiveSection] = useState("");
   // Set on click so the indicator moves immediately; cleared shortly after,
   // once scroll tracking or the route has caught up.
   const [override, setOverride] = useState<string | null>(null);
@@ -86,6 +78,7 @@ const NavBar = () => {
   // Pause section tracking while a click-triggered smooth scroll is running,
   // so the indicator doesn't hop through the sections it passes.
   const scrollLockUntil = useRef(0);
+  const activeSection = useActiveSection(HOME_SECTION_IDS, scrollLockUntil);
   // Sliding active indicator for the pill and minimal styles. Positioned by
   // writing a transform straight to the element so the move runs on the
   // compositor and survives the main-thread stall of a heavy page mount.
@@ -103,25 +96,6 @@ const NavBar = () => {
     navigationMobileRef.current?.classList.toggle("translate-x-full");
     setMobileNavOpen(!mobileNavOpen);
   };
-
-  useEffect(() => {
-    const sections = SECTIONS.map((s) => s.hash);
-    const handleSectionScroll = () => {
-      if (Date.now() < scrollLockUntil.current) return;
-      const mid = window.innerHeight / 2;
-      let current = "";
-      sections.forEach((id) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const { top, bottom } = el.getBoundingClientRect();
-        if (top <= mid && bottom >= mid) current = id;
-      });
-      setActiveSection(current);
-    };
-    window.addEventListener("scroll", handleSectionScroll, { passive: true });
-    handleSectionScroll();
-    return () => window.removeEventListener("scroll", handleSectionScroll);
-  }, []);
 
   const handleScroll = () => {
     if (onTop !== (window.pageYOffset === 0)) {
@@ -221,6 +195,9 @@ const NavBar = () => {
             smoothScrollTo(top);
           }
           window.history.pushState(null, "", `#${hash}`);
+          // pushState fires nothing; the terminal's prompt and log listen
+          // for this (the log dedupes it against the click it just saw).
+          window.dispatchEvent(new HashChangeEvent("hashchange"));
         }
         closeMobileIfNeeded();
       },
@@ -502,6 +479,7 @@ const NavBar = () => {
               {renderClassicItems()}
             </ul>
             {classicMenuButton}
+            <TerminalToggle variant="classic" />
             <EffectsToggle variant="classic" />
             <ThemeToggle variant="classic" />
           </div>
@@ -537,6 +515,7 @@ const NavBar = () => {
               {renderPillItems()}
             </ul>
             {modernMenuButton}
+            <TerminalToggle variant={TOGGLE_STYLE} />
             <EffectsToggle variant={TOGGLE_STYLE} />
             <ThemeToggle variant={TOGGLE_STYLE} />
             <span
@@ -590,6 +569,7 @@ const NavBar = () => {
             {renderMinimalItems()}
           </ul>
           <div className="flex items-center gap-2 md:justify-self-end">
+            <TerminalToggle variant={TOGGLE_STYLE} />
             <EffectsToggle variant={TOGGLE_STYLE} />
             <ThemeToggle variant={TOGGLE_STYLE} />
             {modernMenuButton}

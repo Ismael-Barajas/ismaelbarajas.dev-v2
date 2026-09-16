@@ -20,6 +20,7 @@ import {
   type PerfTier,
   type StaticSignals,
 } from "./perf";
+import { localStore, safeGet, safeSet, sessionStore } from "./storage";
 
 /** sessionStorage keys alongside PERF_AUTO_KEY. */
 const AUTO_REASON_KEY = "perf-auto-reason";
@@ -35,24 +36,8 @@ export function subscribe(listener: () => void) {
   };
 }
 
-const safeGet = (storage: Storage | undefined, key: string): string | null => {
-  try {
-    return storage?.getItem(key) ?? null;
-  } catch {
-    return null;
-  }
-};
-const safeSet = (storage: Storage | undefined, key: string, value: string | null) => {
-  try {
-    if (value === null) storage?.removeItem(key);
-    else storage?.setItem(key, value);
-  } catch {
-    // Private mode or storage disabled; the attribute still works for this page.
-  }
-};
-
-const local = () => (typeof window === "undefined" ? undefined : window.localStorage);
-const session = () => (typeof window === "undefined" ? undefined : window.sessionStorage);
+const local = localStore;
+const session = sessionStore;
 
 export function getPreference(): PerfPreference {
   const raw = safeGet(local(), PERF_STORAGE_KEY);

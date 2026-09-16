@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.4.0",
-    "@prisma/adapter-pg": "^7.5.0",
-    "@prisma/client": "^7.5.0",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-three/fiber": "^9.5.0",
     "@react-three/postprocessing": "^3.0.4",
@@ -36,7 +36,7 @@
     "gsap": "^3.14.2",
     "iron-session": "^8.0.4",
     "motion": "^12.36.0",
-    "next": "^16.2.1",
+    "next": "^16.3.5",
     "node-vibrant": "^4.0.4",
     "ogl": "^1.0.11",
     "pg": "^8.20.0",
@@ -57,11 +57,15 @@
     "autoprefixer": "^10.4.27",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.1.6",
-    "postcss": "^8.5.8",
-    "prisma": "^7.5.0",
+    "postcss": "^8.5.23",
+    "prisma": "^7.10.0",
     "tailwindcss": "^4.2.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.11"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.2",
+    "mysql2": "^3.24.4"
   }
 }

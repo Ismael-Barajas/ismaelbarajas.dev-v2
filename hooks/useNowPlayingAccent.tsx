@@ -23,8 +23,10 @@ const getSnapshot = (): string | null => {
 const getServerSnapshot = () => null;
 
 /**
- * The album accent color the Now Playing widget writes to the root element,
- * or null when nothing is actively playing.
+ * The site accent as currently computed on the root element: the album
+ * color the Now Playing widget writes there while a song plays, otherwise
+ * the default set in styles/globals.css. Null only if the property is
+ * somehow unset.
  */
 const useNowPlayingAccent = () =>
   useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);

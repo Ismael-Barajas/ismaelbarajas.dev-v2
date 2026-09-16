@@ -336,7 +336,8 @@ const NowPlaying = ({ variant = "card" }: { variant?: "card" | "compact" }) => {
     const accent = colorPalette?.vibrant || colorPalette?.muted;
     if (accent) {
       root.style.setProperty("--now-playing-accent", accent);
-      // Unregistered twin: absent when idle so CSS var() fallbacks work.
+      // Unregistered twin for stylesheet var() use; clearing it falls back
+      // to the site's default accent in globals.css.
       root.style.setProperty("--accent-ui", accent);
     } else {
       clear();

@@ -1,0 +1,336 @@
+/**
+ * The navigation terminal's store and its pure helpers.
+ *
+ * Same shape as lib/perfStore.ts: a module-level array, a listener list, and
+ * `subscribe` so React can read it through useSyncExternalStore. Every append
+ * makes a new array so snapshots are referentially fresh and the panel
+ * re-renders; the array is capped so a long session can't grow without bound.
+ *
+ * The `describe*` helpers are pure and live here rather than in the component
+ * so the interesting branches are unit tested (__tests__/navLog.test.ts).
+ */
+import { localStore, safeGet, safeSet } from "./storage";
+
+export type LogKind =
+  | "boot"
+  | "sys"
+  | "progress"
+  | "nav"
+  | "done"
+  | "jump"
+  | "ext"
+  | "pref"
+  | "music"
+  | "error"
+  // The typable prompt (components/library/TerminalInput.tsx): the echoed
+  // command, its output, and its stderr. `error` above is a site event.
+  | "cmd"
+  | "out"
+  | "err";
+
+export interface LogEntry {
+  id: number;
+  /** Epoch ms; formatted at render time by formatTime. */
+  time: number;
+  kind: LogKind;
+  text: string;
+  /** For `cmd` lines: the prompt the command was typed at, e.g. `~/listen $`. */
+  prompt?: string;
+}
+
+/**
+ * The compressions accent (styles/compressions.css dark --c-accent), shared
+ * with components/library/ConsoleGreeting.tsx.
+ */
+export const TERMINAL_ORANGE = "#d4a053";
+
+/** Stable server snapshot, and the initial client value, so hydration agrees. */
+export const EMPTY: readonly LogEntry[] = [];
+
+/** Oldest lines fall off the top past this. */
+export const MAX_ENTRIES = 100;
+
+/** localStorage key for the panel view: expanded, collapsed or hidden. */
+export const TERMINAL_STORAGE_KEY = "terminal";
+
+/**
+ * Tailwind's container max-widths (its default screens), widest first. The
+ * page content is centered in that container (tailwind.config.js), so the
+ * gutter beside it is what the docked panel has to fit in.
+ */
+const CONTAINER_WIDTHS = [1536, 1280, 1024, 768, 640];
+/** The container's own side padding (tailwind.config.js `container.padding`). */
+const CONTAINER_PADDING = 24;
+/**
+ * The docked panel at full width: its w-[26rem] plus its left-4 offset, at
+ * a 16px root. Where this doesn't fit the panel is narrower (NavTerminal
+ * DOCKED), but never narrow enough to fit a 1080p gutter, so one number
+ * decides both.
+ */
+export const PANEL_FOOTPRINT = 26 * 16 + 16;
+/**
+ * CSS custom property on <html>: how much of the page bottom the resting
+ * panel covers, for Layout to pad the page by. Zero where the panel sits in
+ * the gutter or is hidden.
+ */
+export const TERMINAL_INSET_PROPERTY = "--terminal-inset";
+
+/**
+ * Whether the docked panel sits in the gutter beside the page's content
+ * rather than over it. True on 1440p and wider; a 1080p or laptop viewport
+ * has a gutter narrower than the panel, so the panel defaults to a strip.
+ */
+export function fitsBesideContent(viewportWidth: number): boolean {
+  const container = CONTAINER_WIDTHS.find((w) => viewportWidth >= w) ?? viewportWidth;
+  return (viewportWidth - container) / 2 + CONTAINER_PADDING >= PANEL_FOOTPRINT;
+}
+
+/**
+ * How long a peek stays open after its last line has finished typing.
+ * Hovering or focusing the panel holds it open.
+ */
+export const PEEK_HOLD_MS = 4000;
+
+let entries: readonly LogEntry[] = EMPTY;
+let nextId = 1;
+/** See the Peek section below. */
+let peeking = false;
+
+let listeners: Array<() => void> = [];
+const emit = () => listeners.forEach((l) => l());
+
+export function subscribe(listener: () => void) {
+  listeners = [...listeners, listener];
+  return () => {
+    listeners = listeners.filter((l) => l !== listener);
+  };
+}
+
+/**
+ * Appends a line. `instant` lines print whole instead of typing out: a
+ * command the visitor just typed, and what it printed.
+ */
+export function log(
+  kind: LogKind,
+  text: string,
+  opts: { instant?: boolean; prompt?: string } = {},
+): LogEntry {
+  const entry: LogEntry = { id: nextId++, time: Date.now(), kind, text };
+  if (opts.prompt !== undefined) entry.prompt = opts.prompt;
+  const next = [...entries, entry];
+  entries = next.length > MAX_ENTRIES ? next.slice(next.length - MAX_ENTRIES) : next;
+  if (opts.instant) streamed.add(entry.id);
+  if (getView() === "collapsed") peeking = true;
+  emit();
+  return entry;
+}
+
+export const getEntries = (): readonly LogEntry[] => entries;
+
+/**
+ * Empties the log: the `clear` command. Ids keep counting so React keys and
+ * claimStream stay monotonic; the streamed set is dropped because every id
+ * in it is now below any future one.
+ */
+export function clearEntries() {
+  entries = EMPTY;
+  streamed.clear();
+  emit();
+}
+
+/** Test-only reset, ids included. The app clears through clearEntries. */
+export function resetEntries() {
+  entries = EMPTY;
+  nextId = 1;
+  peeking = false;
+  streamed.clear();
+}
+
+// --- Streaming ---
+
+/**
+ * Lines with an id below this render whole: they were already in the log
+ * when the panel first appeared. Infinity (the initial value, and what a
+ * reduced-motion visitor keeps) disables streaming entirely.
+ */
+let animateFromId = Number.POSITIVE_INFINITY;
+
+/**
+ * Lines that have already streamed in once. Without this, expanding the
+ * panel after a while would replay every line logged while it was closed.
+ */
+const streamed = new Set<number>();
+
+export const reducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * From here on, new lines stream in; what is already logged renders whole.
+ * Idempotent, so the panel and the boot intro can both call it in any order.
+ */
+export function startStreaming() {
+  if (animateFromId !== Number.POSITIVE_INFINITY || reducedMotion()) return;
+  animateFromId = (entries.at(-1)?.id ?? 0) + 1;
+}
+
+/** Whether `id` should type out now; claiming it means it never types again. */
+export function claimStream(id: number): boolean {
+  if (id < animateFromId || streamed.has(id)) return false;
+  streamed.add(id);
+  return true;
+}
+
+/** Treat a line as already shown, so it renders whole. */
+export function markStreamed(id: number) {
+  streamed.add(id);
+}
+
+// --- Collapse preference ---
+
+/**
+ * Cached so the useSyncExternalStore snapshot doesn't hit localStorage on
+ * every render. Only this module writes it, so the cache can't go stale.
+ */
+export type TerminalView = "expanded" | "collapsed" | "hidden";
+
+const isTerminalView = (v: string | null): v is TerminalView =>
+  v === "expanded" || v === "collapsed" || v === "hidden";
+
+let view: TerminalView | null = null;
+
+function readView(): TerminalView {
+  const raw = safeGet(localStore(), TERMINAL_STORAGE_KEY);
+  if (isTerminalView(raw)) return raw;
+  const fits = typeof window !== "undefined" && fitsBesideContent(window.innerWidth);
+  return fits ? "expanded" : "collapsed";
+}
+
+export function getView(): TerminalView {
+  if (view === null) view = readView();
+  return view;
+}
+
+export function setView(next: TerminalView) {
+  view = next;
+  peeking = false;
+  safeSet(localStore(), TERMINAL_STORAGE_KEY, next);
+  emit();
+}
+
+// --- Peek ---
+
+/**
+ * A collapsed strip opens for a moment when a line lands, then folds back
+ * up. Set here, in `log`, rather than by the panel so the very render that
+ * shows the new line already has the log open and the line streams in.
+ * The panel decides when the peek ends (typing done plus PEEK_HOLD_MS).
+ */
+export const isPeeking = (): boolean => peeking;
+
+/** Opens a collapsed strip for a moment without a line: the focus key. */
+export function peek() {
+  if (peeking || getView() !== "collapsed") return;
+  peeking = true;
+  emit();
+}
+
+export function endPeek() {
+  if (!peeking) return;
+  peeking = false;
+  emit();
+}
+
+// --- Pure helpers ---
+
+/**
+ * `11:44:44 PM`. Fixed to en-US so the log reads the same everywhere; the
+ * panel renders it with tabular figures so the column doesn't jitter.
+ */
+export const formatTime = (ms: number): string =>
+  new Date(ms).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+
+/**
+ * What, if anything, a click on `href` should print.
+ *
+ * Same-origin navigations to another path return null: the router events
+ * already log those, and logging here too would print every link twice.
+ */
+export function describeClick(
+  href: string,
+  currentUrl: string,
+): { kind: LogKind; text: string } | null {
+  const raw = href.trim();
+  if (!raw) return null;
+
+  let url: URL;
+  let current: URL;
+  try {
+    current = new URL(currentUrl);
+    url = new URL(raw, currentUrl);
+  } catch {
+    return null;
+  }
+
+  if (url.protocol === "javascript:") return null;
+  if (url.protocol === "mailto:") {
+    return { kind: "ext", text: `OPENING mailto:${url.pathname}` };
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return { kind: "ext", text: `OPENING ${url.href}` };
+  }
+
+  if (url.origin !== current.origin) {
+    const host = url.host.replace(/^www\./i, "");
+    const path = url.pathname.replace(/\/+$/, "");
+    return { kind: "ext", text: `OPENING ${host}${path}${url.search}` };
+  }
+
+  if (url.pathname !== current.pathname) return null;
+  if (url.hash && url.hash !== "#") {
+    return { kind: "jump", text: `JUMPING TO ${url.hash}` };
+  }
+  return null;
+}
+
+/** The slice of a now-playing sample the log cares about. */
+export interface PlaybackSample {
+  songUrl?: string;
+  isPlaying: boolean;
+  title?: string;
+  artist?: string;
+  type?: "track" | "episode";
+}
+
+/**
+ * The line for a now-playing transition, or null when nothing changed.
+ *
+ * The poll repeats the same sample every few seconds, so "unchanged" has to
+ * be the common case: only a different `songUrl` or a flipped `isPlaying`
+ * ever prints. `prev` of null is the first sample after boot, where a
+ * last-played fallback (not playing) is deliberately silent.
+ */
+export function describePlayback(
+  prev: PlaybackSample | null | undefined,
+  next: PlaybackSample | null | undefined,
+): string | null {
+  if (!next) return null; // no data yet, or the request failed
+
+  const nextUrl = next.songUrl ?? "";
+  const prevUrl = prev?.songUrl ?? "";
+  if (prev && prevUrl === nextUrl && prev.isPlaying === next.isPlaying) return null;
+
+  if (next.isPlaying) {
+    return next.type === "episode"
+      ? `NOW PLAYING ${next.title}`
+      : `NOW PLAYING ${next.artist} — ${next.title}`;
+  }
+
+  if (!prev || !prev.isPlaying) return null;
+  return prevUrl === nextUrl ? "PLAYBACK PAUSED" : "PLAYBACK STOPPED";
+}

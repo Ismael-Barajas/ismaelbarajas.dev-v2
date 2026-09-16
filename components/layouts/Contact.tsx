@@ -2,29 +2,15 @@ import { TypedText, MagneticButton } from "components";
 import { IconButton } from "components/library/Button";
 import { FaInstagram, FaGithub, FaLinkedin } from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
+import type { ReactNode } from "react";
+import { CONTACT_LINKS, type ContactKey } from "lib/site";
 
-const contactInfo = [
-  {
-    name: "LinkedIn",
-    icon: <FaLinkedin className="h-7 w-7" />,
-    url: "https://www.linkedin.com/in/ismael-barajas/",
-  },
-  {
-    name: "GitHub",
-    icon: <FaGithub className="h-7 w-7" />,
-    url: "https://github.com/Ismael-Barajas",
-  },
-  {
-    name: "Email",
-    icon: <IoIosMail className="h-7 w-7" />,
-    url: "mailto:ismaelbarajas.dev@gmail.com",
-  },
-  {
-    name: "Instagram",
-    icon: <FaInstagram className="h-7 w-7" />,
-    url: "https://instagram.com/lnxanee",
-  },
-];
+const ICONS: Record<ContactKey, ReactNode> = {
+  linkedin: <FaLinkedin className="h-7 w-7" />,
+  github: <FaGithub className="h-7 w-7" />,
+  email: <IoIosMail className="h-7 w-7" />,
+  instagram: <FaInstagram className="h-7 w-7" />,
+};
 
 const Contact = () => {
   return (
@@ -49,9 +35,9 @@ const Contact = () => {
         </h2>
         <div className="flex justify-center items-center content-center min-h-screen-contact">
           <div className="flex gap-4 lg:gap-6 justify-center flex-wrap">
-            {contactInfo.map((contact, index) => {
+            {CONTACT_LINKS.map((contact) => {
               return (
-                <MagneticButton key={index}>
+                <MagneticButton key={contact.key}>
                   <IconButton
                     href={contact.url}
                     size="lg"
@@ -59,7 +45,7 @@ const Contact = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {contact.icon}
+                    {ICONS[contact.key]}
                   </IconButton>
                 </MagneticButton>
               );
