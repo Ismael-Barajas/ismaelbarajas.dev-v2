@@ -45,11 +45,49 @@ export const MAX_ENTRIES = 100;
 
 /** localStorage key for the panel view: expanded, collapsed or hidden. */
 export const TERMINAL_STORAGE_KEY = "terminal";
-/** Below this width the panel defaults to collapsed. */
-export const COLLAPSE_BREAKPOINT = 768;
+
+/**
+ * Tailwind's container max-widths (its default screens), widest first. The
+ * page content is centered in that container (tailwind.config.js), so the
+ * gutter beside it is what the docked panel has to fit in.
+ */
+const CONTAINER_WIDTHS = [1536, 1280, 1024, 768, 640];
+/** The container's own side padding (tailwind.config.js `container.padding`). */
+const CONTAINER_PADDING = 24;
+/**
+ * The docked panel at full width: its w-[26rem] plus its left-4 offset, at
+ * a 16px root. Where this doesn't fit the panel is narrower (NavTerminal
+ * DOCKED), but never narrow enough to fit a 1080p gutter, so one number
+ * decides both.
+ */
+export const PANEL_FOOTPRINT = 26 * 16 + 16;
+/**
+ * CSS custom property on <html>: how much of the page bottom the resting
+ * panel covers, for Layout to pad the page by. Zero where the panel sits in
+ * the gutter or is hidden.
+ */
+export const TERMINAL_INSET_PROPERTY = "--terminal-inset";
+
+/**
+ * Whether the docked panel sits in the gutter beside the page's content
+ * rather than over it. True on 1440p and wider; a 1080p or laptop viewport
+ * has a gutter narrower than the panel, so the panel defaults to a strip.
+ */
+export function fitsBesideContent(viewportWidth: number): boolean {
+  const container = CONTAINER_WIDTHS.find((w) => viewportWidth >= w) ?? viewportWidth;
+  return (viewportWidth - container) / 2 + CONTAINER_PADDING >= PANEL_FOOTPRINT;
+}
+
+/**
+ * How long a peek stays open after its last line has finished typing.
+ * Hovering or focusing the panel holds it open.
+ */
+export const PEEK_HOLD_MS = 4000;
 
 let entries: readonly LogEntry[] = EMPTY;
 let nextId = 1;
+/** See the Peek section below. */
+let peeking = false;
 
 let listeners: Array<() => void> = [];
 const emit = () => listeners.forEach((l) => l());
@@ -65,6 +103,7 @@ export function log(kind: LogKind, text: string): LogEntry {
   const entry: LogEntry = { id: nextId++, time: Date.now(), kind, text };
   const next = [...entries, entry];
   entries = next.length > MAX_ENTRIES ? next.slice(next.length - MAX_ENTRIES) : next;
+  if (getView() === "collapsed") peeking = true;
   emit();
   return entry;
 }
@@ -75,6 +114,7 @@ export const getEntries = (): readonly LogEntry[] => entries;
 export function resetEntries() {
   entries = EMPTY;
   nextId = 1;
+  peeking = false;
 }
 
 // --- Streaming ---
@@ -133,8 +173,8 @@ let view: TerminalView | null = null;
 function readView(): TerminalView {
   const raw = safeGet(localStore(), TERMINAL_STORAGE_KEY);
   if (isTerminalView(raw)) return raw;
-  const small = typeof window !== "undefined" && window.innerWidth <= COLLAPSE_BREAKPOINT;
-  return small ? "collapsed" : "expanded";
+  const fits = typeof window !== "undefined" && fitsBesideContent(window.innerWidth);
+  return fits ? "expanded" : "collapsed";
 }
 
 export function getView(): TerminalView {
@@ -144,7 +184,24 @@ export function getView(): TerminalView {
 
 export function setView(next: TerminalView) {
   view = next;
+  peeking = false;
   safeSet(localStore(), TERMINAL_STORAGE_KEY, next);
+  emit();
+}
+
+// --- Peek ---
+
+/**
+ * A collapsed strip opens for a moment when a line lands, then folds back
+ * up. Set here, in `log`, rather than by the panel so the very render that
+ * shows the new line already has the log open and the line streams in.
+ * The panel decides when the peek ends (typing done plus PEEK_HOLD_MS).
+ */
+export const isPeeking = (): boolean => peeking;
+
+export function endPeek() {
+  if (!peeking) return;
+  peeking = false;
   emit();
 }
 

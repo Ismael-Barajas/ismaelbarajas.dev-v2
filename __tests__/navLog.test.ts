@@ -1,12 +1,17 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   MAX_ENTRIES,
+  PANEL_FOOTPRINT,
   describeClick,
   describePlayback,
+  endPeek,
+  fitsBesideContent,
   formatTime,
   getEntries,
+  isPeeking,
   log,
   resetEntries,
+  setView,
   subscribe,
   type PlaybackSample,
 } from "lib/navLog";
@@ -194,5 +199,70 @@ describe("formatTime", () => {
   it("pads minutes and seconds but not the hour", () => {
     const t = new Date(2026, 8, 12, 9, 5, 3).getTime();
     expect(formatTime(t)).toBe("9:05:03 AM");
+  });
+});
+
+describe("fitsBesideContent", () => {
+  it("is true where the gutter beside the container holds the panel", () => {
+    // 2560 wide: a 1536 container leaves 512 a side.
+    expect(fitsBesideContent(2560)).toBe(true);
+    expect(fitsBesideContent(3440)).toBe(true);
+  });
+
+  it("is false on 1080p and laptop widths, where the panel would cover content", () => {
+    // 1920 wide: 192 a side, less than the panel's footprint.
+    expect(fitsBesideContent(1920)).toBe(false);
+    // 1080p at 125% scaling: the container fills the viewport.
+    expect(fitsBesideContent(1536)).toBe(false);
+    expect(fitsBesideContent(1366)).toBe(false);
+    expect(fitsBesideContent(768)).toBe(false);
+  });
+
+  it("counts the container's own side padding as free space", () => {
+    // Gutter + 24px padding exactly equals the footprint.
+    const exact = 1536 + 2 * (PANEL_FOOTPRINT - 24);
+    expect(fitsBesideContent(exact)).toBe(true);
+    expect(fitsBesideContent(exact - 1)).toBe(false);
+  });
+});
+
+describe("peeking", () => {
+  beforeEach(() => {
+    resetEntries();
+    setView("collapsed");
+  });
+
+  it("starts when a line lands on a collapsed panel", () => {
+    expect(isPeeking()).toBe(false);
+    log("nav", "NAVIGATING TO /listen");
+    expect(isPeeking()).toBe(true);
+  });
+
+  it("does not start while the panel is expanded or hidden", () => {
+    setView("expanded");
+    log("nav", "NAVIGATING TO /listen");
+    expect(isPeeking()).toBe(false);
+    setView("hidden");
+    log("nav", "NAVIGATING TO /");
+    expect(isPeeking()).toBe(false);
+  });
+
+  it("ends on endPeek and notifies once", () => {
+    log("nav", "NAVIGATING TO /listen");
+    let calls = 0;
+    const unsubscribe = subscribe(() => {
+      calls += 1;
+    });
+    endPeek();
+    endPeek();
+    unsubscribe();
+    expect(isPeeking()).toBe(false);
+    expect(calls).toBe(1);
+  });
+
+  it("is cleared by any view change", () => {
+    log("nav", "NAVIGATING TO /listen");
+    setView("expanded");
+    expect(isPeeking()).toBe(false);
   });
 });

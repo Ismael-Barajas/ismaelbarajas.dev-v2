@@ -17,6 +17,10 @@ export interface TargetCursorProps {
 }
 
 const CORNER_SIZE = 10;
+// Centre crosshair: an 8px plus that keeps the same visual mass the old dot
+// had, so it stays legible over the hero particles without fighting the ring.
+const DOT_SIZE = 8;
+const DOT_STROKE = 1.5;
 const BORDER_WIDTH = 2;
 const LERP = 0.3;
 // Cursor can drift this far outside the target's box before we let go. Keeps
@@ -276,9 +280,24 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
       <div
         ref={dotRef}
         aria-hidden="true"
-        className="fixed top-0 left-0 w-1 h-1 bg-text dark:bg-text rounded-full pointer-events-none z-1000"
+        className="fixed top-0 left-0 w-2 h-2 text-text dark:text-text pointer-events-none z-1000"
         style={{ willChange: "transform", visibility }}
-      />
+      >
+        <svg
+          className="block"
+          width={DOT_SIZE}
+          height={DOT_SIZE}
+          viewBox="0 0 8 8"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 0.75V7.25M0.75 4H7.25"
+            stroke="currentColor"
+            strokeWidth={DOT_STROKE}
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
       {cornerStyles.map((style, i) => (
         <div
           key={i}
