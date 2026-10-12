@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -17,6 +17,12 @@ interface AnimatedContentProps extends React.HTMLAttributes<HTMLDivElement> {
   scale?: number;
   threshold?: number;
   delay?: number;
+  /**
+   * Render in the final, visible state with no scroll reveal. Once true it
+   * sticks for the component's lifetime, so turning it off again never hides
+   * content that is already on screen.
+   */
+  immediate?: boolean;
 }
 
 const AnimatedContent: React.FC<AnimatedContentProps> = ({
@@ -35,14 +41,27 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
   scale = 1,
   threshold = 0.15,
   delay = 0,
+  immediate = false,
   className = "",
   ...props
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  // Latches on: adjusting state during render rather than in an effect, so
+  // the first render with `immediate` is already visible.
+  const [revealed, setRevealed] = useState(immediate);
+  if (immediate && !revealed) setRevealed(true);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (revealed) {
+      // Drop whatever a reveal that never ran (or was cut short) left inline:
+      // the offset, the zero opacity, the visibility.
+      gsap.killTweensOf(el);
+      gsap.set(el, { clearProps: "transform,opacity,visibility" });
+      return;
+    }
 
     // Respect reduced-motion and the low performance tier: show the content,
     // skip the animation.
@@ -102,10 +121,15 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
     scale,
     threshold,
     delay,
+    revealed,
   ]);
 
   return (
-    <div ref={ref} className={`invisible ${className}`} {...props}>
+    <div
+      ref={ref}
+      className={revealed ? className : `invisible ${className}`}
+      {...props}
+    >
       {children}
     </div>
   );
