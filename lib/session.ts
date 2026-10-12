@@ -1,4 +1,6 @@
-import type { SessionOptions } from "iron-session";
+import type { IncomingMessage, ServerResponse } from "http";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getIronSession, type SessionOptions } from "iron-session";
 
 export interface SessionData {
   isAdmin?: boolean;
@@ -22,3 +24,26 @@ export const sessionOptions: SessionOptions = {
     sameSite: "lax" as const,
   },
 };
+
+/** Reads the admin session cookie (API routes and getServerSideProps alike). */
+export function getSession(req: IncomingMessage, res: ServerResponse) {
+  return getIronSession<SessionData>(req, res, sessionOptions);
+}
+
+/**
+ * Gate for admin API routes. Marks the response uncacheable, then answers
+ * 401 and returns false for anyone who isn't signed in. Run it before the
+ * CSRF check so an anonymous probe learns nothing about the route.
+ */
+export async function requireAdmin(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<boolean> {
+  res.setHeader("Cache-Control", "private, no-store");
+  const session = await getSession(req, res);
+  if (!session.isAdmin) {
+    res.status(401).json({ error: "Unauthorized" });
+    return false;
+  }
+  return true;
+}

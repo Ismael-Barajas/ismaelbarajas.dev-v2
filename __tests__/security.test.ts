@@ -6,6 +6,12 @@ import {
   csrfCheck,
   validateProjectInput,
   validateExperienceInput,
+  validateProfileInput,
+  validateContactLinkInput,
+  validateReorderInput,
+  sanitizeFacts,
+  isBlobImageUrl,
+  isHttpsOrMailto,
 } from "lib/security";
 
 // --- Helpers to create mock req/res ---
@@ -287,14 +293,14 @@ describe("validateProjectInput", () => {
     }
   });
 
-  it("defaults order to 0", () => {
+  it("omits order when absent so updates don't reset it", () => {
     const result = validateProjectInput({
       ...validProject,
       order: undefined,
     });
     expect(result.valid).toBe(true);
     if (result.valid) {
-      expect(result.data.order).toBe(0);
+      expect("order" in result.data).toBe(false);
     }
   });
 
@@ -436,7 +442,7 @@ describe("validateExperienceInput", () => {
     expect(result.valid).toBe(false);
   });
 
-  it("defaults body, tags, and order", () => {
+  it("defaults body and tags, and omits an absent order", () => {
     const result = validateExperienceInput({
       ...validExperience,
       body: undefined,
@@ -447,7 +453,7 @@ describe("validateExperienceInput", () => {
     if (result.valid) {
       expect(result.data.body).toEqual([]);
       expect(result.data.tags).toEqual([]);
-      expect(result.data.order).toBe(0);
+      expect("order" in result.data).toBe(false);
     }
   });
 
@@ -470,5 +476,175 @@ describe("validateExperienceInput", () => {
       expect(result.data.position).toBe("Engineer");
       expect(result.data.timeCommitment).toBe("Full-time");
     }
+  });
+});
+
+describe("isBlobImageUrl", () => {
+  it("accepts https Vercel Blob URLs", () => {
+    expect(
+      isBlobImageUrl("https://abc.public.blob.vercel-storage.com/images/me.jpg"),
+    ).toBe(true);
+  });
+
+  it("rejects other hosts, http, and lookalike hosts", () => {
+    expect(isBlobImageUrl("https://example.com/me.jpg")).toBe(false);
+    expect(isBlobImageUrl("http://abc.public.blob.vercel-storage.com/me.jpg")).toBe(false);
+    expect(isBlobImageUrl("https://public.blob.vercel-storage.com.evil.com/x.jpg")).toBe(false);
+    expect(isBlobImageUrl(42)).toBe(false);
+  });
+});
+
+describe("isHttpsOrMailto", () => {
+  it("accepts https and mailto with an address", () => {
+    expect(isHttpsOrMailto("https://github.com/me")).toBe(true);
+    expect(isHttpsOrMailto("mailto:me@example.com")).toBe(true);
+  });
+
+  it("rejects http, javascript:, data: and empty mailto", () => {
+    expect(isHttpsOrMailto("http://github.com/me")).toBe(false);
+    expect(isHttpsOrMailto("javascript:alert(1)")).toBe(false);
+    expect(isHttpsOrMailto("data:text/html,hi")).toBe(false);
+    expect(isHttpsOrMailto("mailto:")).toBe(false);
+    expect(isHttpsOrMailto("not a url")).toBe(false);
+  });
+});
+
+describe("validateProfileInput", () => {
+  const validProfile = {
+    bio: ["  Hi! I'm {age}.  ", "Second paragraph"],
+    photoUrl: "https://abc.public.blob.vercel-storage.com/images/me.jpg",
+    facts: [{ label: " Austin, TX ", icon: "pin" }],
+  };
+
+  it("accepts and trims a valid profile", () => {
+    const result = validateProfileInput(validProfile);
+    expect(result.valid).toBe(true);
+    if (result.valid) {
+      expect(result.data.bio[0]).toBe("Hi! I'm {age}.");
+      expect(result.data.facts).toEqual([{ label: "Austin, TX", icon: "pin" }]);
+    }
+  });
+
+  it("drops unknown keys", () => {
+    const result = validateProfileInput({ ...validProfile, extra: 1 });
+    expect(result.valid && "extra" in result.data).toBe(false);
+  });
+
+  it("defaults missing facts to an empty list", () => {
+    const result = validateProfileInput({ ...validProfile, facts: undefined });
+    expect(result.valid && result.data.facts).toEqual([]);
+  });
+
+  it("rejects empty or oversized bios", () => {
+    expect(validateProfileInput({ ...validProfile, bio: [] }).valid).toBe(false);
+    expect(validateProfileInput({ ...validProfile, bio: ["  "] }).valid).toBe(false);
+    expect(
+      validateProfileInput({ ...validProfile, bio: ["x".repeat(1001)] }).valid,
+    ).toBe(false);
+    expect(
+      validateProfileInput({ ...validProfile, bio: Array(11).fill("x") }).valid,
+    ).toBe(false);
+  });
+
+  it("rejects a photo outside Vercel Blob", () => {
+    expect(
+      validateProfileInput({ ...validProfile, photoUrl: "https://example.com/a.jpg" }).valid,
+    ).toBe(false);
+  });
+
+  it("rejects unknown icons, long labels and too many facts", () => {
+    expect(
+      validateProfileInput({ ...validProfile, facts: [{ label: "x", icon: "nope" }] }).valid,
+    ).toBe(false);
+    expect(
+      validateProfileInput({
+        ...validProfile,
+        facts: [{ label: "x".repeat(61), icon: "pin" }],
+      }).valid,
+    ).toBe(false);
+    expect(
+      validateProfileInput({
+        ...validProfile,
+        facts: Array(13).fill({ label: "x", icon: "pin" }),
+      }).valid,
+    ).toBe(false);
+  });
+
+  it("rejects a missing body", () => {
+    expect(validateProfileInput(null).valid).toBe(false);
+  });
+});
+
+describe("sanitizeFacts", () => {
+  it("keeps valid entries and drops the rest", () => {
+    expect(
+      sanitizeFacts([
+        { label: "Austin", icon: "pin" },
+        { label: "", icon: "pin" },
+        { label: "Bad", icon: "rocket" },
+        "junk",
+        null,
+      ]),
+    ).toEqual([{ label: "Austin", icon: "pin" }]);
+  });
+
+  it("returns [] for non-arrays", () => {
+    expect(sanitizeFacts(null)).toEqual([]);
+    expect(sanitizeFacts({ label: "x" })).toEqual([]);
+  });
+});
+
+describe("validateContactLinkInput", () => {
+  const validLink = { label: " GitHub ", url: "https://github.com/me", icon: "github" };
+
+  it("accepts and trims a valid link", () => {
+    const result = validateContactLinkInput(validLink);
+    expect(result.valid).toBe(true);
+    if (result.valid) {
+      expect(result.data).toEqual({
+        label: "GitHub",
+        url: "https://github.com/me",
+        icon: "github",
+      });
+    }
+  });
+
+  it("accepts mailto links", () => {
+    expect(
+      validateContactLinkInput({ ...validLink, url: "mailto:me@example.com", icon: "email" })
+        .valid,
+    ).toBe(true);
+  });
+
+  it("rejects unsafe schemes", () => {
+    for (const url of ["javascript:alert(1)", "http://github.com", "data:text/html,x"]) {
+      expect(validateContactLinkInput({ ...validLink, url }).valid).toBe(false);
+    }
+  });
+
+  it("rejects unknown icons and bad labels", () => {
+    expect(validateContactLinkInput({ ...validLink, icon: "myspace" }).valid).toBe(false);
+    expect(validateContactLinkInput({ ...validLink, label: "" }).valid).toBe(false);
+    expect(validateContactLinkInput({ ...validLink, label: "x".repeat(41) }).valid).toBe(false);
+  });
+
+  it("keeps a valid order and rejects an invalid one", () => {
+    const ok = validateContactLinkInput({ ...validLink, order: 3 });
+    expect(ok.valid && ok.data.order).toBe(3);
+    expect(validateContactLinkInput({ ...validLink, order: -1 }).valid).toBe(false);
+  });
+});
+
+describe("validateReorderInput", () => {
+  it("accepts unique positive integer ids", () => {
+    const result = validateReorderInput({ ids: [3, 1, 2] });
+    expect(result.valid && result.data.ids).toEqual([3, 1, 2]);
+  });
+
+  it("rejects empty, duplicate, non-integer and non-positive ids", () => {
+    for (const ids of [[], [1, 1], [1.5], [0], ["1"], "1,2", Array(201).fill(0).map((_, i) => i + 1)]) {
+      expect(validateReorderInput({ ids }).valid).toBe(false);
+    }
+    expect(validateReorderInput(null).valid).toBe(false);
   });
 });
