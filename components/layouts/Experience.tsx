@@ -1,23 +1,30 @@
-import useSWR from "swr";
 import { AnimatedContent, ExperienceCard, TypedText } from "components";
 import { TechListType } from "components/library/TagIcons";
-import fetcher from "lib/fetcher";
+import {
+  AddButton,
+  AdminItemToolbar,
+  SortableList,
+} from "components/admin/lazy";
+import deleteItem from "components/admin/deleteItem";
+import { useExperiences, useReorder } from "hooks";
+import { ADMIN_KEYS } from "lib/adminApi";
+import { openDrawer, useAdminView } from "lib/adminStore";
+import type { ExperienceItem, WithId } from "lib/types/content";
 
-interface ExperienceItem {
-  img: string;
-  url: string;
-  position: string;
-  timeCommitment: string;
-  body: string[];
-  tags: string[];
-}
+const TIMELINE =
+  "relative mx-auto flex max-w-3xl flex-col gap-8 before:absolute before:bottom-8 before:left-7 before:top-8 before:w-0.5 before:rounded-full before:bg-black/10 md:before:left-9 dark:before:bg-white/15";
 
-interface ExperienceResponse {
-  items: ExperienceItem[];
-}
+/** The rows with their ids, or null while the list is still the public one. */
+const withIds = (items: ExperienceItem[] | undefined) =>
+  items && items.every((item) => typeof item.id === "number")
+    ? (items as WithId<ExperienceItem>[])
+    : null;
 
 const Experience = () => {
-  const { data } = useSWR<ExperienceResponse>("/api/experience", fetcher);
+  const { items, isAdmin, key } = useExperiences();
+  const adminView = useAdminView();
+  const reorder = useReorder<WithId<ExperienceItem>>("experiences", key);
+  const editable = isAdmin && adminView ? withIds(items) : null;
 
   return (
     <div className="relative min-h-screen-without-nav pb-12">
@@ -40,22 +47,72 @@ const Experience = () => {
           />
         </h2>
         {/* Timeline: the spine runs behind the logo nodes, newest first. */}
-        <ol className="relative mx-auto flex max-w-3xl flex-col gap-8 before:absolute before:bottom-8 before:left-7 before:top-8 before:w-0.5 before:rounded-full before:bg-black/10 md:before:left-9 dark:before:bg-white/15">
-          {data?.items?.map((job, index) => (
-            <AnimatedContent key={index}>
-              <ExperienceCard
-                img={job.img}
-                body={job.body}
-                position={{
-                  position: job.position,
-                  time_commitment: job.timeCommitment,
-                }}
-                tags={job.tags as Array<TechListType>}
-                url={job.url}
+        {editable ? (
+          <>
+            <SortableList
+              items={editable}
+              strategy="vertical"
+              as="ol"
+              itemAs="li"
+              className={TIMELINE}
+              getLabel={(job) => job.position}
+              onReorder={reorder}
+              renderItem={(job, handle) => (
+                <ExperienceCard
+                  as="div"
+                  img={job.img}
+                  body={job.body}
+                  position={{
+                    position: job.position,
+                    time_commitment: job.timeCommitment,
+                  }}
+                  tags={job.tags as Array<TechListType>}
+                  url={job.url}
+                  adminControls={
+                    <AdminItemToolbar
+                      handle={handle}
+                      label={job.position}
+                      onEdit={() =>
+                        openDrawer({
+                          kind: "experience",
+                          mode: "edit",
+                          id: job.id,
+                        })
+                      }
+                      onDelete={() =>
+                        deleteItem(ADMIN_KEYS.experiences, job.id, key)
+                      }
+                    />
+                  }
+                />
+              )}
+            />
+            <div className="mx-auto mt-8 flex max-w-3xl">
+              <AddButton
+                label="Add experience"
+                className="w-full"
+                onClick={() => openDrawer({ kind: "experience", mode: "create" })}
               />
-            </AnimatedContent>
-          ))}
-        </ol>
+            </div>
+          </>
+        ) : (
+          <ol className={TIMELINE}>
+            {items?.map((job, index) => (
+              <AnimatedContent key={job.id ?? index} immediate={isAdmin}>
+                <ExperienceCard
+                  img={job.img}
+                  body={job.body}
+                  position={{
+                    position: job.position,
+                    time_commitment: job.timeCommitment,
+                  }}
+                  tags={job.tags as Array<TechListType>}
+                  url={job.url}
+                />
+              </AnimatedContent>
+            ))}
+          </ol>
+        )}
       </div>
     </div>
   );

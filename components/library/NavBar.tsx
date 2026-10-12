@@ -13,6 +13,7 @@ import BrandSwap from "components/compressions/BrandSwap";
 import ThemeToggle, { type ToggleStyle } from "./ThemeToggle";
 import EffectsToggle from "./EffectsToggle";
 import TerminalToggle from "./TerminalToggle";
+import AdminToggle from "components/admin/AdminToggle";
 import CollapsingBrand from "./CollapsingBrand";
 import { PAGES, SECTIONS } from "lib/site";
 
@@ -479,6 +480,7 @@ const NavBar = () => {
               {renderClassicItems()}
             </ul>
             {classicMenuButton}
+            <AdminToggle variant="classic" />
             <TerminalToggle variant="classic" />
             <EffectsToggle variant="classic" />
             <ThemeToggle variant="classic" />
@@ -515,6 +517,7 @@ const NavBar = () => {
               {renderPillItems()}
             </ul>
             {modernMenuButton}
+            <AdminToggle variant={TOGGLE_STYLE} />
             <TerminalToggle variant={TOGGLE_STYLE} />
             <EffectsToggle variant={TOGGLE_STYLE} />
             <ThemeToggle variant={TOGGLE_STYLE} />
@@ -569,6 +572,7 @@ const NavBar = () => {
             {renderMinimalItems()}
           </ul>
           <div className="flex items-center gap-2 md:justify-self-end">
+            <AdminToggle variant={TOGGLE_STYLE} />
             <TerminalToggle variant={TOGGLE_STYLE} />
             <EffectsToggle variant={TOGGLE_STYLE} />
             <ThemeToggle variant={TOGGLE_STYLE} />
