@@ -1,14 +1,26 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
+import { DEFAULT_CONTACT_LINKS, DEFAULT_PROFILE } from "../lib/content/defaults";
+
+/**
+ * Seeds the portfolio content. By default it only fills empty tables and
+ * never overwrites anything edited through the admin view. Pass `--reset`
+ * (`npm run seed -- --reset`) to wipe experiences and projects and recreate
+ * them from the data below.
+ */
+const RESET = process.argv.includes("--reset");
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-async function main() {
-  // Clear existing data
-  await prisma.experience.deleteMany();
-  await prisma.project.deleteMany();
+async function seedExperiences() {
+  if (RESET) {
+    await prisma.experience.deleteMany();
+  } else if ((await prisma.experience.count()) > 0) {
+    console.log("Experiences already present; skipping.");
+    return;
+  }
 
   await prisma.experience.createMany({
     data: [
@@ -71,6 +83,16 @@ async function main() {
       },
     ],
   });
+  console.log("Seeded experiences.");
+}
+
+async function seedProjects() {
+  if (RESET) {
+    await prisma.project.deleteMany();
+  } else if ((await prisma.project.count()) > 0) {
+    console.log("Projects already present; skipping.");
+    return;
+  }
 
   await prisma.project.createMany({
     data: [
@@ -182,8 +204,45 @@ async function main() {
       },
     ],
   });
+  console.log("Seeded projects.");
+}
 
-  console.log("Seeded experience and projects.");
+/** Creates the About row from the defaults; `update: {}` keeps any edits. */
+async function seedProfile() {
+  await prisma.profile.upsert({
+    where: { id: 1 },
+    create: {
+      id: 1,
+      ...DEFAULT_PROFILE,
+      // Plain objects so Prisma's JSON input type accepts them.
+      facts: DEFAULT_PROFILE.facts.map(({ label, icon }) => ({ label, icon })),
+    },
+    update: {},
+  });
+  console.log("Profile ensured.");
+}
+
+async function seedContactLinks() {
+  if ((await prisma.contactLink.count()) > 0) {
+    console.log("Contact links already present; skipping.");
+    return;
+  }
+  await prisma.contactLink.createMany({
+    data: DEFAULT_CONTACT_LINKS.map((link, index) => ({
+      label: link.label,
+      url: link.url,
+      icon: link.icon,
+      order: index,
+    })),
+  });
+  console.log("Seeded contact links.");
+}
+
+async function main() {
+  await seedExperiences();
+  await seedProjects();
+  await seedProfile();
+  await seedContactLinks();
 }
 
 main()

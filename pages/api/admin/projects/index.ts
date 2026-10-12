@@ -1,15 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "lib/session";
 import { prisma } from "lib/prisma";
+import { requireAdmin } from "lib/session";
 import { csrfCheck, validateProjectInput } from "lib/security";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
-  if (!session.isAdmin) return res.status(401).json({ error: "Unauthorized" });
+  if (!(await requireAdmin(req, res))) return;
 
   if (req.method === "GET") {
     const items = await prisma.project.findMany({ orderBy: { order: "asc" } });
@@ -24,7 +22,18 @@ export default async function handler(
       return res.status(400).json({ error: result.error });
     }
 
-    const item = await prisma.project.create({ data: result.data });
+    // New rows go to the end unless the caller placed them.
+    let { order } = result.data;
+    if (order === undefined) {
+      const { _max } = await prisma.project.aggregate({
+        _max: { order: true },
+      });
+      order = (_max.order ?? -1) + 1;
+    }
+
+    const item = await prisma.project.create({
+      data: { ...result.data, order },
+    });
     return res.status(201).json({ item });
   }
 
