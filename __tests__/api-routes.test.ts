@@ -8,6 +8,7 @@ const prismaMock = vi.hoisted(() => {
     create: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 1, ...data })),
     update: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 1, ...data })),
     delete: vi.fn().mockResolvedValue({}),
+    createMany: vi.fn().mockResolvedValue({ count: 0 }),
     aggregate: vi.fn().mockResolvedValue({ _max: { order: null } }),
   });
   const mock: Record<string, any> = {
@@ -811,6 +812,33 @@ describe("/api/admin/contact-links", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(prismaMock.contactLink.create).not.toHaveBeenCalled();
+  });
+
+  it("POST on an empty table saves the built-in links first", async () => {
+    prismaMock.contactLink.createMany.mockClear();
+    const { DEFAULT_CONTACT_LINKS } = await import("lib/content/defaults");
+    const { default: handler } = await import(
+      "../pages/api/admin/contact-links/index"
+    );
+    const res = mockRes();
+
+    await handler(
+      mockReq({ method: "POST", headers: ORIGIN_HEADERS, body: VALID_LINK }),
+      res
+    );
+
+    expect(prismaMock.contactLink.createMany).toHaveBeenCalledWith({
+      data: DEFAULT_CONTACT_LINKS.map(({ label, url, icon }, i) => ({
+        label,
+        url,
+        icon,
+        order: i,
+      })),
+    });
+    expect(prismaMock.contactLink.create).toHaveBeenCalledWith({
+      data: { ...VALID_LINK, order: DEFAULT_CONTACT_LINKS.length },
+    });
+    expect(res.status).toHaveBeenCalledWith(201);
   });
 
   it("POST appends at the end and revalidates", async () => {

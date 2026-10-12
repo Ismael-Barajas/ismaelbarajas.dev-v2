@@ -3,6 +3,7 @@ import { prisma } from "lib/prisma";
 import { requireAdmin } from "lib/session";
 import { csrfCheck, validateContactLinkInput } from "lib/security";
 import { revalidatePaths } from "lib/revalidate";
+import { DEFAULT_CONTACT_LINKS } from "lib/content/defaults";
 
 export default async function handler(
   req: NextApiRequest,
@@ -25,17 +26,28 @@ export default async function handler(
       return res.status(400).json({ error: result.error });
     }
 
-    // New links go to the end unless the caller placed them.
-    let { order } = result.data;
-    if (order === undefined) {
-      const { _max } = await prisma.contactLink.aggregate({
+    const item = await prisma.$transaction(async (tx) => {
+      const { _max } = await tx.contactLink.aggregate({
         _max: { order: true },
       });
-      order = (_max.order ?? -1) + 1;
-    }
-
-    const item = await prisma.contactLink.create({
-      data: { ...result.data, order },
+      let next = (_max.order ?? -1) + 1;
+      // An empty table means the site is showing the built-in links. Save
+      // them first so the first Add extends that list instead of replacing it.
+      if (_max.order === null) {
+        await tx.contactLink.createMany({
+          data: DEFAULT_CONTACT_LINKS.map(({ label, url, icon }, i) => ({
+            label,
+            url,
+            icon,
+            order: i,
+          })),
+        });
+        next = DEFAULT_CONTACT_LINKS.length;
+      }
+      // New links go to the end unless the caller placed them.
+      return tx.contactLink.create({
+        data: { ...result.data, order: result.data.order ?? next },
+      });
     });
     await revalidatePaths(res, ["/"]);
     return res.status(201).json({ item });
