@@ -1,31 +1,46 @@
 import { useState, FormEvent } from "react";
-import { Field, ArrayField, ImageUpload } from "./FormFields";
+import type { ExperienceItem } from "lib/types/content";
+import {
+  Field,
+  ArrayField,
+  ImageUpload,
+  FormError,
+  SubmitButton,
+  useDirty,
+} from "./FormFields";
 
-interface ExperienceData {
-  img?: string;
-  url?: string;
-  position?: string;
-  timeCommitment?: string;
-  body?: string[];
-  tags?: string[];
-  order?: number;
-}
+export type ExperiencePayload = Omit<ExperienceItem, "id" | "order">;
 
 interface Props {
-  initialData?: ExperienceData;
-  onSubmit: (data: object) => Promise<void>;
+  initialData?: Partial<ExperienceItem>;
+  onSubmit: (data: ExperiencePayload) => Promise<void>;
   submitLabel: string;
+  onDirtyChange?: (dirty: boolean) => void;
+  /** Submit error to show above the button (set by the caller). */
+  error?: string;
 }
 
-export default function ExperienceForm({ initialData, onSubmit, submitLabel }: Props) {
+export default function ExperienceForm({
+  initialData,
+  onSubmit,
+  submitLabel,
+  onDirtyChange,
+  error,
+}: Props) {
+  const touch = useDirty(onDirtyChange);
   const [img, setImg] = useState(initialData?.img ?? "");
   const [url, setUrl] = useState(initialData?.url ?? "");
   const [position, setPosition] = useState(initialData?.position ?? "");
   const [timeCommitment, setTimeCommitment] = useState(initialData?.timeCommitment ?? "");
   const [body, setBody] = useState((initialData?.body ?? []).join("\n"));
   const [tags, setTags] = useState((initialData?.tags ?? []).join(", "));
-  const [order, setOrder] = useState(String(initialData?.order ?? 0));
   const [loading, setLoading] = useState(false);
+
+  // Wraps a setter so any edit marks the form dirty.
+  const edit = (set: (v: string) => void) => (v: string) => {
+    touch();
+    set(v);
+  };
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -38,7 +53,6 @@ export default function ExperienceForm({ initialData, onSubmit, submitLabel }: P
         timeCommitment,
         body: body.split("\n").map((s) => s.trim()).filter(Boolean),
         tags: tags.split(",").map((s) => s.trim()).filter(Boolean),
-        order: parseInt(order, 10) || 0,
       });
     } finally {
       setLoading(false);
@@ -46,29 +60,34 @@ export default function ExperienceForm({ initialData, onSubmit, submitLabel }: P
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
-      <Field label="Position / Title" value={position} onChange={setPosition} required />
-      <Field label="Company URL" value={url} onChange={setUrl} required />
-      <ImageUpload label="Logo Image" value={img} onChange={setImg} required />
-      <Field label="Time Commitment" value={timeCommitment} onChange={setTimeCommitment} placeholder="e.g. Full-time · Jan 2023 – Present" required />
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <Field
+        label="Position / Title"
+        value={position}
+        onChange={edit(setPosition)}
+        required
+      />
+      <Field label="Company URL" value={url} onChange={edit(setUrl)} required />
+      <ImageUpload label="Logo image" value={img} onChange={edit(setImg)} required />
+      <Field
+        label="Time commitment"
+        value={timeCommitment}
+        onChange={edit(setTimeCommitment)}
+        placeholder="e.g. Full-time · Jan 2023 – Present"
+        required
+      />
       <ArrayField
         label="Description (one bullet per line)"
         value={body}
-        onChange={setBody}
+        onChange={edit(setBody)}
       />
       <Field
         label="Tags (comma-separated)"
         value={tags}
-        onChange={setTags}
+        onChange={edit(setTags)}
       />
-      <Field label="Order" value={order} onChange={setOrder} type="number" />
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded font-medium transition-colors"
-      >
-        {loading ? "Saving..." : submitLabel}
-      </button>
+      <FormError message={error} />
+      <SubmitButton loading={loading} label={submitLabel} />
     </form>
   );
 }

@@ -1,31 +1,46 @@
 import { useState, FormEvent } from "react";
-import { Field, ArrayField, ImageUpload } from "./FormFields";
+import type { ProjectItem } from "lib/types/content";
+import {
+  Field,
+  ArrayField,
+  ImageUpload,
+  FormError,
+  SubmitButton,
+  useDirty,
+} from "./FormFields";
 
-interface ProjectData {
-  img?: string;
-  name?: string;
-  url?: string;
-  githubUrl?: string;
-  body?: string[];
-  tags?: string[];
-  order?: number;
-}
+export type ProjectPayload = Omit<ProjectItem, "id" | "order">;
 
 interface Props {
-  initialData?: ProjectData;
-  onSubmit: (data: object) => Promise<void>;
+  initialData?: Partial<ProjectItem>;
+  onSubmit: (data: ProjectPayload) => Promise<void>;
   submitLabel: string;
+  onDirtyChange?: (dirty: boolean) => void;
+  /** Submit error to show above the button (set by the caller). */
+  error?: string;
 }
 
-export default function ProjectForm({ initialData, onSubmit, submitLabel }: Props) {
+export default function ProjectForm({
+  initialData,
+  onSubmit,
+  submitLabel,
+  onDirtyChange,
+  error,
+}: Props) {
+  const touch = useDirty(onDirtyChange);
   const [img, setImg] = useState(initialData?.img ?? "");
   const [name, setName] = useState(initialData?.name ?? "");
   const [url, setUrl] = useState(initialData?.url ?? "");
   const [githubUrl, setGithubUrl] = useState(initialData?.githubUrl ?? "");
   const [body, setBody] = useState((initialData?.body ?? []).join("\n"));
   const [tags, setTags] = useState((initialData?.tags ?? []).join(", "));
-  const [order, setOrder] = useState(String(initialData?.order ?? 0));
   const [loading, setLoading] = useState(false);
+
+  // Wraps a setter so any edit marks the form dirty.
+  const edit = (set: (v: string) => void) => (v: string) => {
+    touch();
+    set(v);
+  };
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -38,7 +53,6 @@ export default function ProjectForm({ initialData, onSubmit, submitLabel }: Prop
         githubUrl,
         body: body.split("\n").map((s) => s.trim()).filter(Boolean),
         tags: tags.split(",").map((s) => s.trim()).filter(Boolean),
-        order: parseInt(order, 10) || 0,
       });
     } finally {
       setLoading(false);
@@ -46,29 +60,28 @@ export default function ProjectForm({ initialData, onSubmit, submitLabel }: Prop
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
-      <Field label="Name" value={name} onChange={setName} required />
-      <ImageUpload label="Image" value={img} onChange={setImg} required />
-      <Field label="Live URL" value={url} onChange={setUrl} required />
-      <Field label="GitHub URL" value={githubUrl} onChange={setGithubUrl} required />
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <Field label="Name" value={name} onChange={edit(setName)} required />
+      <ImageUpload label="Image" value={img} onChange={edit(setImg)} required />
+      <Field label="Live URL" value={url} onChange={edit(setUrl)} required />
+      <Field
+        label="GitHub URL"
+        value={githubUrl}
+        onChange={edit(setGithubUrl)}
+        required
+      />
       <ArrayField
         label="Description (one bullet per line)"
         value={body}
-        onChange={setBody}
+        onChange={edit(setBody)}
       />
       <Field
         label="Tags (comma-separated)"
         value={tags}
-        onChange={setTags}
+        onChange={edit(setTags)}
       />
-      <Field label="Order" value={order} onChange={setOrder} type="number" />
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded font-medium transition-colors"
-      >
-        {loading ? "Saving..." : submitLabel}
-      </button>
+      <FormError message={error} />
+      <SubmitButton loading={loading} label={submitLabel} />
     </form>
   );
 }
