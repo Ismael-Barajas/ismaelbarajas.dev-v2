@@ -24,14 +24,15 @@ describe("shouldPlayIntro", () => {
     expect(shouldPlayIntro(ok)).toBe(true);
     expect(shouldPlayIntro({ ...ok, perfTier: "reduced" })).toBe(true);
     expect(shouldPlayIntro({ ...ok, pathname: "/listen" })).toBe(true);
+    // The old dashboard is gone; its paths are ordinary (404) pages now.
+    expect(shouldPlayIntro({ ...ok, pathname: "/admin" })).toBe(true);
   });
 
-  it("skips once played, for reduced motion, on the low tier, and on admin pages", () => {
+  it("skips once played, for reduced motion, on the low tier, and on the login page", () => {
     expect(shouldPlayIntro({ ...ok, alreadyPlayed: true })).toBe(false);
     expect(shouldPlayIntro({ ...ok, reducedMotion: true })).toBe(false);
     expect(shouldPlayIntro({ ...ok, perfTier: "low" })).toBe(false);
-    expect(shouldPlayIntro({ ...ok, pathname: "/admin" })).toBe(false);
-    expect(shouldPlayIntro({ ...ok, pathname: "/admin/login" })).toBe(false);
+    expect(shouldPlayIntro({ ...ok, pathname: "/login" })).toBe(false);
   });
 });
 

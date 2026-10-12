@@ -1,14 +1,17 @@
 import { useState, FormEvent } from "react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
-import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "lib/session";
+import clsx from "clsx";
+import { Button, FROSTED_CARD } from "components/library/Button";
+import { getSession } from "lib/session";
 import { readApiError } from "lib/apiError";
+import { setAdminHint, setView } from "lib/adminStore";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const session = await getIronSession<SessionData>(req as any, res as any, sessionOptions);
+  const session = await getSession(req, res);
   if (session.isAdmin) {
-    return { redirect: { destination: "/admin", permanent: false } };
+    return { redirect: { destination: "/", permanent: false } };
   }
   return { props: {} };
 };
@@ -27,7 +30,7 @@ const messageFor = (status: number, apiMessage: string): string => {
   }
 };
 
-export default function AdminLogin() {
+export default function Login() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -46,7 +49,11 @@ export default function AdminLogin() {
       });
 
       if (res.ok) {
-        router.push("/admin");
+        // Editing happens inline on the homepage: remember this browser has
+        // signed in, then land there with admin view already on.
+        setAdminHint(true);
+        setView(true);
+        router.push("/");
         return;
       }
       const apiMessage = await readApiError(res, "");
@@ -59,30 +66,36 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-white mb-8 text-center">Admin</h1>
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10">
+      <Head>
+        <title>Sign in · Ismael Barajas</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Head>
+      <div className={clsx(FROSTED_CARD, "w-full max-w-sm p-8")}>
+        <h1 className="font-display font-black text-text text-3xl text-center mb-6">Sign in</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <label htmlFor="password" className="sr-only">
+            Password
+          </label>
           <input
+            id="password"
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             required
-            className="w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
+            autoFocus
+            className="w-full rounded-xl bg-black/[0.04] px-4 py-2.5 text-text placeholder:text-gray-500 outline-none ring-text focus-visible:ring-2 dark:bg-white/[0.06] dark:placeholder:text-gray-400"
           />
           {error && (
-            <p className="text-red-400 text-sm" role="alert">
+            <p className="text-sm text-red-600 dark:text-red-400" role="alert">
               {error}
             </p>
           )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded font-medium transition-colors"
-          >
+          <Button type="submit" variant="primary" disabled={loading} className="w-full disabled:opacity-50">
             {loading ? "Signing in..." : "Sign in"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
