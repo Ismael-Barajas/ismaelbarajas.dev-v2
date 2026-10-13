@@ -43,4 +43,5 @@ yarn-error.log*
 
 /app/generated/prisma
 .env*.local
-/docs
+/docs/*
+!/docs/agents/
