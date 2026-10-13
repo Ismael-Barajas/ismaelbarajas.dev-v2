@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "lib/session";
+import { getSession } from "lib/session";
 import { csrfCheck } from "lib/security";
 import { rateLimit } from "lib/rateLimit";
 import { verifyAdminPassword } from "lib/adminPassword";
@@ -33,7 +32,7 @@ export default async function login(
     return res.status(401).json({ error: "Invalid password" });
   }
 
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
+  const session = await getSession(req, res);
   session.isAdmin = true;
   await session.save();
 

@@ -1,4 +1,6 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
+import clsx from "clsx";
 import { TagIcons } from "components";
 import { FROSTED_CARD, FROSTED_CARD_HOVER } from "./Button";
 import { TechListType } from "./TagIcons";
@@ -9,6 +11,13 @@ interface Props {
   body: string[];
   tags: Array<TechListType>;
   url: string;
+  /** Admin toolbar, shown at the card's top-right. */
+  adminControls?: ReactNode;
+  /**
+   * Root element. "li" for a plain timeline; "div" when a SortableList item
+   * wrapper (itself an li) already provides the list item.
+   */
+  as?: "li" | "div";
 }
 
 interface Position {
@@ -21,9 +30,17 @@ interface Position {
  * spine (a dark tile, since the logos are drawn for dark backgrounds) and
  * links to the company; the card holds dates, role, story, and stack.
  */
-const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
+const ExperienceCard = ({
+  img,
+  position,
+  body,
+  tags,
+  url,
+  adminControls,
+  as: Root = "li",
+}: Props) => {
   return (
-    <li className="relative pl-[4.5rem] md:pl-24">
+    <Root className="relative pl-[4.5rem] md:pl-24">
       <a
         target="_blank"
         href={url}
@@ -41,11 +58,34 @@ const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
           className="object-contain p-1.5"
         />
       </a>
-      <div className={`${FROSTED_CARD} ${FROSTED_CARD_HOVER} p-5`}>
-        <p className="text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400">
+      <div
+        className={clsx(
+          FROSTED_CARD,
+          FROSTED_CARD_HOVER,
+          "p-5",
+          adminControls && "relative",
+        )}
+      >
+        {/* In flow on phones, floating top-right from sm up. */}
+        {adminControls && (
+          <div className="mb-3 flex justify-end sm:absolute sm:right-3 sm:top-3 sm:mb-0">
+            {adminControls}
+          </div>
+        )}
+        <p
+          className={clsx(
+            "text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400",
+            adminControls && "sm:pr-32",
+          )}
+        >
           {position.time_commitment}
         </p>
-        <h3 className="mt-0.5 text-xl font-semibold text-text">
+        <h3
+          className={clsx(
+            "mt-0.5 text-xl font-semibold text-text",
+            adminControls && "sm:pr-32",
+          )}
+        >
           {position.position}
         </h3>
         <div className="mt-2 text-base leading-relaxed text-gray-700 dark:text-gray-300">
@@ -55,7 +95,7 @@ const ExperienceCard = ({ img, position, body, tags, url }: Props) => {
         </div>
         <TagIcons techs={tags} className="mt-3" />
       </div>
-    </li>
+    </Root>
   );
 };
 

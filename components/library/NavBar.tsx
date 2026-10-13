@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
@@ -7,6 +8,7 @@ import {
   useIsMounted,
   useScrollProgress,
   useNowPlayingAccent,
+  useAdmin,
 } from "hooks";
 import { ProgressBar } from "..";
 import BrandSwap from "components/compressions/BrandSwap";
@@ -17,6 +19,11 @@ import CollapsingBrand from "./CollapsingBrand";
 import { PAGES, SECTIONS } from "lib/site";
 
 const HOME_SECTION_IDS = SECTIONS.map((s) => s.hash);
+
+/** Admin-only, so it loads on demand and visitors never download it. */
+const AdminToggle = dynamic(() => import("components/admin/AdminToggle"), {
+  ssr: false,
+});
 
 /**
  * Navigation style. Flip this to compare.
@@ -90,6 +97,7 @@ const NavBar = () => {
   const { width } = useWindowSize();
   const scrollProgress = useScrollProgress();
   const accent = useNowPlayingAccent();
+  const { isAdmin } = useAdmin();
 
   const toggleMobileNavigation = () => {
     navigationMobileRef.current?.classList.add("touched");
@@ -479,6 +487,7 @@ const NavBar = () => {
               {renderClassicItems()}
             </ul>
             {classicMenuButton}
+            {isAdmin && <AdminToggle variant="classic" />}
             <TerminalToggle variant="classic" />
             <EffectsToggle variant="classic" />
             <ThemeToggle variant="classic" />
@@ -515,6 +524,7 @@ const NavBar = () => {
               {renderPillItems()}
             </ul>
             {modernMenuButton}
+            {isAdmin && <AdminToggle variant={TOGGLE_STYLE} />}
             <TerminalToggle variant={TOGGLE_STYLE} />
             <EffectsToggle variant={TOGGLE_STYLE} />
             <ThemeToggle variant={TOGGLE_STYLE} />
@@ -569,6 +579,7 @@ const NavBar = () => {
             {renderMinimalItems()}
           </ul>
           <div className="flex items-center gap-2 md:justify-self-end">
+            {isAdmin && <AdminToggle variant={TOGGLE_STYLE} />}
             <TerminalToggle variant={TOGGLE_STYLE} />
             <EffectsToggle variant={TOGGLE_STYLE} />
             <ThemeToggle variant={TOGGLE_STYLE} />

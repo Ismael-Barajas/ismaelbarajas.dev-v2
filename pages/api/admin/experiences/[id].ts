@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "lib/session";
 import { prisma } from "lib/prisma";
+import { requireAdmin } from "lib/session";
 import { csrfCheck, validateExperienceInput } from "lib/security";
 import { parseId } from "lib/ids";
 import { isRecordNotFound } from "lib/prismaErrors";
@@ -10,8 +9,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
-  if (!session.isAdmin) return res.status(401).json({ error: "Unauthorized" });
+  if (!(await requireAdmin(req, res))) return;
 
   const id = parseId(req.query.id);
   if (id === null) return res.status(400).json({ error: "Invalid id" });

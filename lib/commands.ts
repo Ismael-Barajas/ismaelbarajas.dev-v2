@@ -18,7 +18,8 @@ import {
   type PerfPreference,
   type PerfTier,
 } from "./perf";
-import { COMPRESSIONS_SECTIONS, CONTACT_LINKS, LISTEN_TABS, PAGES, SECTIONS } from "./site";
+import { getContactLinks } from "./contactRegistry";
+import { COMPRESSIONS_SECTIONS, LISTEN_TABS, PAGES, SECTIONS } from "./site";
 
 export type Pathname = "/" | "/listen" | "/compressions";
 
@@ -122,13 +123,17 @@ export function listDir(loc: Location): string[] {
 interface Command {
   name: string;
   usage: string;
-  description: string;
+  /** A function when the text depends on live state (the contact links). */
+  description: string | (() => string);
   /** Easter eggs: not in help, not completed. */
   hidden?: boolean;
 }
 
 /** The usage column's width in help; the longest usage plus two spaces. */
 export const HELP_PAD = 20;
+
+/** The keys `open` accepts, read when asked so edits to the links show up. */
+const contactKeys = (): string => getContactLinks().map((l) => l.key).join(" | ");
 
 export const COMMANDS: readonly Command[] = [
   { name: "help", usage: "help", description: "list commands" },
@@ -137,7 +142,7 @@ export const COMMANDS: readonly Command[] = [
   { name: "pwd", usage: "pwd", description: "print the current location" },
   { name: "theme", usage: "theme [dark|light]", description: "switch the theme, or toggle it" },
   { name: "effects", usage: "effects [level]", description: "auto | full | reduced | low" },
-  { name: "open", usage: "open <link>", description: CONTACT_LINKS.map((l) => l.key).join(" | ") },
+  { name: "open", usage: "open <link>", description: contactKeys },
   { name: "np", usage: "np", description: "what spotify is playing" },
   { name: "whoami", usage: "whoami", description: "who runs this place" },
   { name: "date", usage: "date", description: "local date and time" },
@@ -150,9 +155,11 @@ export const COMMANDS: readonly Command[] = [
 
 const VISIBLE = COMMANDS.filter((c) => !c.hidden);
 
-export const HELP_LINES: readonly string[] = VISIBLE.map(
-  (c) => `${c.usage.padEnd(HELP_PAD)}${c.description}`,
-);
+export const helpLines = (): string[] =>
+  VISIBLE.map((c) => {
+    const description = typeof c.description === "function" ? c.description() : c.description;
+    return `${c.usage.padEnd(HELP_PAD)}${description}`;
+  });
 
 export interface CommandContext {
   location: Location;
@@ -232,7 +239,7 @@ export function run(line: string, ctx: CommandContext): CommandResult {
 
   switch (name) {
     case "help":
-      return say(out("Available commands:"), ...HELP_LINES.map(out));
+      return say(out("Available commands:"), ...helpLines().map(out));
 
     case "clear":
       return { lines: [], effect: { type: "clear" } };
@@ -272,11 +279,11 @@ export function run(line: string, ctx: CommandContext): CommandResult {
     }
 
     case "open": {
-      const link = CONTACT_LINKS.find((l) => l.key === arg.toLowerCase());
+      const link = getContactLinks().find((l) => l.key === arg.toLowerCase());
       if (!link) {
         return say(
           err(arg ? `open: unknown link: ${arg}` : "usage: open <link>"),
-          out(CONTACT_LINKS.map((l) => l.key).join(" | ")),
+          out(contactKeys()),
         );
       }
       return { lines: [], effect: { type: "open", url: link.url } };
@@ -338,7 +345,7 @@ function argumentCandidates(
     if (!at || at.hash) return null;
     return { base: dirPart, words: listDir(at) };
   }
-  if (name === "open") return { base: "", words: CONTACT_LINKS.map((l) => l.key) };
+  if (name === "open") return { base: "", words: getContactLinks().map((l) => l.key) };
   if (name === "theme") return { base: "", words: ["dark", "light"] };
   if (name === "effects") return { base: "", words: [...PERF_PREFERENCES] };
   return null;

@@ -477,3 +477,50 @@ html[data-intro="dock"] body::before {
     animation: none;
   }
 }
+
+/* Admin editor drawer (components/admin/AdminDrawer.tsx): slides in from the
+   right when the dialog opens and out again when it closes. */
+.admin-drawer {
+  translate: 0 0;
+  transition:
+    translate 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    overlay 300ms allow-discrete,
+    display 300ms allow-discrete;
+}
+
+.admin-drawer::backdrop {
+  transition:
+    opacity 300ms ease-out,
+    overlay 300ms allow-discrete,
+    display 300ms allow-discrete;
+}
+
+.admin-drawer:not([open]) {
+  translate: 100% 0;
+}
+
+.admin-drawer:not([open])::backdrop {
+  opacity: 0;
+}
+
+@starting-style {
+  .admin-drawer[open] {
+    translate: 100% 0;
+  }
+
+  .admin-drawer[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-drawer,
+  .admin-drawer::backdrop {
+    transition: none;
+  }
+}
+
+/* No page scroll behind an open modal dialog. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}

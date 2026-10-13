@@ -1,15 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getIronSession } from "iron-session";
-import { sessionOptions, SessionData } from "lib/session";
 import { prisma } from "lib/prisma";
+import { requireAdmin } from "lib/session";
+import { createAtEnd } from "lib/orderedRows";
 import { csrfCheck, validateExperienceInput } from "lib/security";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getIronSession<SessionData>(req, res, sessionOptions);
-  if (!session.isAdmin) return res.status(401).json({ error: "Unauthorized" });
+  if (!(await requireAdmin(req, res))) return;
 
   if (req.method === "GET") {
     const items = await prisma.experience.findMany({
@@ -26,7 +25,10 @@ export default async function handler(
       return res.status(400).json({ error: result.error });
     }
 
-    const item = await prisma.experience.create({ data: result.data });
+    // New rows go to the end unless the caller placed them.
+    const item = await createAtEnd("experience", result.data.order, (tx, order) =>
+      tx.experience.create({ data: { ...result.data, order } }),
+    );
     return res.status(201).json({ item });
   }
 

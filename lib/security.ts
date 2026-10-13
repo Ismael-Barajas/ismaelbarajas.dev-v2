@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { isContactIcon, isFactIcon } from "./content/icons";
+import type { ContactLinkItem, Fact, Profile } from "./types/content";
 
 // Rate limiting lives in lib/rateLimit.ts; re-exported for convenience.
 export { rateLimit, getClientIp } from "./rateLimit";
@@ -119,14 +121,24 @@ function isBoundedStringArray(
   );
 }
 
-interface ProjectInput {
+/**
+ * `order` is optional: absent means "leave it alone" on update (the API
+ * routes append new rows at the end). Returns false when present but invalid.
+ */
+function parseOrder(value: unknown): number | undefined | false {
+  if (value === undefined || value === null) return undefined;
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 0 ? n : false;
+}
+
+export interface ProjectInput {
   img: string;
   name: string;
   url: string;
   githubUrl: string;
   body: string[];
   tags: string[];
-  order: number;
+  order?: number;
 }
 
 export function validateProjectInput(
@@ -164,9 +176,8 @@ export function validateProjectInput(
     return { valid: false, error: "'tags' must be an array of strings (max 30 items, 100 chars each)" };
   }
 
-  const validOrder =
-    order === undefined || order === null ? 0 : Number(order);
-  if (!Number.isInteger(validOrder) || validOrder < 0) {
+  const validOrder = parseOrder(order);
+  if (validOrder === false) {
     return { valid: false, error: "'order' must be a non-negative integer" };
   }
 
@@ -179,19 +190,19 @@ export function validateProjectInput(
       githubUrl: githubUrl.trim(),
       body: validBody.map((s) => s.trim()),
       tags: validTags.map((s) => s.trim()),
-      order: validOrder,
+      ...(validOrder === undefined ? {} : { order: validOrder }),
     },
   };
 }
 
-interface ExperienceInput {
+export interface ExperienceInput {
   img: string;
   url: string;
   position: string;
   timeCommitment: string;
   body: string[];
   tags: string[];
-  order: number;
+  order?: number;
 }
 
 export function validateExperienceInput(
@@ -230,9 +241,8 @@ export function validateExperienceInput(
     return { valid: false, error: "'tags' must be an array of strings (max 30 items, 100 chars each)" };
   }
 
-  const validOrder =
-    order === undefined || order === null ? 0 : Number(order);
-  if (!Number.isInteger(validOrder) || validOrder < 0) {
+  const validOrder = parseOrder(order);
+  if (validOrder === false) {
     return { valid: false, error: "'order' must be a non-negative integer" };
   }
 
@@ -245,7 +255,172 @@ export function validateExperienceInput(
       timeCommitment: (timeCommitment as string).trim(),
       body: validBody.map((s) => s.trim()),
       tags: validTags.map((s) => s.trim()),
-      order: validOrder,
+      ...(validOrder === undefined ? {} : { order: validOrder }),
     },
   };
+}
+
+// --- Editable homepage content ---
+
+const BLOB_HOST_SUFFIX = ".public.blob.vercel-storage.com";
+
+/**
+ * https URL on the Vercel Blob public host. The portrait renders through
+ * next/image, which throws for hosts outside `images.remotePatterns`, so a
+ * looser check here could take the homepage down.
+ */
+export function isBlobImageUrl(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname.endsWith(BLOB_HOST_SUFFIX);
+  } catch {
+    return false;
+  }
+}
+
+/** `https:` URL, or a `mailto:` with an address. Rejects http, javascript:, data: etc. */
+export function isHttpsOrMailto(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:") return Boolean(url.hostname);
+    if (url.protocol === "mailto:") return /^[^\s@]+@[^\s@]+$/.test(url.pathname);
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export const MAX_FACTS = 12;
+const MAX_BIO_PARAGRAPHS = 10;
+
+function parseFact(value: unknown): Fact | null {
+  if (!value || typeof value !== "object") return null;
+  const { label, icon } = value as Record<string, unknown>;
+  if (!isNonEmptyString(label) || label.trim().length > 60) return null;
+  if (!isFactIcon(icon)) return null;
+  return { label: label.trim(), icon };
+}
+
+/**
+ * Keeps only well-formed fact chips from the Profile.facts JSON column, so a
+ * hand-edited or stale row can't break the About section.
+ */
+export function sanitizeFacts(value: unknown): Fact[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(parseFact)
+    .filter((f): f is Fact => f !== null)
+    .slice(0, MAX_FACTS);
+}
+
+export function validateProfileInput(data: unknown): ValidationResult<Profile> {
+  if (!data || typeof data !== "object") {
+    return { valid: false, error: "Request body is required" };
+  }
+  const { bio, photoUrl, facts } = data as Record<string, unknown>;
+
+  if (
+    !Array.isArray(bio) ||
+    bio.length < 1 ||
+    bio.length > MAX_BIO_PARAGRAPHS ||
+    !bio.every((p) => isNonEmptyString(p) && p.length <= 1000)
+  ) {
+    return {
+      valid: false,
+      error: "'bio' must be 1-10 non-empty paragraphs (max 1000 chars each)",
+    };
+  }
+  if (!isBlobImageUrl(photoUrl)) {
+    return {
+      valid: false,
+      error: "Invalid 'photoUrl' (must be an uploaded image URL)",
+    };
+  }
+  const rawFacts = facts === undefined || facts === null ? [] : facts;
+  if (!Array.isArray(rawFacts) || rawFacts.length > MAX_FACTS) {
+    return { valid: false, error: `'facts' must be an array (max ${MAX_FACTS})` };
+  }
+  const parsedFacts = rawFacts.map(parseFact);
+  if (parsedFacts.some((f) => f === null)) {
+    return {
+      valid: false,
+      error: "Each fact needs a label (max 60 chars) and a known icon",
+    };
+  }
+
+  return {
+    valid: true,
+    data: {
+      bio: (bio as string[]).map((p) => p.trim()),
+      photoUrl: (photoUrl as string).trim(),
+      facts: parsedFacts as Fact[],
+    },
+  };
+}
+
+export type ContactLinkInput = Omit<ContactLinkItem, "id" | "order"> & {
+  order?: number;
+};
+
+export function validateContactLinkInput(
+  data: unknown
+): ValidationResult<ContactLinkInput> {
+  if (!data || typeof data !== "object") {
+    return { valid: false, error: "Request body is required" };
+  }
+  const { label, url, icon, order } = data as Record<string, unknown>;
+
+  if (!isNonEmptyString(label) || label.trim().length > 40) {
+    return { valid: false, error: "Invalid or missing 'label' (max 40 chars)" };
+  }
+  if (!isNonEmptyString(url) || url.length > 500 || !isHttpsOrMailto(url.trim())) {
+    return {
+      valid: false,
+      error: "Invalid 'url' (must be an https:// or mailto: link)",
+    };
+  }
+  if (!isContactIcon(icon)) {
+    return { valid: false, error: "Invalid 'icon'" };
+  }
+  const validOrder = parseOrder(order);
+  if (validOrder === false) {
+    return { valid: false, error: "'order' must be a non-negative integer" };
+  }
+
+  return {
+    valid: true,
+    data: {
+      label: label.trim(),
+      url: url.trim(),
+      icon,
+      ...(validOrder === undefined ? {} : { order: validOrder }),
+    },
+  };
+}
+
+const MAX_REORDER_IDS = 200;
+
+/** Body of POST /api/admin/{kind}/reorder: `{ ids }` in the new display order. */
+export function validateReorderInput(
+  data: unknown
+): ValidationResult<{ ids: number[] }> {
+  if (!data || typeof data !== "object") {
+    return { valid: false, error: "Request body is required" };
+  }
+  const { ids } = data as Record<string, unknown>;
+  if (
+    !Array.isArray(ids) ||
+    ids.length < 1 ||
+    ids.length > MAX_REORDER_IDS ||
+    !ids.every((id) => Number.isInteger(id) && (id as number) >= 1) ||
+    new Set(ids).size !== ids.length
+  ) {
+    return {
+      valid: false,
+      error: `'ids' must be 1-${MAX_REORDER_IDS} unique positive integers`,
+    };
+  }
+  return { valid: true, data: { ids: ids as number[] } };
 }

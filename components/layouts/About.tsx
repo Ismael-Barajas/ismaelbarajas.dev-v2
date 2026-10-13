@@ -1,26 +1,21 @@
 import { TypedText } from "components";
-import { useEffect, useState } from "react";
+import { Fragment, useMemo } from "react";
 import Image from "next/image";
-import { FiMapPin, FiBriefcase, FiLayers, FiMail } from "react-icons/fi";
-import { LuGraduationCap } from "react-icons/lu";
+import { FiEdit2, FiMail } from "react-icons/fi";
 import { HiOutlineArrowDown } from "react-icons/hi";
 import { Button } from "components/library/Button";
+import ContentIcon from "components/library/ContentIcon";
 import { AnimatedBars } from "components/library/NowPlaying";
+import { SortableList } from "components/admin/lazy";
+import { useAdmin, useProfile, useReorderFacts } from "hooks";
 import useNowPlaying from "hooks/useNowPlaying";
+import { ageInYears } from "lib/age";
+import { openDrawer, useAdminView } from "lib/adminStore";
+import { splitAge } from "lib/content/bio";
+import type { Profile } from "lib/types/content";
 
-const BIRTH_DATE = new Date(1997, 0, 30);
-
-const getAge = () =>
-  Math.floor(
-    (Date.now() - BIRTH_DATE.getTime()) / (1000 * 60 * 60 * 24 * 365.25),
-  );
-
-const FACTS = [
-  { icon: FiMapPin, label: "Austin, TX" },
-  { icon: LuGraduationCap, label: "CSU Fullerton" },
-  { icon: FiBriefcase, label: "Saronic Technologies" },
-  { icon: FiLayers, label: "Full stack" },
-];
+const CHIP =
+  "inline-flex items-center gap-1.5 rounded-full bg-black/[0.06] px-3 py-1.5 text-sm text-gray-700 dark:bg-white/10 dark:text-gray-200";
 
 const scrollToSection = (id: string) => {
   const el = document.getElementById(id);
@@ -30,17 +25,24 @@ const scrollToSection = (id: string) => {
   window.history.pushState(null, "", `#${id}`);
 };
 
-const About = () => {
-  const [age, setAge] = useState(getAge);
+const About = ({ initialProfile }: { initialProfile: Profile }) => {
+  const { profile, isDefault } = useProfile(initialProfile);
+  const { isAdmin } = useAdmin();
+  const adminView = useAdminView();
+  const reorderFacts = useReorderFacts();
+  // Computed on every render: ISR HTML can be a day old, so the span below
+  // suppresses the hydration warning when the client's age differs.
+  const age = ageInYears();
+  // Facts have no ids; the index + label is stable enough for one drag.
+  const sortableFacts = useMemo(
+    () => profile.facts.map((fact, i) => ({ id: `${i}-${fact.label}`, ...fact })),
+    [profile.facts],
+  );
+  const editing = isAdmin && adminView;
   const { data: song } = useNowPlaying();
   // Only an actively playing track earns the line; paused and last-played
   // states show nothing here.
   const listening = song?.isPlaying && song.songUrl ? song : null;
-
-  useEffect(() => {
-    const interval = setInterval(() => setAge(getAge()), 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="container min-h-screen-without-nav flex items-center">
@@ -54,30 +56,70 @@ const About = () => {
               whiteSpace={"normal"}
             />
           </h2>
+          {editing && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <Button
+                variant="frosted"
+                onClick={() => openDrawer({ kind: "profile", mode: "edit" })}
+              >
+                <FiEdit2 className="h-4 w-4" aria-hidden="true" />
+                Edit About
+              </Button>
+              {isDefault && (
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Showing built-in content — save once to start editing.
+                </p>
+              )}
+            </div>
+          )}
           <div className="space-y-4 text-lg text-text">
-            <p>Hi! My name is Ismael Barajas.</p>
-            <p>
-              I&apos;m a {age} year old Software Engineer based in Austin, Texas
-              with a B.S. in Computer Science from California State University,
-              Fullerton.
-            </p>
-            <p>
-              Full stack engineer. I build across the whole stack: UI, backend,
-              and infrastructure. Some of my projects are linked below.
-            </p>
+            {profile.bio.map((paragraph, index) => (
+              <p key={index}>
+                {splitAge(paragraph).map((text, part) => (
+                  <Fragment key={part}>
+                    {part > 0 && <span suppressHydrationWarning>{age}</span>}
+                    {text}
+                  </Fragment>
+                ))}
+              </p>
+            ))}
           </div>
 
-          <ul className="flex flex-wrap gap-2" aria-label="Quick facts">
-            {FACTS.map(({ icon: Icon, label }) => (
-              <li
-                key={label}
-                className="inline-flex items-center gap-1.5 rounded-full bg-black/[0.06] px-3 py-1.5 text-sm text-gray-700 dark:bg-white/10 dark:text-gray-200"
-              >
-                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                {label}
-              </li>
-            ))}
-          </ul>
+          {editing ? (
+            <div role="group" aria-label="Quick facts">
+              <SortableList
+                items={sortableFacts}
+                strategy="grid"
+                as="ul"
+                itemAs="li"
+                className="flex flex-wrap gap-2"
+                getLabel={(fact) => fact.label}
+                onReorder={(next) =>
+                  reorderFacts(
+                    next.map(({ label, icon }) => ({ label, icon })),
+                  )
+                }
+                renderItem={(fact, handle) => (
+                  <span
+                    {...handle}
+                    className={`${CHIP} touch-none cursor-grab outline-dashed outline-1 outline-offset-2 outline-black/25 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-text active:cursor-grabbing dark:outline-white/30`}
+                  >
+                    <ContentIcon icon={fact.icon} className="h-3.5 w-3.5" />
+                    {fact.label}
+                  </span>
+                )}
+              />
+            </div>
+          ) : (
+            <ul className="flex flex-wrap gap-2" aria-label="Quick facts">
+              {profile.facts.map((fact) => (
+                <li key={fact.label} className={CHIP}>
+                  <ContentIcon icon={fact.icon} className="h-3.5 w-3.5" />
+                  {fact.label}
+                </li>
+              ))}
+            </ul>
+          )}
 
           {/* div, not p: AnimatedBars renders block elements, which are
               invalid inside a paragraph and break hydration. */}
@@ -133,7 +175,7 @@ const About = () => {
         <div className="order-1 flex justify-center md:order-2">
           <div className="relative h-80 w-72 overflow-hidden rounded-3xl shadow-[0_16px_40px_rgba(0,0,0,0.22)] transition-transform duration-500 ease-out hover:-translate-y-1">
             <Image
-              src="https://vsgkt473qeluf9ed.public.blob.vercel-storage.com/images/ismaelbarajas.jpg"
+              src={profile.photoUrl}
               alt="Ismael Barajas"
               fill
               sizes="288px"

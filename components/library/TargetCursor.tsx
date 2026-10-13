@@ -7,6 +7,7 @@ import {
 } from "react";
 import gsap from "gsap";
 import usePerformanceTier from "hooks/usePerformanceTier";
+import { useCursorSuspended } from "lib/cursorStore";
 
 export interface TargetCursorProps {
   targetSelector?: string;
@@ -86,11 +87,16 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
     setActive(next);
   }, []);
 
+  // Suspended (lib/cursorStore.ts) while UI such as the admin drawer needs
+  // the native cursor: the class comes off and the ring and dot hide. The
+  // listeners keep tracking the mouse so the ring is in place on release.
+  const suspended = useCursorSuspended();
+
   useEffect(() => {
-    if (isMobile || !active || !hideDefaultCursor) return;
+    if (isMobile || !active || suspended || !hideDefaultCursor) return;
     document.documentElement.classList.add(CURSOR_CLASS);
     return () => document.documentElement.classList.remove(CURSOR_CLASS);
-  }, [active, isMobile, hideDefaultCursor]);
+  }, [active, isMobile, suspended, hideDefaultCursor]);
 
   const moveCursor = useCallback((x: number, y: number) => {
     if (dotRef.current) {
@@ -265,9 +271,10 @@ const TargetCursor: React.FC<TargetCursorProps> = ({
     "border-r-0 border-t-0 rounded-bl-[4px]",
   ];
 
-  // Hidden until a mouse moves. This is inline so it is in the server HTML
-  // too: nothing to see at 0,0 on a phone, even if hydration is slow.
-  const visibility = active ? "visible" : "hidden";
+  // Hidden until a mouse moves, and while suspended. This is inline so it is
+  // in the server HTML too: nothing to see at 0,0 on a phone, even if
+  // hydration is slow.
+  const visibility = active && !suspended ? "visible" : "hidden";
 
   return (
     <>

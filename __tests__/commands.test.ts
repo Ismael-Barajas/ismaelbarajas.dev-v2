@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
-  HELP_LINES,
   HELP_PAD,
   complete,
   formatLocation,
   formatPrompt,
   formatUptime,
+  helpLines,
   listDir,
   parseLine,
   parseLocation,
@@ -15,6 +15,7 @@ import {
   type CommandContext,
   type Location,
 } from "lib/commands";
+import { resetContactLinks, setContactLinks } from "lib/contactRegistry";
 
 const HOME: Location = { pathname: "/", hash: "" };
 const ABOUT: Location = { pathname: "/", hash: "about" };
@@ -33,6 +34,8 @@ const ctx = (over: Partial<CommandContext> = {}): CommandContext => ({
   versions: { next: "16.3.5", react: "19.2.6" },
   ...over,
 });
+
+afterEach(resetContactLinks);
 
 describe("parseLine", () => {
   it("trims, collapses whitespace and lowercases the name only", () => {
@@ -138,7 +141,9 @@ describe("locations", () => {
   });
 
   it("clamps an unknown pathname to home", () => {
-    expect(parseLocation("/admin/login", "")).toEqual(HOME);
+    for (const path of ["/admin", "/admin/login", "/login", "/nope"]) {
+      expect(parseLocation(path, "")).toEqual(HOME);
+    }
   });
 
   it("formats the prompt as a path under ~", () => {
@@ -230,6 +235,16 @@ describe("complete", () => {
     expect(complete("theme ", HOME).matches).toEqual(["dark", "light"]);
   });
 
+  it("completes custom contact links", () => {
+    setContactLinks([
+      { label: "Resume", url: "https://example.com/resume.pdf" },
+      { label: "My Blog!", url: "https://example.com/blog" },
+    ]);
+    expect(complete("open ", HOME).matches).toEqual(["resume", "my-blog"]);
+    expect(complete("open m", HOME)).toEqual({ completed: "open my-blog ", matches: ["my-blog"] });
+    expect(complete("open g", HOME)).toEqual({ matches: [] });
+  });
+
   it("has nothing for commands without arguments", () => {
     expect(complete("help x", HOME)).toEqual({ matches: [] });
   });
@@ -237,19 +252,19 @@ describe("complete", () => {
 
 describe("help", () => {
   it("aligns every description at HELP_PAD", () => {
-    for (const line of HELP_LINES) {
+    for (const line of helpLines()) {
       expect(line.slice(HELP_PAD - 2, HELP_PAD)).toBe("  ");
       expect(line.length).toBeGreaterThan(HELP_PAD);
     }
-    expect(HELP_LINES.some((l) => l.startsWith("cd [target]"))).toBe(true);
-    expect(HELP_LINES.some((l) => l.includes("sudo"))).toBe(false);
+    expect(helpLines().some((l) => l.startsWith("cd [target]"))).toBe(true);
+    expect(helpLines().some((l) => l.includes("sudo"))).toBe(false);
   });
 
   it("prints the list under a heading", () => {
     const { lines, effect } = run("help", ctx());
     expect(effect).toBeUndefined();
     expect(lines[0]).toEqual({ kind: "out", text: "Available commands:" });
-    expect(lines.slice(1).map((l) => l.text)).toEqual(HELP_LINES);
+    expect(lines.slice(1).map((l) => l.text)).toEqual(helpLines());
   });
 });
 
@@ -383,6 +398,65 @@ describe("run", () => {
       { kind: "err", text: "command not found: xyz" },
       { kind: "out", text: "type help for a list of commands" },
     ]);
+  });
+});
+
+describe("open with custom contact links", () => {
+  const custom = [
+    { label: "Resume", url: "https://example.com/resume.pdf" },
+    { label: "My Blog!", url: "https://example.com/blog" },
+  ];
+
+  it("opens links by their derived keys", () => {
+    setContactLinks(custom);
+    expect(run("open resume", ctx()).effect).toEqual({
+      type: "open",
+      url: "https://example.com/resume.pdf",
+    });
+    expect(run("open my-blog", ctx()).effect).toEqual({
+      type: "open",
+      url: "https://example.com/blog",
+    });
+    expect(run("open github", ctx()).lines).toEqual([
+      { kind: "err", text: "open: unknown link: github" },
+      { kind: "out", text: "resume | my-blog" },
+    ]);
+  });
+
+  it("lists the live keys in help", () => {
+    setContactLinks(custom);
+    expect(helpLines().find((l) => l.startsWith("open <link>"))).toMatch(/resume \| my-blog$/);
+  });
+
+  it("suffixes duplicate keys", () => {
+    setContactLinks([
+      { label: "Blog", url: "https://a.example" },
+      { label: "blog", url: "https://b.example" },
+      { label: "BLOG!", url: "https://c.example" },
+      { label: "???", url: "https://d.example" },
+    ]);
+    expect(complete("open ", HOME).matches).toEqual(["blog", "blog-2", "blog-3", "link"]);
+    expect(run("open blog-2", ctx()).effect).toEqual({ type: "open", url: "https://b.example" });
+  });
+
+  it("keeps the built-in keys for the built-in labels", () => {
+    setContactLinks([
+      { label: "LinkedIn", url: "https://l.example" },
+      { label: "GitHub", url: "https://g.example" },
+      { label: "Email", url: "mailto:a@b.c" },
+      { label: "Instagram", url: "https://i.example" },
+    ]);
+    expect(complete("open ", HOME).matches).toEqual(["linkedin", "github", "email", "instagram"]);
+  });
+
+  it("restores the defaults for an empty list", () => {
+    setContactLinks(custom);
+    setContactLinks([]);
+    expect(run("open github", ctx()).effect).toEqual({
+      type: "open",
+      url: "https://github.com/Ismael-Barajas",
+    });
+    expect(run("open resume", ctx()).lines[0].kind).toBe("err");
   });
 });
 

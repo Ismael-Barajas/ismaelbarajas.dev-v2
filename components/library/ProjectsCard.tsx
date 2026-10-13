@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { SiGithub } from "react-icons/si";
 import { HiOutlineExternalLink } from "react-icons/hi";
@@ -12,13 +13,23 @@ interface Props {
   github_url: string;
   body: string[];
   tags: Array<TechListType>;
+  /** Admin toolbar, shown top-left over the image (the links are top-right). */
+  adminControls?: ReactNode;
 }
 
 /**
  * Image-header card: the screenshot fills the top and fades into the card,
  * the title sits on the fade, and the two link buttons float on the image.
  */
-const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
+const ProjectsCard = ({
+  img,
+  url,
+  github_url,
+  tags,
+  body,
+  name,
+  adminControls,
+}: Props) => {
   return (
     <article
       className={`${FROSTED_CARD} ${FROSTED_CARD_HOVER} relative w-full max-w-lg overflow-hidden`}
@@ -36,6 +47,9 @@ const ProjectsCard = ({ img, url, github_url, tags, body, name }: Props) => {
           aria-hidden="true"
           className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#F0F0F0]/95 dark:to-[#202020]/95"
         />
+        {adminControls && (
+          <div className="absolute left-3 top-3 z-10">{adminControls}</div>
+        )}
         <div className="absolute right-3 top-3 flex gap-2">
           <ToolTip content="Visit the live site" position="bottom">
             <IconButton

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { calculateAge } from "lib/age";
+import { ageInYears, calculateAge } from "lib/age";
 
 describe("calculateAge", () => {
   afterEach(() => {
@@ -54,5 +54,19 @@ describe("calculateAge", () => {
     const decimal = parseFloat(`0.${decimalStr}`);
     expect(decimal).toBeGreaterThanOrEqual(0);
     expect(decimal).toBeLessThan(1);
+  });
+});
+
+describe("ageInYears", () => {
+  it("matches the integer part of calculateAge", () => {
+    const now = new Date(2026, 2, 15).getTime();
+    vi.spyOn(Date, "now").mockReturnValue(now);
+    expect(ageInYears(now)).toBe(parseInt(calculateAge(), 10));
+    vi.restoreAllMocks();
+  });
+
+  it("rolls over around the birthday", () => {
+    expect(ageInYears(new Date(2026, 0, 29).getTime())).toBe(28);
+    expect(ageInYears(new Date(2026, 0, 31).getTime())).toBe(29);
   });
 });

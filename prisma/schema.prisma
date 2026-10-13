@@ -31,3 +31,24 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+/// Singleton row (id is always 1) behind the About section.
+model Profile {
+  id        Int      @id @default(1)
+  bio       String[]
+  photoUrl  String
+  /// [{ label, icon }] in display order; icon keys live in lib/content/icons.ts.
+  facts     Json     @default("[]")
+  updatedAt DateTime @updatedAt
+}
+
+model ContactLink {
+  id        Int      @id @default(autoincrement())
+  label     String
+  url       String
+  /// Checked against CONTACT_ICONS in code rather than a Prisma enum.
+  icon      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -72,8 +72,9 @@ export const SETTLE_CAP_MS = 2000;
 
 /**
  * Whether the intro plays this page load. Reduced motion and the "low"
- * effects tier skip it outright; "reduced" still plays. The admin pages are
- * a tool, not the site.
+ * effects tier skip it outright; "reduced" still plays. The login page is a
+ * tool, not the site. Keep the path check in sync with the bootstrap in
+ * pages/_document.tsx.
  */
 export function shouldPlayIntro(o: {
   alreadyPlayed: boolean;
@@ -82,7 +83,7 @@ export function shouldPlayIntro(o: {
   pathname: string;
 }): boolean {
   if (o.alreadyPlayed || o.reducedMotion || o.perfTier === "low") return false;
-  return !o.pathname.startsWith("/admin");
+  return !o.pathname.startsWith("/login");
 }
 
 export interface BootContext {

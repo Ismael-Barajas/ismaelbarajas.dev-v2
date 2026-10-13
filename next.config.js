@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV !== "production";
 
 // sha256 of the inline theme bootstrap script in pages/_document.tsx. Update
 // it if that script changes (node -e with crypto.createHash("sha256")).
-const THEME_SCRIPT_HASH = "'sha256-02gn2SwfsK0ZNTKat3pGOJyVSxCq8kCVKhRYGOAdyss='";
+const THEME_SCRIPT_HASH = "'sha256-GjZb7FksJYx4qXyKK1MSmde8GZUsVXqU/gWmejBHsF0='";
 
 /**
  * Content-Security-Policy, shipped as Report-Only first. Violations show in
@@ -31,6 +31,8 @@ const contentSecurityPolicy = [
 
 module.exports = {
   reactStrictMode: true,
+  // Stop `next dev` from appending its agent-rules block to CLAUDE.md/AGENTS.md.
+  agentRules: false,
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
   transpilePackages: ["three", "@react-three/fiber", "@react-three/postprocessing", "its-fine"],
   turbopack: {},

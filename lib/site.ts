@@ -37,6 +37,11 @@ export const COMPRESSIONS_SECTIONS = [
   "download",
 ] as const;
 
+/**
+ * The built-in contact links: the fallback when none are saved, and the seed
+ * for the editable list (lib/content/defaults.ts). The terminal's `open`
+ * reads the live list through lib/contactRegistry.ts instead.
+ */
 export const CONTACT_LINKS = [
   { key: "linkedin", name: "LinkedIn", url: "https://www.linkedin.com/in/ismael-barajas/" },
   { key: "github", name: "GitHub", url: "https://github.com/Ismael-Barajas" },
