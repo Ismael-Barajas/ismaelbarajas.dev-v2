@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import clsx from "clsx";
 import { TagIcons } from "components";
 import { FROSTED_CARD, FROSTED_CARD_HOVER } from "./Button";
 import { TechListType } from "./TagIcons";
@@ -58,9 +59,12 @@ const ExperienceCard = ({
         />
       </a>
       <div
-        className={`${FROSTED_CARD} ${FROSTED_CARD_HOVER} p-5${
-          adminControls ? " relative" : ""
-        }`}
+        className={clsx(
+          FROSTED_CARD,
+          FROSTED_CARD_HOVER,
+          "p-5",
+          adminControls && "relative",
+        )}
       >
         {/* In flow on phones, floating top-right from sm up. */}
         {adminControls && (
@@ -69,16 +73,18 @@ const ExperienceCard = ({
           </div>
         )}
         <p
-          className={`text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400${
-            adminControls ? " sm:pr-32" : ""
-          }`}
+          className={clsx(
+            "text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400",
+            adminControls && "sm:pr-32",
+          )}
         >
           {position.time_commitment}
         </p>
         <h3
-          className={`mt-0.5 text-xl font-semibold text-text${
-            adminControls ? " sm:pr-32" : ""
-          }`}
+          className={clsx(
+            "mt-0.5 text-xl font-semibold text-text",
+            adminControls && "sm:pr-32",
+          )}
         >
           {position.position}
         </h3>
