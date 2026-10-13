@@ -17,14 +17,15 @@ Personal portfolio website built with Next.js, TypeScript, and Tailwind CSS. Fea
 - **Rate Limiting:** Upstash Redis
 - **Analytics:** Vercel Analytics
 - **Testing:** Vitest
-- **Integrations:** Spotify Web API (access token cached server-side for its full lifetime to reduce refresh calls)
+- **Integrations:** Spotify Web API (access token cached server-side for its full lifetime to reduce refresh calls) and Steam Web API (presence and library, key kept server-side)
 
 ## Features
 
 - Real-time Spotify "Now Playing" widget with animated equalizer bars, a smoothly interpolating progress bar that resyncs against the server, album art color extraction, and palette-driven accent colors (bars, artist text, and the Listen page's plasma background adopt colors derived from the current album art)
 - Listen page (`/listen`) with tabs for top tracks (4 weeks / 6 months / all time), playlists, and liked songs
+- Steam page (`/play`) with live presence (playing, online, or offline with last seen), the top 5 games by all-time hours, and a "Lately" list of games played in the past two weeks. While a game is running, the About section shows a "playing X" line, and the navigation terminal gets a `steam` command, log lines when presence changes, and a boot-intro line. Steam is optional: without its env vars the feature switches itself off.
 - Boot intro: on the first page of a session the navigation terminal appears centered, types a boot log, then docks to the bottom-left corner while the site fades in. Skipped for reduced motion, the "Minimal" effects tier, and the login page.
-- Navigation terminal: a fixed panel that logs route changes, hash jumps, outbound links, theme and effects changes, and what Spotify is playing. Under the log is a prompt with tab completion; press `` ` `` (backtick) anywhere to focus it. Commands: `help`, `cd`, `ls`, `pwd`, `theme`, `effects`, `open`, `np`, `whoami`, `date`, `clear`, `exit`. `cd` treats the site as a small filesystem (`cd listen/playlists`, `cd #projects`, `cd ..`, `cd -`). `open` follows the contact links edited in the admin view. A nav toggle shows or hides the panel.
+- Navigation terminal: a fixed panel that logs route changes, hash jumps, outbound links, theme and effects changes, and what Spotify is playing. Under the log is a prompt with tab completion; press `` ` `` (backtick) anywhere to focus it. Commands: `help`, `cd`, `ls`, `pwd`, `theme`, `effects`, `open`, `np`, `steam`, `whoami`, `date`, `clear`, `exit`. `cd` treats the site as a small filesystem (`cd listen/playlists`, `cd #projects`, `cd ..`, `cd -`). `open` follows the contact links edited in the admin view. A nav toggle shows or hides the panel.
 - Performance tiers for the WebGL and blur-heavy effects: Auto, Full, Reduced, Minimal. Auto classifies the device from WebGL availability, software-renderer strings, reduce-motion, data saver, CPU/memory hints, then measures frame rate and downgrades if needed. The nav's lightning-bolt toggle (or the terminal's `effects` command) overrides it; the choice is stored in localStorage under `perf` and applied before first paint via `data-perf` on `<html>`.
 - Dark/light theme toggle with localStorage persistence
 - Responsive portfolio sections: Hero, About, Experience, Projects, Contact
@@ -53,6 +54,11 @@ Create a `.env.local` file with the following:
 SPOTIFY_CLIENT_ID=
 SPOTIFY_CLIENT_SECRET=
 SPOTIFY_REFRESH_TOKEN=
+
+# Steam — API key from https://steamcommunity.com/dev/apikey (the account must have spent $5 on Steam)
+STEAM_API_KEY=
+# Steam — 17-digit SteamID64, shown under Account details
+STEAM_ID=
 
 # Database — PostgreSQL connection string
 DATABASE_URL=postgresql://user:password@host:5432/dbname
@@ -84,6 +90,12 @@ npm run spotify:token
 ```
 
 Sign in when the browser opens, then copy the printed `SPOTIFY_REFRESH_TOKEN` into `.env.local` and the Vercel environment.
+
+Steam needs the profile's privacy settings opened up, or games and hours come back empty. In the Steam profile's Privacy Settings, set "My profile" and "Game details" to Public, and leave "Always keep my total playtime private" unchecked.
+
+If `STEAM_API_KEY` or `STEAM_ID` is missing, the Steam feature turns itself off: the `/api/steam/*` routes return 404, `/play` shows a "not connected" notice, the About line stays hidden, and the `steam` command reports "steam: not connected".
+
+To hide a game from the site (an overlay tool, say), add its app ID to `HIDDEN_APP_IDS` in `lib/steam/config.ts`. The ID is the number in its store URL, `store.steampowered.com/app/{id}`. Hidden games drop out of both lists, and playing one reads as plain "Online". `TOP_N` and `LATELY_N` in the same file set the list lengths.
 
 After setting `DATABASE_URL`, push the schema and seed the database:
 
@@ -119,9 +131,10 @@ npm run favicon -- <image>  # Regenerate favicon.ico, favicon-32.png, apple-touc
 │   ├── index.tsx          # Home page (statically generated with ISR)
 │   ├── compressions.tsx   # Compressions app landing page
 │   ├── listen.tsx         # Spotify listening page (top tracks, playlists, liked songs)
+│   ├── play.tsx           # Steam presence and game lists (/play)
 │   ├── login.tsx          # Hidden sign-in page (not linked from the site)
 │   ├── _document.tsx      # Pre-paint bootstrap for theme, perf tier, and boot intro; favicons; fonts
-│   └── api/               # API routes (Spotify, experience, projects, admin)
+│   └── api/               # API routes (Spotify, Steam, experience, projects, admin)
 ├── components/
 │   ├── admin/             # Inline admin view: side drawer, forms, sortable list, toolbars, admin bar
 │   ├── compressions/      # Compressions landing page sections and atoms
@@ -138,6 +151,9 @@ npm run favicon -- <image>  # Regenerate favicon.ico, favicon-32.png, apple-touc
 │   ├── contactRegistry.ts # Contact links the terminal `open` command reads
 │   ├── types/             # Shared content types
 │   ├── spotify.ts         # Spotify Web API client with token caching
+│   ├── steam.ts           # Steam Web API client and presence/library mapping
+│   ├── steam/             # Steam hide list and list sizes, playtime and last-seen formatting
+│   ├── steamPresenceFetcher.ts  # Client fetcher for /api/steam/presence
 │   ├── site.ts            # Site map (sections, pages, listen tabs, contact links) shared by nav and terminal
 │   ├── commands.ts        # Pure terminal command interpreter and tab completion
 │   ├── navLog.ts          # Terminal log store and describe* helpers
@@ -148,7 +164,7 @@ npm run favicon -- <image>  # Regenerate favicon.ico, favicon-32.png, apple-touc
 │   ├── adminPassword.ts   # bcrypt / constant-time password verification
 │   ├── session.ts         # Iron-session config
 │   └── prisma.ts          # Prisma client
-├── hooks/                 # Custom React hooks (useTheme, useAdmin, useContent, useReorder, usePerformanceTier, useNowPlaying, useNavObservers, etc.)
+├── hooks/                 # Custom React hooks (useTheme, useAdmin, useContent, useReorder, usePerformanceTier, useNowPlaying, useSteamPresence, useNavObservers, etc.)
 ├── scripts/               # admin-hash, spotify-refresh-token, make-favicon
 ├── __tests__/             # Vitest test suites
 ├── prisma/
@@ -191,10 +207,11 @@ Plaintext `ADMIN_PASSWORD` still works as a fallback (compared in constant time)
 - **Upload restrictions:** POST only; blob keys must be under `images/`; only JPEG, PNG, GIF, and WebP images allowed (max 5 MB)
 - **Album-art fetches:** palette extraction only fetches from Spotify CDN hosts
 - **Now Playing caching:** the `/api/now-playing` route sets short CDN `Cache-Control` headers (5 s while a track is loaded, 30 s idle), honors Spotify `Retry-After` on 429s, and serves the last known payload while rate limited, so Spotify quota does not scale with visitor count.
+- **Steam caching:** `/api/steam/presence` sets `s-maxage=10` with no stale-while-revalidate, is polled every 10s by the client while the tab is visible, serves the last known status when Steam errors, and honors `Retry-After` on 429s (cached for 5–60 s). `/api/steam/library` sets `s-maxage=21600, stale-while-revalidate=86400`. The Steam API key stays server-side. Header art and avatars load from Steam CDN hosts allowlisted in `next.config.js` (`images.remotePatterns` and the CSP `img-src`), and palette extraction only fetches from those hosts.
 
 ## Testing
 
-Tests use [Vitest](https://vitest.dev/) and cover security utilities, rate limiting, API routes, authentication, input validation, uploads, Spotify integration and now-playing caching, the terminal command interpreter, the navigation log, the boot intro, the typing queue, performance tier classification, the content defaults and `{age}` bio helper, the contact-link registry, and drag-and-drop reordering.
+Tests use [Vitest](https://vitest.dev/) and cover security utilities, rate limiting, API routes, authentication, input validation, uploads, Spotify integration and now-playing caching, Steam presence and library routes, the terminal command interpreter, the navigation log, the boot intro, the typing queue, performance tier classification, the content defaults and `{age}` bio helper, the contact-link registry, and drag-and-drop reordering.
 
 ```bash
 npm test           # Run all tests once

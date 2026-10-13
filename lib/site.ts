@@ -17,6 +17,7 @@ export const SECTIONS = [
 /** Pages the NavBar links to besides home. */
 export const PAGES = [
   { pathname: "/listen", label: "Listen" },
+  { pathname: "/play", label: "Play" },
   { pathname: "/compressions", label: "Compressions" },
 ] as const;
 

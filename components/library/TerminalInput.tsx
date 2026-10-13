@@ -9,7 +9,9 @@ import {
   type RefObject,
   type SyntheticEvent,
 } from "react";
+import useSWR from "swr";
 import { useActiveSection, useNowPlaying } from "hooks";
+import useSteamPresence from "hooks/useSteamPresence";
 import { setTheme } from "hooks/useTheme";
 import {
   complete,
@@ -24,7 +26,9 @@ import {
 } from "lib/commands";
 import { colorToHex } from "lib/intro";
 import { clearEntries, describeClick, log, setView, type PlaybackSample } from "lib/navLog";
+import fetcher from "lib/fetcher";
 import { getPreference, getTier, setPreference } from "lib/perfStore";
+import type { SteamLibrary, SteamPresence } from "lib/steam";
 import { CURSOR_GLYPH } from "./TerminalLine";
 
 /**
@@ -39,6 +43,8 @@ import { CURSOR_GLYPH } from "./TerminalLine";
 /** Module-level so the history survives the panel hiding or folding. */
 const history: string[] = [];
 const HISTORY_MAX = 50;
+/** The route's URL is the SWR key, so any other reader of it shares the cache entry. */
+const STEAM_LIBRARY_KEY = "/api/steam/library";
 const bootAt = typeof performance === "undefined" ? 0 : performance.now();
 
 const readLocation = (): Location =>
@@ -89,6 +95,8 @@ function readContext(
   location: Location,
   accent: string,
   nowPlaying: PlaybackSample | null,
+  steamPresence: SteamPresence | undefined,
+  steamLibrary: SteamLibrary | undefined,
 ): CommandContext {
   const root = document.documentElement;
   const next = (window as { next?: { version?: string } }).next?.version;
@@ -97,6 +105,8 @@ function readContext(
     theme: root.classList.contains("dark") ? "dark" : "light",
     effects: { preference: getPreference(), tier: getTier() },
     nowPlaying,
+    steamPresence,
+    steamLibrary,
     // A playing album's accent arrives as rgb(); the log prints hex.
     accent: colorToHex(accent),
     uptimeMs: performance.now() - bootAt,
@@ -153,6 +163,15 @@ interface Props {
 const TerminalInput = ({ promptColor, inputRef, onTick, onActivity }: Props) => {
   const router = useRouter();
   const { data: nowPlaying } = useNowPlaying();
+  const { data: steamPresence } = useSteamPresence();
+  // This component only mounts while the prompt is showing, so visitors who
+  // never open the terminal never fetch the library. The route is edge-cached
+  // for hours; one fetch per session is plenty.
+  const { data: steamLibrary } = useSWR<SteamLibrary>(
+    steamPresence && steamPresence.state !== "disabled" ? STEAM_LIBRARY_KEY : null,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
   const location = useLocation();
   const prompt = formatPrompt(location);
   const id = useId();
@@ -184,7 +203,10 @@ const TerminalInput = ({ promptColor, inputRef, onTick, onActivity }: Props) => 
     setCursor(history.length);
 
     log("cmd", line, { instant: true, prompt });
-    const result = run(line, readContext(location, promptColor, nowPlaying ?? null));
+    const result = run(
+      line,
+      readContext(location, promptColor, nowPlaying ?? null, steamPresence, steamLibrary),
+    );
     for (const l of result.lines) log(l.kind, l.text, { instant: true });
     if (result.effect) {
       if (result.effect.type === "open") {

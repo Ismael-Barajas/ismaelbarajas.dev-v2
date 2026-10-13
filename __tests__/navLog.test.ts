@@ -6,6 +6,7 @@ import {
   clearEntries,
   describeClick,
   describePlayback,
+  describeSteamTransition,
   endPeek,
   fitsBesideContent,
   formatTime,
@@ -18,6 +19,7 @@ import {
   subscribe,
   type PlaybackSample,
 } from "lib/navLog";
+import type { SteamPresence } from "lib/steam";
 
 const HERE = "https://ismaelbarajas.dev/listen";
 const HOME = "https://ismaelbarajas.dev/";
@@ -132,6 +134,73 @@ describe("describePlayback", () => {
   it("does not re-announce a paused song that stays paused on a new sample", () => {
     const paused = { ...track, isPlaying: false };
     expect(describePlayback(paused, { ...other, isPlaying: false })).toBeNull();
+  });
+});
+
+describe("describeSteamTransition", () => {
+  const game = (appId: number | null, name: string) => ({
+    appId,
+    name,
+    headerUrl: null,
+    storeUrl: null,
+  });
+  const playing = (name = "Hades", appId: number | null = 1145360): SteamPresence => ({
+    state: "playing",
+    game: game(appId, name),
+  });
+  const online: SteamPresence = { state: "online" };
+  const offline: SteamPresence = { state: "offline", lastSeen: 1_700_000_000 };
+  const unavailable: SteamPresence = { state: "unavailable" };
+  const disabled: SteamPresence = { state: "disabled" };
+
+  it("announces a game starting from online or offline", () => {
+    expect(describeSteamTransition(online, playing())).toBe("STARTED PLAYING Hades");
+    expect(describeSteamTransition(offline, playing())).toBe("STARTED PLAYING Hades");
+  });
+
+  it("announces a switch of game, by id or by name for non-Steam shortcuts", () => {
+    expect(describeSteamTransition(playing("Hades"), playing("Celeste", 504230))).toBe(
+      "STARTED PLAYING Celeste",
+    );
+    expect(describeSteamTransition(playing("Emulator", null), playing("Other", null))).toBe(
+      "STARTED PLAYING Other",
+    );
+  });
+
+  it("announces a game ending, naming the game", () => {
+    expect(describeSteamTransition(playing(), online)).toBe("STOPPED PLAYING Hades");
+  });
+
+  it("announces coming online from offline", () => {
+    expect(describeSteamTransition(offline, online)).toBe("WENT ONLINE");
+  });
+
+  it("announces going offline from online or from a game", () => {
+    expect(describeSteamTransition(online, offline)).toBe("WENT OFFLINE");
+    expect(describeSteamTransition(playing(), offline)).toBe("WENT OFFLINE");
+  });
+
+  it("says nothing on the first sample after boot", () => {
+    expect(describeSteamTransition(undefined, playing())).toBeNull();
+    expect(describeSteamTransition(undefined, online)).toBeNull();
+    expect(describeSteamTransition(undefined, offline)).toBeNull();
+  });
+
+  it("says nothing when the poll repeats the same state", () => {
+    expect(describeSteamTransition(playing(), playing())).toBeNull();
+    expect(describeSteamTransition(online, { ...online })).toBeNull();
+    expect(describeSteamTransition(offline, { ...offline, lastSeen: 1_700_000_999 })).toBeNull();
+  });
+
+  it("hides errors: nothing into or out of unavailable or disabled", () => {
+    for (const bad of [unavailable, disabled]) {
+      for (const good of [playing(), online, offline]) {
+        expect(describeSteamTransition(good, bad)).toBeNull();
+        expect(describeSteamTransition(bad, good)).toBeNull();
+      }
+      expect(describeSteamTransition(bad, bad)).toBeNull();
+      expect(describeSteamTransition(undefined, bad)).toBeNull();
+    }
   });
 });
 

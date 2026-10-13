@@ -9,6 +9,7 @@
  * StrictMode double-mount, and the panel unmounting on `hidden`, can't
  * restart or tear down a sequence that is already running.
  */
+import { preload } from "swr";
 import {
   DOCK_MS,
   INTRO_ATTRIBUTE,
@@ -32,6 +33,8 @@ import {
 } from "./navLog";
 import { PERF_ATTRIBUTE } from "./perf";
 import { getTier, initPerf } from "./perfStore";
+import type { SteamPresence } from "./steam";
+import steamPresenceFetcher, { STEAM_PRESENCE_KEY } from "./steamPresenceFetcher";
 import { safeGet, safeSet, sessionStore } from "./storage";
 import { flushTyping, typingDuration, typingIdle } from "./typingQueue";
 
@@ -99,7 +102,22 @@ function readAccent(): string {
   return transparent ? TERMINAL_ORANGE : colorToHex(val);
 }
 
-function bootContext(): BootContext {
+/** Longest the intro waits on Steam before booting without its line. */
+const STEAM_WAIT_MS = 400;
+
+/**
+ * The first presence sample, for the boot line. `preload` fills the same SWR
+ * cache the site-wide hook reads, so this is the page's first poll rather
+ * than an extra request. It never rejects; on a slow answer the line is just
+ * left out (the later transition lines cover the rest).
+ */
+const fetchSteam = (): Promise<SteamPresence | undefined> =>
+  Promise.race([
+    preload<SteamPresence>(STEAM_PRESENCE_KEY, steamPresenceFetcher),
+    wait(STEAM_WAIT_MS).then(() => undefined),
+  ]).catch(() => undefined);
+
+function bootContext(steam?: SteamPresence): BootContext {
   const root = document.documentElement;
   return {
     theme: root.classList.contains("dark") ? "dark" : "light",
@@ -107,6 +125,7 @@ function bootContext(): BootContext {
     pathname: window.location.pathname,
     accent: readAccent(),
     now: new Date(),
+    steam,
   };
 }
 
@@ -146,6 +165,9 @@ export async function startIntro() {
   }
 
   safeSet(sessionStore(), INTRO_SESSION_KEY, "1");
+  // Started now so the request overlaps the setup below instead of holding
+  // up the boot; the wait is counted from here.
+  const steam = fetchSteam();
   // Timers are throttled in a background tab; wait so the boot isn't mangled.
   if (document.visibilityState === "hidden") await untilVisible();
   setStage("boot");
@@ -175,7 +197,7 @@ export async function startIntro() {
   window.addEventListener("wheel", block, { passive: false });
   window.addEventListener("touchmove", block, { passive: false });
 
-  const script = buildBootScript(bootContext(), "full");
+  const script = buildBootScript(bootContext(await steam), "full");
   const loading = script.filter((line) => line.kind !== "done");
   setProgress({
     done: 0,

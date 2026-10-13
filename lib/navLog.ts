@@ -10,6 +10,7 @@
  * so the interesting branches are unit tested (__tests__/navLog.test.ts).
  */
 import { localStore, safeGet, safeSet } from "./storage";
+import type { SteamPresence } from "./steam";
 
 export type LogKind =
   | "boot"
@@ -333,4 +334,32 @@ export function describePlayback(
 
   if (!prev || !prev.isPlaying) return null;
   return prevUrl === nextUrl ? "PLAYBACK PAUSED" : "PLAYBACK STOPPED";
+}
+
+/** Same game: Steam titles by app id, non-Steam shortcuts (no id) by name. */
+const sameGame = (a: SteamPresence, b: SteamPresence): boolean =>
+  a.game?.appId === b.game?.appId && a.game?.name === b.game?.name;
+
+/**
+ * The line for a Steam presence change, or null when nothing worth printing
+ * happened. Like describePlayback, the poll repeats the same sample, so only
+ * a different state or game prints, and `prev` of undefined (the first
+ * sample after boot) is silent. Errors stay out of the log: a sample that is
+ * `unavailable` or `disabled`, on either side, says nothing.
+ */
+export function describeSteamTransition(
+  prev: SteamPresence | undefined,
+  next: SteamPresence,
+): string | null {
+  if (!prev) return null;
+  const hidden = (p: SteamPresence) => p.state === "unavailable" || p.state === "disabled";
+  if (hidden(prev) || hidden(next)) return null;
+
+  if (next.state === "playing") {
+    if (prev.state === "playing" && sameGame(prev, next)) return null;
+    return `STARTED PLAYING ${next.game?.name}`;
+  }
+  if (prev.state === next.state) return null;
+  if (next.state === "offline") return "WENT OFFLINE";
+  return prev.state === "playing" ? `STOPPED PLAYING ${prev.game?.name}` : "WENT ONLINE";
 }

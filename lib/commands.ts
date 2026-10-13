@@ -19,9 +19,11 @@ import {
   type PerfTier,
 } from "./perf";
 import { getContactLinks } from "./contactRegistry";
+import type { SteamLibrary, SteamPresence } from "./steam";
+import { formatLastSeen, formatPlaytime } from "./steam/format";
 import { COMPRESSIONS_SECTIONS, LISTEN_TABS, PAGES, SECTIONS } from "./site";
 
-export type Pathname = "/" | "/listen" | "/compressions";
+export type Pathname = "/" | "/listen" | "/play" | "/compressions";
 
 /** Where the visitor is; `hash` without its "#", "" for the top of a page. */
 export interface Location {
@@ -34,6 +36,7 @@ const HOME: Location = { pathname: "/", hash: "" };
 const TREE: Record<Pathname, { dirs: readonly string[]; sections: readonly string[] }> = {
   "/": { dirs: PAGES.map((p) => p.pathname.slice(1)), sections: SECTIONS.map((s) => s.hash) },
   "/listen": { dirs: [], sections: LISTEN_TABS.map((t) => t.key) },
+  "/play": { dirs: [], sections: [] },
   "/compressions": { dirs: [], sections: COMPRESSIONS_SECTIONS },
 };
 
@@ -144,6 +147,7 @@ export const COMMANDS: readonly Command[] = [
   { name: "effects", usage: "effects [level]", description: "auto | full | reduced | low" },
   { name: "open", usage: "open <link>", description: contactKeys },
   { name: "np", usage: "np", description: "what spotify is playing" },
+  { name: "steam", usage: "steam", description: "what steam is playing, and the top games" },
   { name: "whoami", usage: "whoami", description: "who runs this place" },
   { name: "date", usage: "date", description: "local date and time" },
   { name: "clear", usage: "clear", description: "clear the log (also ctrl+l)" },
@@ -166,6 +170,10 @@ export interface CommandContext {
   theme: "dark" | "light";
   effects: { preference: PerfPreference; tier: PerfTier };
   nowPlaying: PlaybackSample | null;
+  /** Undefined until the first poll lands. */
+  steamPresence?: SteamPresence;
+  /** Undefined until fetched, and when Steam isn't connected. */
+  steamLibrary?: SteamLibrary;
   /** The prompt color, as hex. */
   accent: string;
   /** Since the page loaded. */
@@ -232,6 +240,46 @@ function neofetch(ctx: CommandContext): CommandResult {
   return { lines };
 }
 
+/** Longest game name `steam` prints; the rest is cut so a row stays on one line. */
+const STEAM_NAME_MAX = 28;
+
+function describeSteam(presence: SteamPresence | undefined, now: number): string {
+  switch (presence?.state) {
+    case "playing":
+      return `playing ${presence.game?.name}`;
+    case "online":
+      return "online";
+    case "offline":
+      return presence.lastSeen
+        ? `offline · last seen ${formatLastSeen(presence.lastSeen, now)}`
+        : "offline";
+    case "unavailable":
+      return "steam unavailable";
+    case "disabled":
+      return "steam: not connected";
+    default:
+      return "steam: loading";
+  }
+}
+
+/** The status line, then the top games with their all-time hours. */
+function steam(ctx: CommandContext): CommandResult {
+  const { steamPresence, steamLibrary } = ctx;
+  const lines = [out(describeSteam(steamPresence, ctx.now.getTime()))];
+  if (steamPresence?.state === "disabled") return { lines };
+
+  const rows = (steamLibrary?.top ?? []).map((g) => ({
+    name: g.name.length > STEAM_NAME_MAX ? `${g.name.slice(0, STEAM_NAME_MAX - 1)}…` : g.name,
+    time: formatPlaytime(g.playtimeForever ?? 0),
+  }));
+  const nameWidth = Math.max(0, ...rows.map((r) => r.name.length));
+  const timeWidth = Math.max(0, ...rows.map((r) => r.time.length));
+  for (const r of rows) {
+    lines.push(out(`${r.name.padEnd(nameWidth)}  ${r.time.padStart(timeWidth)}`));
+  }
+  return { lines };
+}
+
 export function run(line: string, ctx: CommandContext): CommandResult {
   const { name, args } = parseLine(line);
   const arg = args[0] ?? "";
@@ -291,6 +339,9 @@ export function run(line: string, ctx: CommandContext): CommandResult {
 
     case "np":
       return say(out(describePlayback(null, ctx.nowPlaying) ?? "nothing playing"));
+
+    case "steam":
+      return steam(ctx);
 
     case "whoami":
       return say(out("ismael barajas, software engineer in austin, texas. this is his site."));

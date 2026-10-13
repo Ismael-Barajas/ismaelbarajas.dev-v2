@@ -45,3 +45,4 @@ yarn-error.log*
 .env*.local
 /docs/*
 !/docs/agents/
+.env*

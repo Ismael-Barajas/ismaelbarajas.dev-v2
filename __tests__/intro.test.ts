@@ -11,6 +11,7 @@ import {
   shouldPlayIntro,
   type BootContext,
 } from "lib/intro";
+import type { SteamPresence } from "lib/steam";
 
 const ok = {
   alreadyPlayed: false,
@@ -80,6 +81,42 @@ describe("buildBootScript", () => {
     expect(lines.at(-1)?.status).toBeUndefined();
     expect(loading[0].status).toBe("init");
     expect(loading.find((l) => l.text.includes("three.webgl"))?.status).toBe("three.webgl");
+  });
+
+  describe("steam line", () => {
+    const steamLine = (steam?: SteamPresence) =>
+      buildBootScript({ ...ctx, steam }, "full").find((l) => l.text.startsWith("steam:"));
+    const threeHoursAgo = Math.floor(ctx.now.getTime() / 1000) - 3 * 3600;
+
+    it("says what is being played, or that Ismael is online", () => {
+      const game = { appId: 1, name: "Hades", headerUrl: null, storeUrl: null };
+      expect(steamLine({ state: "playing", game })).toEqual({
+        kind: "sys",
+        text: "steam: playing Hades",
+        status: "steam",
+      });
+      expect(steamLine({ state: "online" })?.text).toBe("steam: online");
+    });
+
+    it("says when he was last seen, if known", () => {
+      expect(steamLine({ state: "offline", lastSeen: threeHoursAgo })?.text).toBe(
+        "steam: offline · last seen 3h ago",
+      );
+      expect(steamLine({ state: "offline" })?.text).toBe("steam: offline");
+    });
+
+    it("is left out when there is nothing to show", () => {
+      expect(steamLine(undefined)).toBeUndefined();
+      expect(steamLine({ state: "unavailable" })).toBeUndefined();
+      expect(steamLine({ state: "disabled" })).toBeUndefined();
+    });
+
+    it("sits before READY and not in the classic boot", () => {
+      const lines = buildBootScript({ ...ctx, steam: { state: "online" } }, "full");
+      expect(lines.findIndex((l) => l.text === "steam: online")).toBeLessThan(lines.length - 1);
+      const classic = buildBootScript({ ...ctx, steam: { state: "online" } }, "classic");
+      expect(classic.some((l) => l.text.startsWith("steam:"))).toBe(false);
+    });
   });
 
   it("reflects a light theme and a reduced tier", () => {

@@ -6,9 +6,11 @@ import { HiOutlineArrowDown } from "react-icons/hi";
 import { Button } from "components/library/Button";
 import ContentIcon from "components/library/ContentIcon";
 import { AnimatedBars } from "components/library/NowPlaying";
+import SteamStatusDot from "components/library/steam/SteamStatusDot";
 import { SortableList } from "components/admin/lazy";
 import { useAdmin, useProfile, useReorderFacts } from "hooks";
 import useNowPlaying from "hooks/useNowPlaying";
+import useSteamPresence from "hooks/useSteamPresence";
 import { ageInYears } from "lib/age";
 import { openDrawer, useAdminView } from "lib/adminStore";
 import { splitAge } from "lib/content/bio";
@@ -43,6 +45,10 @@ const About = ({ initialProfile }: { initialProfile: Profile }) => {
   // Only an actively playing track earns the line; paused and last-played
   // states show nothing here.
   const listening = song?.isPlaying && song.songUrl ? song : null;
+  const { data: steam } = useSteamPresence();
+  // Likewise, only an active game earns a line; online, offline,
+  // unavailable, disabled and loading all show nothing.
+  const playing = steam?.state === "playing" ? steam.game : undefined;
 
   return (
     <div className="container min-h-screen-without-nav flex items-center">
@@ -142,6 +148,27 @@ const About = ({ initialProfile }: { initialProfile: Profile }) => {
                   {listening.title}
                 </a>{" "}
                 by {listening.artist}
+              </span>
+            </div>
+          )}
+
+          {playing && (
+            <div className="flex flex-wrap items-center gap-x-2 text-sm text-gray-600 dark:text-gray-400">
+              <SteamStatusDot status="playing" />
+              <span>
+                Right now I&apos;m playing{" "}
+                {playing.storeUrl ? (
+                  <a
+                    href={playing.storeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="animated-underline font-medium text-text"
+                  >
+                    {playing.name}
+                  </a>
+                ) : (
+                  <span className="font-medium text-text">{playing.name}</span>
+                )}
               </span>
             </div>
           )}

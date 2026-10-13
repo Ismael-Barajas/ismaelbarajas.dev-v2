@@ -9,6 +9,8 @@
  */
 import type { LogKind } from "./navLog";
 import type { PerfTier } from "./perf";
+import type { SteamPresence } from "./steam";
+import { formatLastSeen } from "./steam/format";
 
 export type IntroStage = "idle" | "boot" | "dock";
 
@@ -49,6 +51,7 @@ const STATUS_LABELS = [
   "gsap",
   "perf.tier",
   "now-playing",
+  "steam",
   "cursor.target",
   "swr.cache",
   "clock",
@@ -93,6 +96,8 @@ export interface BootContext {
   /** The terminal's prompt color, as a hex string. */
   accent: string;
   now: Date;
+  /** The latest presence, if the first poll landed in time. */
+  steam?: SteamPresence;
 }
 
 export interface BootLine {
@@ -100,6 +105,22 @@ export interface BootLine {
   text: string;
   /** What the status bar says is loading while this line prints. */
   status?: StatusLabel;
+}
+
+/** `steam: playing Hades`; null when there is nothing to say (unavailable, disabled, no data). */
+function steamBootText(steam: SteamPresence | undefined, now: Date): string | null {
+  switch (steam?.state) {
+    case "playing":
+      return `steam: playing ${steam.game?.name}`;
+    case "online":
+      return "steam: online";
+    case "offline":
+      return steam.lastSeen
+        ? `steam: offline · last seen ${formatLastSeen(steam.lastSeen, now.getTime())}`
+        : "steam: offline";
+    default:
+      return null;
+  }
 }
 
 /**
@@ -129,6 +150,7 @@ export function buildBootScript(ctx: BootContext, mode: "classic" | "full"): Boo
   if (mode === "classic") return [loading, prefs, date, ready];
 
   const sys = (text: string, status: StatusLabel): BootLine => ({ kind: "sys", text, status });
+  const steamText = steamBootText(ctx.steam, ctx.now);
   return [
     loading,
     prefs,
@@ -138,6 +160,7 @@ export function buildBootScript(ctx: BootContext, mode: "classic" | "full"): Boo
     sys("load   gsap + scrolltrigger ........  ok", "gsap"),
     sys(`init   perf tier probe ........  ${ctx.perf}`, "perf.tier"),
     sys(`fetch  now-playing accent ....  ${ctx.accent}`, "now-playing"),
+    ...(steamText ? [sys(steamText, "steam")] : []),
     sys("mount  cursor.target ........  ok", "cursor.target"),
     sys("warm   swr cache ........  ok", "swr.cache"),
     ready,

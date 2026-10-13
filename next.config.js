@@ -19,7 +19,7 @@ const contentSecurityPolicy = [
   // GSAP/motion write inline style attributes; fonts come from two hosts.
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
   "font-src 'self' data: https://fonts.gstatic.com https://cdn.fontshare.com",
-  "img-src 'self' data: blob: https://i.scdn.co https://mosaic.scdn.co https://*.spotifycdn.com https://opengraph.githubassets.com https://*.public.blob.vercel-storage.com",
+  "img-src 'self' data: blob: https://i.scdn.co https://mosaic.scdn.co https://*.spotifycdn.com https://opengraph.githubassets.com https://*.public.blob.vercel-storage.com https://shared.akamai.steamstatic.com https://cdn.akamai.steamstatic.com https://avatars.steamstatic.com https://avatars.akamai.steamstatic.com",
   // Blob client uploads PUT straight to Vercel Blob; Analytics posts vitals.
   "connect-src 'self' https://*.blob.vercel-storage.com https://blob.vercel-storage.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
   "worker-src 'self' blob:",
@@ -45,6 +45,11 @@ module.exports = {
       { protocol: "https", hostname: "*.spotifycdn.com" },
       { protocol: "https", hostname: "opengraph.githubassets.com" },
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      // Steam game header art and profile avatars.
+      { protocol: "https", hostname: "shared.akamai.steamstatic.com" },
+      { protocol: "https", hostname: "cdn.akamai.steamstatic.com" },
+      { protocol: "https", hostname: "avatars.steamstatic.com" },
+      { protocol: "https", hostname: "avatars.akamai.steamstatic.com" },
     ],
   },
   async headers() {

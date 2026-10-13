@@ -4,6 +4,7 @@ export { default as useTheme } from "./useTheme";
 export { default as useScrollProgress } from "./useScrollProgress";
 export { default as useNowPlayingAccent } from "./useNowPlayingAccent";
 export { default as useNowPlaying } from "./useNowPlaying";
+export { default as useSteamPresence } from "./useSteamPresence";
 export { default as usePerformanceTier } from "./usePerformanceTier";
 export {
   default as useNavLog,

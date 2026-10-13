@@ -4,16 +4,19 @@ import { getStage } from "lib/introStore";
 import {
   describeClick,
   describePlayback,
+  describeSteamTransition,
   log,
   startStreaming,
   type PlaybackSample,
 } from "lib/navLog";
 import { PERF_ATTRIBUTE, PERF_LABELS, isPerfTier } from "lib/perf";
+import type { SteamPresence } from "lib/steam";
 import useNowPlaying from "./useNowPlaying";
+import useSteamPresence from "./useSteamPresence";
 
 /**
  * The navigation terminal's ears: route changes, hash jumps, link clicks,
- * theme and effects changes, and what Spotify is playing, each logged into
+ * theme and effects changes, and what Spotify and Steam are playing, each logged into
  * lib/navLog.ts. Everything is observed rather than reported (router events,
  * a capture-phase click listener, a MutationObserver on <html>), so no other
  * component has to know the terminal exists. Mounted once, by NavTerminal.
@@ -36,13 +39,16 @@ const logJump = (hash: string, fromClick: boolean) => {
   log("jump", `JUMPING TO ${hash}`);
 };
 
-/** @param intro whether the boot intro is still running (music lines wait). */
+/** @param intro whether the boot intro is still running (music and Steam lines wait). */
 export default function useNavObservers(intro: boolean) {
   const router = useRouter();
   const { data: nowPlaying } = useNowPlaying();
   const lastSample = useRef<PlaybackSample | null>(null);
   /** A now-playing line that arrived mid-boot, printed once the card lands. */
   const heldMusic = useRef<string | null>(null);
+  const { data: steam } = useSteamPresence();
+  const lastSteam = useRef<SteamPresence | undefined>(undefined);
+  const heldSteam = useRef<string | null>(null);
 
   // Router events, hash jumps and link clicks. The boot lines themselves are
   // logged by lib/introStore.ts, which also owns the intro.
@@ -144,9 +150,23 @@ export default function useNavObservers(intro: boolean) {
     else log("music", line);
   }, [nowPlaying]);
 
+  // Steam's transitions work the same way, with Steam's own held line. An
+  // outage doesn't reset the last sample, so a game that starts or ends while
+  // Steam was unreachable still prints once it's back.
   useEffect(() => {
-    if (intro || !heldMusic.current) return;
-    log("music", heldMusic.current);
+    if (!steam || steam.state === "unavailable" || steam.state === "disabled") return;
+    const line = describeSteamTransition(lastSteam.current, steam);
+    lastSteam.current = steam;
+    if (!line) return;
+    if (getStage() !== "idle") heldSteam.current = line;
+    else log("music", line);
+  }, [steam]);
+
+  useEffect(() => {
+    if (intro) return;
+    if (heldMusic.current) log("music", heldMusic.current);
+    if (heldSteam.current) log("music", heldSteam.current);
     heldMusic.current = null;
+    heldSteam.current = null;
   }, [intro]);
 }

@@ -16,6 +16,7 @@ import {
   type Location,
 } from "lib/commands";
 import { resetContactLinks, setContactLinks } from "lib/contactRegistry";
+import type { SteamGame, SteamLibrary, SteamPresence } from "lib/steam";
 
 const HOME: Location = { pathname: "/", hash: "" };
 const ABOUT: Location = { pathname: "/", hash: "about" };
@@ -166,6 +167,7 @@ describe("listDir", () => {
   it("lists dirs with a slash, then sections", () => {
     expect(listDir(HOME)).toEqual([
       "listen/",
+      "play/",
       "compressions/",
       "about",
       "experience",
@@ -188,7 +190,7 @@ describe("complete", () => {
   it("completes a lone command name", () => {
     expect(complete("he", HOME)).toEqual({ completed: "help ", matches: ["help"] });
     expect(complete("c", HOME)).toEqual({ completed: "c", matches: ["cd", "clear"] });
-    expect(complete("", HOME).matches).toHaveLength(12);
+    expect(complete("", HOME).matches).toHaveLength(13);
     expect(complete("zz", HOME)).toEqual({ matches: [] });
   });
 
@@ -363,6 +365,94 @@ describe("run", () => {
       "nothing playing",
     );
     expect(run("np", ctx()).lines[0].text).toBe("nothing playing");
+  });
+
+  describe("steam", () => {
+    const text = (c: CommandContext) => run("steam", c).lines.map((l) => l.text);
+    const game = (name: string, minutes: number): SteamGame => ({
+      appId: 1,
+      name,
+      headerUrl: null,
+      storeUrl: null,
+      playtimeForever: minutes,
+    });
+    const library: SteamLibrary = {
+      top: [game("Elden Ring", 12_000), game("Hades", 2_400), game("Celeste", 45)],
+      lately: [],
+    };
+    const NOW = new Date(2026, 8, 15, 9, 5, 3);
+    const threeHoursAgo = Math.floor(NOW.getTime() / 1000) - 3 * 3600;
+
+    it("says what the game is while playing", () => {
+      const steamPresence: SteamPresence = {
+        state: "playing",
+        game: game("Hades", 0),
+      };
+      expect(text(ctx({ steamPresence, now: NOW }))).toEqual(["playing Hades"]);
+    });
+
+    it("says online, or offline with when it was last seen", () => {
+      expect(text(ctx({ steamPresence: { state: "online" } }))).toEqual(["online"]);
+      expect(
+        text(ctx({ steamPresence: { state: "offline", lastSeen: threeHoursAgo }, now: NOW })),
+      ).toEqual(["offline · last seen 3h ago"]);
+      expect(text(ctx({ steamPresence: { state: "offline" }, now: NOW }))).toEqual(["offline"]);
+    });
+
+    it("owns up to errors, a missing integration and a first poll still in flight", () => {
+      expect(text(ctx({ steamPresence: { state: "unavailable" } }))).toEqual([
+        "steam unavailable",
+      ]);
+      expect(text(ctx({ steamPresence: { state: "disabled" } }))).toEqual([
+        "steam: not connected",
+      ]);
+      expect(text(ctx())).toEqual(["steam: loading"]);
+    });
+
+    it("lists the top games under the status, names padded and playtimes right-aligned", () => {
+      const lines = text(
+        ctx({ steamPresence: { state: "online" }, steamLibrary: library }),
+      );
+      expect(lines).toEqual([
+        "online",
+        "Elden Ring   200 h",
+        "Hades         40 h",
+        "Celeste     45 min",
+      ]);
+    });
+
+    it("keeps long names to one line", () => {
+      const long = "A".repeat(60);
+      const lines = text(
+        ctx({
+          steamPresence: { state: "online" },
+          steamLibrary: { top: [game(long, 60)], lately: [] },
+        }),
+      );
+      expect(lines[1]).toBe(`${"A".repeat(27)}…  1.0 h`);
+    });
+
+    it("lists the library even while the presence is unavailable, but never when disabled", () => {
+      expect(
+        text(ctx({ steamPresence: { state: "unavailable" }, steamLibrary: library })).length,
+      ).toBe(4);
+      expect(
+        text(ctx({ steamPresence: { state: "disabled" }, steamLibrary: library })),
+      ).toEqual(["steam: not connected"]);
+    });
+
+    it("prints only the status when there are no games or no library yet", () => {
+      const steamPresence: SteamPresence = { state: "online" };
+      expect(text(ctx({ steamPresence }))).toEqual(["online"]);
+      expect(
+        text(ctx({ steamPresence, steamLibrary: { top: [], lately: [] } })),
+      ).toEqual(["online"]);
+    });
+
+    it("is in help and completes", () => {
+      expect(helpLines().some((l) => l.startsWith("steam "))).toBe(true);
+      expect(complete("ste", HOME)).toEqual({ completed: "steam ", matches: ["steam"] });
+    });
   });
 
   it("date prints the local date and time", () => {
