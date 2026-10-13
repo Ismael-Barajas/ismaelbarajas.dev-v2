@@ -31,6 +31,8 @@ const contentSecurityPolicy = [
 
 module.exports = {
   reactStrictMode: true,
+  // Stop `next dev` from appending its agent-rules block to CLAUDE.md/AGENTS.md.
+  agentRules: false,
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
   transpilePackages: ["three", "@react-three/fiber", "@react-three/postprocessing", "its-fine"],
   turbopack: {},
