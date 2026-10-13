@@ -1,4 +1,6 @@
-import "dotenv/config";
+import { config } from "dotenv";
+// Next.js keeps secrets in .env.local; plain dotenv/config only reads .env.
+config({ path: [".env.local", ".env"], quiet: true });
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 import { DEFAULT_CONTACT_LINKS, DEFAULT_PROFILE } from "../lib/content/defaults";
