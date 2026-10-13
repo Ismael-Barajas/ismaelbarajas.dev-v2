@@ -3,10 +3,9 @@ import { prisma } from "lib/prisma";
 import { requireAdmin } from "lib/session";
 import { csrfCheck, validateReorderInput } from "lib/security";
 import { revalidatePaths } from "lib/revalidate";
+import { lockOrder, type OrderedModel } from "lib/orderedRows";
 
-export type ReorderModel = "project" | "experience" | "contactLink";
-
-/** The slice of a Prisma delegate the reorder needs; every model above has it. */
+/** The slice of a Prisma delegate the reorder needs; every OrderedModel has it. */
 interface OrderedDelegate {
   findMany(args: { select: { id: true } }): Promise<{ id: number }[]>;
   update(args: {
@@ -22,7 +21,7 @@ interface OrderedDelegate {
  * whole reorder is refused with 409 so the client can reload.
  */
 export function createReorderHandler(
-  model: ReorderModel,
+  model: OrderedModel,
   opts: { revalidate?: string[] } = {},
 ) {
   return async function reorder(req: NextApiRequest, res: NextApiResponse) {
@@ -41,6 +40,8 @@ export function createReorderHandler(
 
     const applied = await prisma.$transaction(
       async (tx) => {
+        // Same lock as createAtEnd, so an add can't land mid-reorder.
+        await lockOrder(tx, model);
         const table = tx[model] as unknown as OrderedDelegate;
         const rows = await table.findMany({ select: { id: true } });
         const wanted = new Set(ids);

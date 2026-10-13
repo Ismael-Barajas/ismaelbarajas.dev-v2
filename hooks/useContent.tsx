@@ -68,7 +68,7 @@ export function useProfile(initial: Profile): {
 /**
  * The Contact section's links. Same idea as useProfile; an admin whose table
  * is still empty sees `initial` (the defaults) with `isDefault` set, so the
- * section can show them read-only with a notice.
+ * section can give them stand-in ids and save them on the first change.
  */
 export function useContactLinks(initial: ContactLinkItem[]): {
   links: ContactLinkItem[];

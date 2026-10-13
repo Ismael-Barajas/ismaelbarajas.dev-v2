@@ -130,6 +130,13 @@ npm run favicon -- <image>  # Regenerate favicon.ico, favicon-32.png, apple-touc
 ├── lib/
 │   ├── content/           # Content defaults, icon allowlists, bio {age} helper, server loader
 │   ├── adminStore.ts      # Admin view and drawer state
+│   ├── cursorStore.ts / toastStore.ts  # Custom-cursor switch-off and admin toasts
+│   ├── adminApi.ts        # Admin fetch client and SWR keys
+│   ├── orderedRows.ts     # Locked append-to-end, shared order lock, saving the built-in contact links
+│   ├── reorderRoute.ts    # Shared handler for the drag-and-drop reorder routes
+│   ├── revalidate.ts      # On-demand ISR revalidation after About/Contact writes
+│   ├── contactRegistry.ts # Contact links the terminal `open` command reads
+│   ├── types/             # Shared content types
 │   ├── spotify.ts         # Spotify Web API client with token caching
 │   ├── site.ts            # Site map (sections, pages, listen tabs, contact links) shared by nav and terminal
 │   ├── commands.ts        # Pure terminal command interpreter and tab completion
@@ -146,7 +153,7 @@ npm run favicon -- <image>  # Regenerate favicon.ico, favicon-32.png, apple-touc
 ├── __tests__/             # Vitest test suites
 ├── prisma/
 │   ├── schema.prisma      # Database schema (Experience, Project, Profile, ContactLink models)
-│   └── seed.ts            # Seed script (non-destructive; --reset wipes experiences and projects)
+│   └── seed.ts            # Seed script (non-destructive; --reset wipes and reseeds every table)
 ├── prisma.config.ts       # Prisma config (schema path, DATABASE_URL from dotenv)
 ├── .github/workflows/     # Claude Code @claude-mention action
 └── public/                # Static assets, favicons, OG images
@@ -159,7 +166,7 @@ Editing happens inline on the homepage. Sign in at `/login`, a hidden page with 
 In the admin view, Experience, Projects, About me, and Contact links can be added, edited, and deleted in place. Edit and Add open a side drawer; the page updates behind it after a save.
 
 - **About:** bio paragraphs (write `{age}` to show your live age), fact chips (a label plus an icon from a fixed set), and the portrait photo, uploaded to Vercel Blob.
-- **Contact links:** a label, an `https://` or `mailto:` URL, and an icon from a fixed set.
+- **Contact links:** a label, an `https://` or `mailto:` URL, and an icon from a fixed set. Until a link is saved, the section shows the built-in links; your first add, edit, delete or reorder saves them as real links. Deleting every saved link brings the built-in links back, so the section is never empty.
 - **Reordering:** drag and drop for experiences, projects, contact links, and fact chips. Use the grip handle on a card, or drag a chip directly. Keyboard (Space, then the arrow keys, then Space) and touch work too. Changes save immediately and roll back if the save fails.
 
 Content is stored in PostgreSQL. A `Profile` singleton (row id 1) holds the bio, photo, and facts, and `ContactLink` rows hold the links. The homepage is statically generated with ISR and revalidates every 300s; About and Contact edits trigger on-demand revalidation of `/`. Experience and Projects load client-side from the CDN-cached public APIs, so visitors may see those edits up to about 90s later. The signed-in owner always sees fresh data. If the database is empty or unreachable, About and Contact fall back to the built-in content in `lib/content/defaults.ts`.
@@ -177,7 +184,7 @@ Plaintext `ADMIN_PASSWORD` still works as a fallback (compared in constant time)
 - **CSRF protection:** Origin/referer validation on all state-changing admin endpoints. `localhost` is only accepted outside production; set `NEXT_PUBLIC_SITE_URL` to the deployed origin.
 - **Rate limiting:** Login is limited to 5 attempts per IP per 15 minutes, backed by Upstash Redis when `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are set (add the Upstash integration from the Vercel Marketplace). Without them it falls back to a per-instance memory store, which does not hold across serverless isolates. If Upstash errors, requests are allowed through rather than locking out the admin.
 - **Password storage:** bcrypt hash in `ADMIN_PASSWORD_HASH`; see Admin View above.
-- **Admin API access:** All `/api/admin/*` routes require the admin session. Visitors' browsers never call the admin session endpoint; a localStorage hint set at login gates that call. The hint is not a credential, so the server enforces everything. Reorder requests run in a transaction and return 409 if the list changed elsewhere in the meantime.
+- **Admin API access:** All `/api/admin/*` routes require the admin session. Visitors' browsers never call the admin session endpoint; a localStorage hint set at login gates that call. The hint is not a credential, so the server enforces everything. Reorder requests run in a transaction and return 409 if the list changed elsewhere in the meantime. Adds and reorders on the same list take a Postgres advisory lock, so two adds at once can't land on the same position.
 - **Input validation:** Server-side validation on all admin POST/PUT routes (type checks, URL format, string length limits, icon allowlists). Contact URLs must be `https:` or `mailto:`, the photo must be a Vercel Blob https URL, and route ids must be all digits.
 - **Session cookies:** `httpOnly`, `secure` (production), `sameSite: lax`, 1-day seal TTL
 - **Security headers:** HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and a Content-Security-Policy in report-only mode (check the browser console for violations before switching it to enforcing in `next.config.js`). The CSP allows the inline bootstrap script in `pages/_document.tsx` by sha256 hash; update `THEME_SCRIPT_HASH` in `next.config.js` whenever that script changes.
@@ -187,7 +194,7 @@ Plaintext `ADMIN_PASSWORD` still works as a fallback (compared in constant time)
 
 ## Testing
 
-Tests use [Vitest](https://vitest.dev/) and cover security utilities, rate limiting, API routes, authentication, input validation, uploads, Spotify integration and now-playing caching, the terminal command interpreter, the navigation log, the boot intro, the typing queue, and performance tier classification.
+Tests use [Vitest](https://vitest.dev/) and cover security utilities, rate limiting, API routes, authentication, input validation, uploads, Spotify integration and now-playing caching, the terminal command interpreter, the navigation log, the boot intro, the typing queue, performance tier classification, the content defaults and `{age}` bio helper, the contact-link registry, and drag-and-drop reordering.
 
 ```bash
 npm test           # Run all tests once

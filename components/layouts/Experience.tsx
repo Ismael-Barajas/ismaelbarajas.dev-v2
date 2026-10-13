@@ -98,7 +98,7 @@ const Experience = () => {
         ) : (
           <ol className={TIMELINE}>
             {items?.map((job, index) => (
-              <AnimatedContent key={job.id ?? index} immediate={isAdmin}>
+              <AnimatedContent key={job.id ?? index} immediate={isAdmin && adminView}>
                 <ExperienceCard
                   img={job.img}
                   body={job.body}

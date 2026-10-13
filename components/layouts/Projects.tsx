@@ -81,7 +81,7 @@ const Projects = () => {
       ) : (
         <div className={GRID}>
           {items?.map((project, index) => (
-            <AnimatedContent key={project.id ?? index} immediate={isAdmin}>
+            <AnimatedContent key={project.id ?? index} immediate={isAdmin && adminView}>
               <ProjectsCard
                 body={project.body}
                 github_url={project.githubUrl}

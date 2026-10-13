@@ -10,6 +10,7 @@ const prismaMock = vi.hoisted(() => {
     delete: vi.fn().mockResolvedValue({}),
     createMany: vi.fn().mockResolvedValue({ count: 0 }),
     aggregate: vi.fn().mockResolvedValue({ _max: { order: null } }),
+    count: vi.fn().mockResolvedValue(0),
   });
   const mock: Record<string, any> = {
     project: crud(),
@@ -24,6 +25,8 @@ const prismaMock = vi.hoisted(() => {
   };
   // Interactive transactions run the callback against the same mock.
   mock.$transaction = vi.fn((fn: (tx: unknown) => unknown) => fn(mock));
+  // lockOrder's advisory lock.
+  mock.$executeRaw = vi.fn().mockResolvedValue(1);
   return mock;
 });
 
@@ -816,7 +819,12 @@ describe("/api/admin/contact-links", () => {
 
   it("POST on an empty table saves the built-in links first", async () => {
     prismaMock.contactLink.createMany.mockClear();
+    prismaMock.$executeRaw.mockClear();
     const { DEFAULT_CONTACT_LINKS } = await import("lib/content/defaults");
+    // After the built-in links are saved, the max order is the last of them.
+    prismaMock.contactLink.aggregate.mockResolvedValueOnce({
+      _max: { order: DEFAULT_CONTACT_LINKS.length - 1 },
+    });
     const { default: handler } = await import(
       "../pages/api/admin/contact-links/index"
     );
@@ -838,10 +846,13 @@ describe("/api/admin/contact-links", () => {
     expect(prismaMock.contactLink.create).toHaveBeenCalledWith({
       data: { ...VALID_LINK, order: DEFAULT_CONTACT_LINKS.length },
     });
+    expect(prismaMock.$executeRaw).toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
   it("POST appends at the end and revalidates", async () => {
+    prismaMock.contactLink.createMany.mockClear();
+    prismaMock.contactLink.count.mockResolvedValueOnce(4);
     prismaMock.contactLink.aggregate.mockResolvedValueOnce({ _max: { order: 3 } });
     const { default: handler } = await import(
       "../pages/api/admin/contact-links/index"
@@ -853,11 +864,59 @@ describe("/api/admin/contact-links", () => {
       res
     );
 
+    expect(prismaMock.contactLink.createMany).not.toHaveBeenCalled();
     expect(prismaMock.contactLink.create).toHaveBeenCalledWith({
       data: { ...VALID_LINK, order: 4 },
     });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.revalidate).toHaveBeenCalledWith("/");
+  });
+
+  it("POST built-in saves the built-in links on an empty table and lists them", async () => {
+    prismaMock.contactLink.createMany.mockClear();
+    const saved = [{ id: 9, label: "GitHub", url: "https://github.com/x", icon: "github", order: 0 }];
+    prismaMock.contactLink.findMany.mockResolvedValueOnce(saved);
+    const { DEFAULT_CONTACT_LINKS } = await import("lib/content/defaults");
+    const { default: handler } = await import(
+      "../pages/api/admin/contact-links/built-in"
+    );
+    const res = mockRes();
+
+    await handler(mockReq({ method: "POST", headers: ORIGIN_HEADERS }), res);
+
+    expect(prismaMock.contactLink.createMany).toHaveBeenCalledTimes(1);
+    expect(prismaMock.contactLink.createMany.mock.calls[0][0].data).toHaveLength(
+      DEFAULT_CONTACT_LINKS.length
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ items: saved });
+  });
+
+  it("POST built-in leaves saved links alone", async () => {
+    prismaMock.contactLink.createMany.mockClear();
+    prismaMock.contactLink.count.mockResolvedValueOnce(2);
+    const { default: handler } = await import(
+      "../pages/api/admin/contact-links/built-in"
+    );
+    const res = mockRes();
+
+    await handler(mockReq({ method: "POST", headers: ORIGIN_HEADERS }), res);
+
+    expect(prismaMock.contactLink.createMany).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("POST built-in rejects CSRF and other methods", async () => {
+    const { default: handler } = await import(
+      "../pages/api/admin/contact-links/built-in"
+    );
+    const evil = mockRes();
+    await handler(mockReq({ method: "POST", headers: EVIL_HEADERS }), evil);
+    expect(evil.status).toHaveBeenCalledWith(403);
+
+    const get = mockRes();
+    await handler(mockReq({ method: "GET" }), get);
+    expect(get.status).toHaveBeenCalledWith(405);
   });
 
   it("PUT updates and revalidates", async () => {

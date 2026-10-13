@@ -6,8 +6,8 @@ import { DEFAULT_CONTACT_LINKS, DEFAULT_PROFILE } from "../lib/content/defaults"
 /**
  * Seeds the portfolio content. By default it only fills empty tables and
  * never overwrites anything edited through the admin view. Pass `--reset`
- * (`npm run seed -- --reset`) to wipe experiences and projects and recreate
- * them from the data below.
+ * (`npm run seed -- --reset`) to wipe every table (experiences, projects,
+ * the About profile and contact links) and recreate it from the data below.
  */
 const RESET = process.argv.includes("--reset");
 
@@ -209,6 +209,7 @@ async function seedProjects() {
 
 /** Creates the About row from the defaults; `update: {}` keeps any edits. */
 async function seedProfile() {
+  if (RESET) await prisma.profile.deleteMany();
   await prisma.profile.upsert({
     where: { id: 1 },
     create: {
@@ -223,7 +224,9 @@ async function seedProfile() {
 }
 
 async function seedContactLinks() {
-  if ((await prisma.contactLink.count()) > 0) {
+  if (RESET) {
+    await prisma.contactLink.deleteMany();
+  } else if ((await prisma.contactLink.count()) > 0) {
     console.log("Contact links already present; skipping.");
     return;
   }

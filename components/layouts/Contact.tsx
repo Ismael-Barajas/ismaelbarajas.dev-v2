@@ -7,6 +7,7 @@ import {
   SortableList,
 } from "components/admin/lazy";
 import deleteItem from "components/admin/deleteItem";
+import { toSavedLinks, withBuiltInIds } from "components/admin/builtInLinks";
 import { useContactLinks, useReorder } from "hooks";
 import { ADMIN_KEYS } from "lib/adminApi";
 import { openDrawer, useAdminView } from "lib/adminStore";
@@ -39,11 +40,28 @@ const Contact = ({ initialLinks }: { initialLinks: ContactLinkItem[] }) => {
     ADMIN_KEYS.contactLinks,
   );
   const editing = isAdmin && adminView;
-  // Editable only once real rows (with ids) are loaded.
-  const editable =
-    editing && !isDefault && links.every((link) => typeof link.id === "number")
-      ? (links as WithId<ContactLinkItem>[])
-      : null;
+  // Saved rows have ids; the built-in links get stand-ins until the first
+  // edit, delete or reorder saves them (toSavedLinks). Null while loading.
+  let editable: WithId<ContactLinkItem>[] | null = null;
+  if (editing && isDefault) editable = withBuiltInIds(links);
+  else if (editing && links.every((link) => typeof link.id === "number")) {
+    editable = links as WithId<ContactLinkItem>[];
+  }
+
+  const edit = async (link: WithId<ContactLinkItem>) => {
+    const [row] = (await toSavedLinks([link])) ?? [];
+    if (row) openDrawer({ kind: "contact", mode: "edit", id: row.id });
+  };
+  const remove = async (link: WithId<ContactLinkItem>) => {
+    const [row] = (await toSavedLinks([link])) ?? [];
+    if (row) {
+      await deleteItem(ADMIN_KEYS.contactLinks, row.id, ADMIN_KEYS.contactLinks);
+    }
+  };
+  const onReorder = async (next: WithId<ContactLinkItem>[]) => {
+    const rows = await toSavedLinks(next);
+    if (rows) await reorder(rows);
+  };
 
   return (
     <div className="relative min-h-screen-without-nav">
@@ -74,52 +92,32 @@ const Contact = ({ initialLinks }: { initialLinks: ContactLinkItem[] }) => {
                   strategy="grid"
                   className="flex flex-wrap justify-center gap-4 lg:gap-6"
                   getLabel={(link) => link.label}
-                  onReorder={reorder}
+                  onReorder={onReorder}
                   renderItem={(link, handle) => (
                     <div className="flex flex-col items-center gap-2">
                       <IconButton
                         size="lg"
                         aria-label={`Edit ${link.label}`}
-                        onClick={() =>
-                          openDrawer({
-                            kind: "contact",
-                            mode: "edit",
-                            id: link.id,
-                          })
-                        }
+                        onClick={() => edit(link)}
                       >
                         <ContentIcon icon={link.icon} className="h-7 w-7" />
                       </IconButton>
                       <AdminItemToolbar
                         handle={handle}
                         label={link.label}
-                        onEdit={() =>
-                          openDrawer({
-                            kind: "contact",
-                            mode: "edit",
-                            id: link.id,
-                          })
-                        }
-                        onDelete={() =>
-                          deleteItem(
-                            ADMIN_KEYS.contactLinks,
-                            link.id,
-                            ADMIN_KEYS.contactLinks,
-                          )
-                        }
+                        onEdit={() => edit(link)}
+                        onDelete={() => remove(link)}
                       />
                     </div>
                   )}
                 />
               ) : (
-                <>
-                  <ContactRow links={links} />
-                  {isDefault && (
-                    <p className="text-center text-xs text-gray-600 dark:text-gray-400">
-                      Showing built-in links. Adding a link saves these too, so you can edit them.
-                    </p>
-                  )}
-                </>
+                <ContactRow links={links} />
+              )}
+              {isDefault && (
+                <p className="text-center text-xs text-gray-600 dark:text-gray-400">
+                  Showing the built-in links. Your first change saves them.
+                </p>
               )}
               <AddButton
                 label="Add link"

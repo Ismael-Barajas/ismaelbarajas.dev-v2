@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "lib/prisma";
 import { requireAdmin } from "lib/session";
+import { createAtEnd } from "lib/orderedRows";
 import { csrfCheck, validateExperienceInput } from "lib/security";
 
 export default async function handler(
@@ -25,17 +26,9 @@ export default async function handler(
     }
 
     // New rows go to the end unless the caller placed them.
-    let { order } = result.data;
-    if (order === undefined) {
-      const { _max } = await prisma.experience.aggregate({
-        _max: { order: true },
-      });
-      order = (_max.order ?? -1) + 1;
-    }
-
-    const item = await prisma.experience.create({
-      data: { ...result.data, order },
-    });
+    const item = await createAtEnd("experience", result.data.order, (tx, order) =>
+      tx.experience.create({ data: { ...result.data, order } }),
+    );
     return res.status(201).json({ item });
   }
 
