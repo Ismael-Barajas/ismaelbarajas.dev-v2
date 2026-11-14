@@ -3,31 +3,39 @@ interface Props {
   className?: string;
 }
 
+const FOOT = "M240 360 L140 180 Q192 208 240 136 Q288 208 340 180 Z";
+
 /**
- * The Compressions app icon as of 1.2.0: a chevron bearing down on a slab,
- * pressing it thinner. Same drawing as the repo's icon.svg.
+ * The Compressions app icon as of 1.4.0: two duck feet in the app's gold on
+ * its dark background. Same drawing as the repo's icon.svg.
  */
 const AppMark = ({ size = 48, className = "" }: Props) => (
   <svg
     width={size}
     height={size}
-    viewBox="0 0 100 100"
+    viewBox="0 0 480 480"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
     role="img"
     aria-label="Compressions app icon"
   >
-    <rect width="100" height="100" rx="22" fill="#0e0e10" />
-    <polyline
-      points="20,22 50,50 80,22"
-      fill="none"
+    <rect width="480" height="480" rx="106" fill="#0e0e10" />
+    <g
+      transform="translate(240 240) scale(1.3) translate(-240 -240)"
+      fill="#d4a053"
       stroke="#d4a053"
-      strokeWidth="13"
-      strokeLinejoin="miter"
-      strokeLinecap="butt"
-    />
-    <rect x="20" y="66" width="60" height="9" fill="#d4a053" />
-    <rect x="30" y="80" width="40" height="6" fill="#d4a053" />
+      strokeWidth="26"
+      strokeLinejoin="round"
+    >
+      <path
+        transform="matrix(0.533663 -0.133057 0.133057 0.533663 -1.07719 209.585)"
+        d={FOOT}
+      />
+      <path
+        transform="matrix(0.533663 0.133057 -0.133057 0.533663 224.919 5.71797)"
+        d={FOOT}
+      />
+    </g>
   </svg>
 );
 

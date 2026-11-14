@@ -4,7 +4,7 @@ const PILLARS = [
   {
     n: "01",
     title: "Runs offline",
-    body: "Files stay on your machine. There are no accounts, no uploads, and no telemetry. The app makes no network calls except to check for its own updates.",
+    body: "Files stay on your machine, so there is no upload and no file size limit. The app has no accounts or telemetry, and its only network call is the check for its own updates.",
     icon: FiShieldOff,
   },
   {
@@ -16,13 +16,13 @@ const PILLARS = [
   {
     n: "03",
     title: "Parallel where it helps",
-    body: "Images run up to eight at a time. Audio and PDF batches run several files at once. Video and GIF run one at a time because those encoders already use every core.",
+    body: "Images run one per CPU core, or eight at a time when AVIF or HEIC is involved. Audio runs up to 16 files at once and PDFs up to 12, depending on your core count. Video and GIF run one at a time on the CPU, and two videos run at once on an NVIDIA GPU.",
     icon: FiCpu,
   },
   {
     n: "04",
     title: "GPU encoding, checked first",
-    body: "NVIDIA NVENC on Windows and Linux, Apple VideoToolbox on macOS. Each encoder is verified with a test encode at startup. If it fails, the app uses software encoding for the rest of the session.",
+    body: "NVIDIA NVENC on Windows and Linux, Apple VideoToolbox on macOS. Each encoder is verified with a test encode at startup, and one that fails is not used. If a GPU encode fails later, that file is retried on the CPU.",
     icon: FiZap,
   },
 ];
@@ -41,7 +41,7 @@ const Pillars = () => {
             maxWidth: "24ch",
           }}
         >
-          Local encoders, one batch, no size limits.
+          Local encoders and one queue.
         </h2>
 
         <div

@@ -17,7 +17,7 @@ const Compressions: NextPage<Props> = ({ release, generatedAt }) => {
     <>
       <Metatags
         title="Compressions: local batch compression for video, images, audio, and PDFs"
-        description="Cross-platform desktop app. Compress mixed media in batches, fully offline, with hardware-accelerated codecs. Free and open source."
+        description="A desktop app for Windows, macOS, and Linux that compresses video, images, audio, and PDFs in batches on your own machine. Free and open source."
         image="/compressions/og.png"
       />
       <CompressionsPage release={release} generatedAt={generatedAt} />
