@@ -7,7 +7,7 @@ const STEPS = [
   {
     n: "02",
     title: "Pick a preset or set it yourself",
-    body: "Video: Web Optimized, High Quality, Small File Size, Social Media. Image: the same plus Thumbnail. Change any setting and it becomes Custom.",
+    body: "Video and image each have Web Optimized, High Quality, and Small File Size. Video adds Social Media, and image adds Thumbnail. Change any setting and it becomes Custom.",
   },
   {
     n: "03",
@@ -102,9 +102,15 @@ const Workflow = () => {
             Tools tab does the same for every queued video.
           </div>
           <div>
+            Switch the file list to Pipeline view to watch the batch as a
+            diagram: the queue, a lane for each media type, the size check, and
+            the output. You can drag the boxes, and pan and zoom the canvas.
+          </div>
+          <div>
             Shortcuts: Space starts, Escape cancels processing files, Ctrl or
-            Cmd+V pastes. If a compressed file would be larger than the
-            original, the original is kept.
+            Cmd+V pastes. If compressing a file in its own format would make it
+            larger, the original is kept. A file converted to another format is
+            always kept.
           </div>
         </div>
       </div>

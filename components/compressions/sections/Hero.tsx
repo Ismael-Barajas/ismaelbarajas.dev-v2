@@ -86,11 +86,11 @@ const Hero = ({ release, generatedAt }: Props) => {
                 marginBottom: "1.25rem",
               }}
             >
-              Compress<span style={{ color: "var(--c-accent)" }}>.</span>
+              Compress
               <br />
-              Locally<span style={{ color: "var(--c-accent)" }}>.</span>
+              in bulk,
               <br />
-              In bulk<span style={{ color: "var(--c-accent)" }}>.</span>
+              locally<span style={{ color: "var(--c-accent)" }}>.</span>
             </h1>
 
             <p
@@ -102,9 +102,9 @@ const Hero = ({ release, generatedAt }: Props) => {
                 margin: "0 0 2rem",
               }}
             >
-              A desktop app that compresses video, images, audio, and PDFs in
-              one queue. Everything runs on your machine. Video encodes use your
-              GPU when one is available.
+              A desktop app with one queue for video, images, audio, and PDFs.
+              Your files are never uploaded. Video encodes on the GPU through
+              NVIDIA NVENC or Apple VideoToolbox, and on the CPU otherwise.
             </p>
 
             <div
@@ -154,7 +154,7 @@ const Hero = ({ release, generatedAt }: Props) => {
                   gap: "0.4rem",
                 }}
               >
-                <FiShieldOff aria-hidden /> No network calls
+                <FiShieldOff aria-hidden /> No uploads
               </span>
               <span
                 style={{

@@ -208,8 +208,9 @@ const Download = ({ release, generatedAt }: Props) => {
             lineHeight: 1.55,
           }}
         >
-          Free and MIT licensed. Installers are published on GitHub Releases,
-          and the app updates itself after that.
+          Free and MIT licensed. Installers are published on GitHub Releases.
+          After that the app checks for updates at startup and installs one when
+          you accept it.
         </p>
 
         <div
